@@ -1,0 +1,29 @@
+- name: begin installing FreeTAKServer suite
+  hosts: localhost
+  tasks:
+    - name: Install FreeTAKServer python package
+      pip:
+        name: FreeTAKServer
+
+    - name: Install FreeTAKServer UI python package
+      pip:
+        name: FreeTAKServer-UI
+    
+    - name: query git API for latest release of webmap
+      uri:                                                               
+        url: https://api.github.com/repos/FreeTAKTeam/FreeTAKHub/releases/latest
+        return_content: true                                             
+      register: json_reponse                                             
+
+    - name: download latest release and save to /tmp/webmap.sh
+      get_url:                                                           
+        url: "{{ json_reponse.json.assets[0].browser_download_url }}"                       
+        dest: /tmp/webmap.zip
+    
+    - name: Extract foo.tgz into /var/lib/foo
+      ansible.builtin.unarchive:
+        src: /tmp/webmap.zip
+        dest: /tmp/
+    
+    - name: Changing perm of "/tmp/webmap.sh", adding "+x", making it executable
+      file: dest=/tmp/FTH-webmap-linux-0.2.5 mode=a+x
