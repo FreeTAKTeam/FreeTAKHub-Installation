@@ -1,6 +1,11 @@
 - name: begin installing FreeTAKServer suite
   hosts: localhost
   tasks:
+    - name: Removing previous FTS and Ui installation 
+    pip:
+      name: FreeTAKServer,FreeTAKServer-UI
+      state: absent
+      
     - name: Install FreeTAKServer python package
       pip:
         name: FreeTAKServer
