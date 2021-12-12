@@ -1,0 +1,26 @@
+- name: Remove previeous installations
+  pip:
+    name: FreeTAKServer
+    state: absent
+  tags: FTS
+
+- name: Install apt dependancies
+  apt:
+    pkg:
+      - python3-dev
+      - python3-setuptools
+      - build-essential
+      - python3-gevent
+      - python3-lxml
+      - libcairo2-dev
+  tags: FTS
+
+- name: Install pip pre install dependancies
+  pip:
+    name: pycairo
+  tags: FTS
+
+- name: Install FreeTAKServer python package
+  pip:
+    name: FreeTAKServer
+  tags: FTS

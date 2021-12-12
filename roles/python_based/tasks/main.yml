@@ -1,0 +1,9 @@
+- name: Install python
+    ansible.builtin.shell:
+      cmd: sudo apt update && sudo apt install python3 && sudo apt install python3-pip
+  tags: python
+
+- name: Install pip
+    ansible.builtin.shell:
+      cmd: sudo apt install python3-pip
+  tags: python

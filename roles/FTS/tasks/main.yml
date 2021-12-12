@@ -1,0 +1,6 @@
+
+- name: Install FTS on machine
+  import_tasks: installation.yml
+
+- name: Configure FTS on machine
+  import_tasks: configuration.yml

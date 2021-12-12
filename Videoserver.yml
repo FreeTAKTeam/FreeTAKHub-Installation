@@ -1,0 +1,4 @@
+- hosts: videoservers
+- roles:
+    - common
+    - webtier
