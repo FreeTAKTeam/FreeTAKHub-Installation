@@ -1,9 +1,8 @@
 - name: Edit config so ip is correct
-  ansible.builtin.lineinfile:
-    path: /usr/local/lib/python3.8/dist-packages/FreeTAKServer-UI/config.py
+  replace:
+    path: '{{ fts_ui_installation_path }}/config.py'
     regexp: '127.0.0.1'
-    line: "'{{ hostvars['mainNode'].ansible_host }}'"
-    backrefs: yes
+    replace: "{{ hostvars['mainNode'].ansible_host }}"
 
 - name: create unit file for FTS
   template: src='fts-ui.service.j2' dest='/lib/systemd/system/fts-ui.service' mode=644
