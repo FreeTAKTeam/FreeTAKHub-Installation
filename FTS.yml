@@ -1,3 +1,5 @@
 - hosts: freetakservers
   roles:
+    - common
     - FTS
+    - FTS-UI

@@ -1,6 +1,6 @@
 - name: Edit MainConfig so FirstStart is false
   ansible.builtin.lineinfile:
-    path: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/controllers/configuration/MainConfig.py
+    path: '{{ fts_installation_path }}/controllers/configuration/MainConfig.py'
     regexp: 'first_start = True'
     line: '    first_start = False'
     backrefs: yes
@@ -52,3 +52,8 @@
     path: /opt/FTSConfig.yml
     regexp: '0.0.0.0'
     replace: "'{{ hostvars['mainNode'].ansible_host }}'"
+
+- name: create unit file for FTS
+  template: src=fts.service.j2 dest=/lib/systemd/system/fts.service mode=644
+  notify:
+    - reload systemctl

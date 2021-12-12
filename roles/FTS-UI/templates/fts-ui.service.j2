@@ -1,0 +1,13 @@
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Description=FreeTAKServer-UI service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/"{{ fts_ui_python_version }}" "{{ fts_ui_installation_path }}"/run.py

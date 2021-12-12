@@ -1,0 +1,18 @@
+- name: Install apt dependancies
+  apt:
+    pkg:
+      - python3.8
+  tags: FTS-UI
+
+- name: Remove previeous FTS UI installations
+  pip:
+    name: FreeTAKServer-UI
+    state: absent
+    executable: pip3
+  tags: FTS-UI
+
+- name: Install FTS UI python package
+  pip:
+    name: FreeTAKServer-UI
+    executable: pip3
+  tags: FTS-UI
