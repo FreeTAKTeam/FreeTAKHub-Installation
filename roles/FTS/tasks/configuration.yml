@@ -9,11 +9,20 @@
   copy:
     dest: /opt/FTSConfig.yml
     content: |
+      System:
+        #FTS_DATABASE_TYPE: SQLite
+        {% if FTS_CONNECTION_MESSAGE %}
+      FTS_CONNECTION_MESSAGE: {{ FTS_CONNECTION_MESSAGE }}
+      {% else %}
+      #FTS_CONNECTION_MESSAGE: Please re comment the connection message or specify one
+      {% endif %}
+        #FTS_OPTIMIZE_API: True
+        #FTS_MAINLOOP_DELAY: 1
       Addresses:
         #FTS_COT_PORT: 8087
         #FTS_SSLCOT_PORT: 8089
-        FTS_DP_ADDRESS: 0.0.0.0
-        FTS_USER_ADDRESS: 0.0.0.0
+        FTS_DP_ADDRESS: {{ hostvars.mainNode.ansible_host }}
+        FTS_DP_ADDRESS: {{ hostvars.mainNode.ansible_host }}
         #FTS_API_PORT: 19023
         #FTS_FED_PORT: 9000
         #FTS_API_ADDRESS: 0.0.0.0

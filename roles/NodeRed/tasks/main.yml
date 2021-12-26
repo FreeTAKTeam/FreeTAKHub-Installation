@@ -1,0 +1,28 @@
+- name: install nodered dependancies
+  apt:
+    name: nodejs
+    update_cache: yes
+    state: present
+
+- name: install nodered with npm
+  npm:
+    name: node-red
+    global: yes
+    unsafe_perm: yes
+
+- name: create unit file for NodeRed
+  template: src=nodered.service.j2 dest=/lib/systemd/system/nodered.service mode=644
+  notify:
+    - reload systemctl
+
+- name: Enable service nodered, and not touch the state
+  ansible.builtin.service:
+    name: nodered
+    enabled: yes
+  become: true
+
+- name: Start service nodered, if not started
+  ansible.builtin.service:
+    name: nodered
+    state: started
+  become: true

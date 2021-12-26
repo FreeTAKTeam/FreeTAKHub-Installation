@@ -1,5 +1,26 @@
 - hosts: freetakservers
+  vars_prompt:
+
+    - name: FTS_CONNECTION_MESSAGE
+      prompt: please enter your desired connection message or leave empty for default
+      private: no
+
   roles:
     - common
     - FTS
     - FTS-UI
+
+- hosts: webmapservers
+  roles:
+    - common
+    - webmap
+
+- hosts: videoservers
+  roles:
+    - common
+    - videoserver
+
+- hosts: noderedservers
+  roles:
+    - common
+    - videoserver

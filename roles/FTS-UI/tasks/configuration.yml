@@ -4,6 +4,12 @@
     regexp: '127.0.0.1'
     replace: "{{ hostvars['mainNode'].ansible_host }}"
 
+- name: Edit config so ip is correct
+  replace:
+    path: '{{ fts_ui_installation_path }}/config.py'
+    regexp: 'WEBMAPIP = "127.0.0.1"'
+    replace: "{{ hostvars['webmapNode'].ansible_host }}"
+
 - name: create unit file for FTS
   template: src='fts-ui.service.j2' dest='/lib/systemd/system/fts-ui.service' mode=644
   notify:

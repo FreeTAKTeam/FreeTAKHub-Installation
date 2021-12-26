@@ -11,7 +11,7 @@
       - python3-pip
   tags: FTS
 
-- name: Remove previeous FTS installations
+- name: Remove previous FTS installations
   pip:
     name: FreeTAKServer
     state: absent

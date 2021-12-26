@@ -1,10 +1,10 @@
-- name: download video server from git
-  get_url:
-    url: https://github.com/aler9/rtsp-simple-server/releases/download/v0.17.9/rtsp-simple-server_v0.17.9_linux_amd64.tar.gz
-    dest: /tmp/video_server.tar.gz
+- name: Include videoserver variables
+  include_vars:
+    file: main.yml
+    name: vars
 
-- name: Unarchive video server
-  ansible.builtin.unarchive:
-    src: /tmp/video_server.tar.gz
-    dest: /opt
-    remote_src: yes
+- name: Install rtsp-simple-server on machine
+  import_tasks: installation.yml
+
+- name: Configure rtsp-simple-server on machine
+  import_tasks: configuration.yml

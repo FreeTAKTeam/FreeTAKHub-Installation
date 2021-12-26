@@ -1,0 +1,33 @@
+- name: download dependancies
+  apt:
+    pkg:
+      - unzip
+
+- name: query git API for latest release of webmap
+  uri:
+    url: https://api.github.com/repos/FreeTAKTeam/FreeTAKHub/releases/latest
+    return_content: true
+  register: json_reponse
+
+- name: download latest release and save to /tmp/webmap.sh
+  get_url:
+    url: "{{ json_reponse.json.assets[0].browser_download_url }}"
+    dest: /tmp/webmap.zip
+
+- name: Extract webmap.zip into /tmp
+  ansible.builtin.unarchive:
+    src: /tmp/webmap.zip
+    dest: /opt/
+    remote_src: yes
+
+- debug: msg="{{ json_reponse.json.name }}"
+
+- name: Changing perm of "/opt/webmap.sh", adding "+x", making it executable
+  file:
+    path: "/opt/{{ json_reponse.json.name }}"
+    mode: a+x
+
+- name: create unit file for Webmap
+  template: src=webmap.service.j2 dest=/lib/systemd/system/webmap.service mode=644
+  notify:
+    - reload systemctl

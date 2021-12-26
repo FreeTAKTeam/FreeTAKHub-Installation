@@ -1,0 +1,6 @@
+[Unit]
+After=network.target
+[Service]
+ExecStart=/usr/local/bin/rtsp-simple-server /usr/local/etc/rtsp-simple-server.yml
+[Install]
+WantedBy=multi-user.target
