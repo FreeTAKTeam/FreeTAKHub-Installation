@@ -22,3 +22,10 @@ $ sudo apt install software-properties-common
 $ sudo apt-add-repository –yes –update ppa:ansible/ansible
 $ sudo apt install ansible
 ```
+
+### Execute playbook
+In console in project root
+
+```
+$ sudo ansible-playbook -i hosts.ini main.yml
+```
