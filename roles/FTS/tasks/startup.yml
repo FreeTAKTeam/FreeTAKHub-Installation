@@ -1,3 +1,4 @@
+---
 - name: Enable service fts, and not touch the state
   ansible.builtin.service:
     name: fts

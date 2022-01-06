@@ -1,3 +1,4 @@
+---
 - name: Edit config so ip is correct
   replace:
     path: '{{ fts_ui_installation_path }}/config.py'
@@ -11,18 +12,21 @@
     replace: "{{ hostvars['webmapNode'].ansible_host }}"
 
 - name: create unit file for FTS
-  template: src='fts-ui.service.j2' dest='/lib/systemd/system/fts-ui.service' mode=644
+  template:
+    src: 'fts-ui.service.j2'
+    dest: '/lib/systemd/system/fts-ui.service'
+    mode: 0644
   notify:
     - reload systemctl
 
 - name: Enable service fts-ui, and not touch the state
-  ansible.builtin.service:
+  service:
     name: fts-ui
     enabled: yes
   become: true
 
 - name: Start service fts-ui, if not started
-  ansible.builtin.service:
+  service:
     name: fts-ui
     state: started
   become: true

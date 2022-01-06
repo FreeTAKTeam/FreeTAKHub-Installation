@@ -1,4 +1,4 @@
-
+---
 fts_python_version: python3.8
 fts_installation_path: /usr/local/lib/{{ fts_python_version }}/dist-packages/FreeTAKServer
 fts_pip_path: /usr/local/lib/{{ fts_python_version }}/dist-packages/pip

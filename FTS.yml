@@ -1,3 +1,4 @@
+---
 - hosts: freetakservers
   vars_prompt:
 

@@ -1,3 +1,4 @@
+---
 - name: Include videoserver variables
   include_vars:
     file: main.yml
