@@ -5,7 +5,7 @@
     dest: /tmp/video_server.tar.gz
 
 - name: Unarchive video server
-  ansible.builtin.unarchive:
+  unarchive:
     src: /tmp/video_server.tar.gz
     dest: /tmp
     remote_src: yes
