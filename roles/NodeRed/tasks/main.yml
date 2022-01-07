@@ -12,9 +12,9 @@
     unsafe_perm: yes
 
 - name: Create unit file for NodeRed
-  template: 
-    src: nodered.service.j2 
-    dest: /lib/systemd/system/nodered.service 
+  template:
+    src: nodered.service.j2
+    dest: /lib/systemd/system/nodered.service
     mode: 0644
   notify:
     - reload systemctl

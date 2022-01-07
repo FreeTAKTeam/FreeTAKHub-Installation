@@ -9,15 +9,15 @@
     return_content: true
   register: json_reponse
 
-- name: download latest release and save to /tmp/webmap.sh
+- name: Download latest release and save to /tmp/webmap.zip
   get_url:
     url: "{{ json_reponse.json.assets[0].browser_download_url }}"
     dest: /tmp/webmap.zip
 
-- name: Extract webmap.zip into /tmp
+- name: Extract /tmp/webmap.zip into /tmp
   unarchive:
     src: /tmp/webmap.zip
-    dest: /opt/
+    dest: /opt
     remote_src: yes
 
 - name: Print the json response

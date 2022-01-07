@@ -1,0 +1,45 @@
+---
+- name: Converge
+  hosts: all
+  become: yes
+  roles:
+    - common
+  pre_tasks:
+    - name: Use systemctl replacement workaround
+      get_url:
+        url: https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py
+        dest: /usr/local/bin/systemctl
+        mode: 0755
+
+    - name: Update apt cache
+      apt:
+        update_cache: true
+        cache_valid_time: 86400
+      register: update
+      retries: 5
+      until: update is success
+
+    - name: Download Ansible dependencies
+      apt:
+        name: netbase
+
+- hosts: mainNode
+  become: yes
+  roles:
+    - FTS
+    - FTS-UI
+
+- hosts: webmapNode
+  become: yes
+  roles:
+    - webmap
+
+- hosts: videoserverNode
+  become: yes
+  roles:
+    - videoserver
+
+- hosts: noderedserverNode
+  become: yes
+  roles:
+    - videoserver

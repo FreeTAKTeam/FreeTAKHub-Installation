@@ -4,7 +4,7 @@
     name: python3.8
   tags: FTS-UI
 
-- name: Remove previeous FTS UI installations
+- name: Remove previous FTS UI installations
   pip:
     name: FreeTAKServer-UI
     state: absent
