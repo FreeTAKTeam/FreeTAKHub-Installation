@@ -3,13 +3,13 @@
   replace:
     path: '{{ fts_ui_installation_path }}/config.py'
     regexp: '127.0.0.1'
-    replace: "{{ hostvars['mainNode'].ansible_host }}"
+    replace: "{{ hostvars.mainNode.ansible_host | default(ansible_default_ipv4.address) }}"
 
 - name: Edit config so ip is correct
   replace:
     path: '{{ fts_ui_installation_path }}/config.py'
     regexp: 'WEBMAPIP = "127.0.0.1"'
-    replace: "{{ hostvars['webmapNode'].ansible_host }}"
+    replace: "WEBMAPIP = \"{{ hostvars.webmapNode.ansible_host | default(ansible_default_ipv4.address) }}\""
 
 - name: create unit file for FTS
   template:

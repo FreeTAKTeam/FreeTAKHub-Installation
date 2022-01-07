@@ -9,7 +9,7 @@
   replace:
     path: /tmp/rtsp-simple-server.yml
     regexp: 'apiAddress: 127.0.0.1:9997'
-    replace: "apiAddress: {{ hostvars.videoserverNode.ansible_host }}:9997"
+    replace: "apiAddress: {{ hostvars.videoserverNode.ansible_host | default(ansible_default_ipv4.address) }}:9997"
 
 - name: Update protocols in configuration
   replace:

@@ -1,25 +1,44 @@
+---
 name: CI
 
 on:
-  push:
-    branches: 
-      - master
-      - 'develop/**'
   pull_request:
-    branches: 
+    branches:
       - master
       - 'develop/**'
+  push:
+    branches:
+      - master
+      - 'develop/**'
+  schedule:
+    - cron: "0 5 * * 0"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  molecule:
+    name: Molecule Tests
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        distros: 
+          - ubuntu2004
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out the codebase
+        uses: actions/checkout@v2
 
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Set up Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      - name: Install test dependencies
+        run: pip install ansible molecule[docker] docker
+
+      - name: Run Molecule tests --scenario-name default
+        run: ANSIBLE_VERBOSITY=2 molecule test
+        env:
+          MOLECULE_DISTRO: "${{ matrix.distros }}"
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'

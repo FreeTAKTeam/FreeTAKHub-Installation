@@ -1,31 +1,35 @@
 # FreeTAKHub Installation
+
 FreeTAKHub installation is a set of Ansible scripts that allow you to:
-- Create the target Nodes
-- Install FTS and all the additional modules
+- create the target nodes
+- install FTS and all the additional modules
 - configure FTS
 
 ## Control Machine
-to use this module you need to install Ansible on your control Machine that will controll all the installations of FTS
 
-### Install Ansible with Pip
+To use this module you need to install Ansible on your control machine that will control all the installations of FTS.
 
+### Install Ansible with pip
+
+```console
+pip install ansible
 ```
-$ pip install ansible
-```
 
-### Install Ansible Control Nodes With OS Packages
-In Ubuntu console
+### Install Ansible control nodes with OS packages
 
-```
-$ sudo apt update
-$ sudo apt install software-properties-common
-$ sudo apt-add-repository –yes –update ppa:ansible/ansible
-$ sudo apt install ansible
+In Ubuntu console:
+
+```console
+sudo apt update
+sudo apt install software-properties-common
+sudo apt-add-repository –yes –update ppa:ansible/ansible
+sudo apt install ansible
 ```
 
 ### Execute playbook
+
 In console in project root
 
 ```
-$ sudo ansible-playbook -i hosts.ini main.yml
+sudo ansible-playbook -i hosts.ini main.yml
 ```
