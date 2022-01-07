@@ -30,6 +30,6 @@ sudo apt install ansible
 
 In console in project root
 
-```
+```console
 sudo ansible-playbook -i hosts.ini main.yml
 ```
