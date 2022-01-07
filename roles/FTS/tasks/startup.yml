@@ -1,9 +1,10 @@
+---
 - name: Enable service fts, and not touch the state
-  ansible.builtin.service:
+  service:
     name: fts
     enabled: yes
 
 - name: Start service fts, if not started
-  ansible.builtin.service:
+  service:
     name: fts
     state: started

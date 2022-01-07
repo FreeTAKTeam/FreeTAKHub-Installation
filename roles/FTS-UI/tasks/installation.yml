@@ -1,7 +1,7 @@
+---
 - name: Install apt dependancies
   apt:
-    pkg:
-      - python3.8
+    name: python3.8
   tags: FTS-UI
 
 - name: Remove previeous FTS UI installations

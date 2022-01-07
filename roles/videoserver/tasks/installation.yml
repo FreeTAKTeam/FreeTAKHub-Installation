@@ -1,10 +1,11 @@
+---
 - name: download video server from git
   get_url:
     url: "https://github.com/aler9/rtsp-simple-server/releases/download/{{ vars.simple_rtsp_server_version }}/rtsp-simple-server_{{ simple_rtsp_server_version }}_linux_amd64.tar.gz"
     dest: /tmp/video_server.tar.gz
 
 - name: Unarchive video server
-  ansible.builtin.unarchive:
+  unarchive:
     src: /tmp/video_server.tar.gz
     dest: /tmp
     remote_src: yes

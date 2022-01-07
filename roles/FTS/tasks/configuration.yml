@@ -1,5 +1,6 @@
+---
 - name: Edit MainConfig so FirstStart is false
-  ansible.builtin.lineinfile:
+  lineinfile:
     path: '{{ fts_installation_path }}/controllers/configuration/MainConfig.py'
     regexp: 'first_start = True'
     line: '    first_start = False'
@@ -7,7 +8,7 @@
 
 - name: create yaml config file
   copy:
-    dest: /opt/FTSConfig.yml
+    dest: /opt/FTSConfig.yaml
     content: |
       System:
         #FTS_DATABASE_TYPE: SQLite
@@ -53,7 +54,7 @@
         #FTS_WEBSOCKET_KEY: YourWebsocketKey
 
 - name: Display all variables/facts known for a host
-  ansible.builtin.debug:
+  debug:
     var: hostvars['mainNode'].ansible_host
 
 - name: update yaml with ip
@@ -63,6 +64,9 @@
     replace: "'{{ hostvars['mainNode'].ansible_host }}'"
 
 - name: create unit file for FTS
-  template: src=fts.service.j2 dest=/lib/systemd/system/fts.service mode=644
+  template:
+    src: fts.service.j2
+    dest: /lib/systemd/system/fts.service
+    mode: 0644
   notify:
     - reload systemctl

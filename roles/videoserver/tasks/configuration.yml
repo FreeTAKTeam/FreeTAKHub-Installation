@@ -1,3 +1,4 @@
+---
 - name: Update api status in configuration
   replace:
     path: /tmp/rtsp-simple-server.yml
@@ -23,18 +24,21 @@
   command: mv /tmp/rtsp-simple-server /usr/local/bin/rtsp-simple-server
 
 - name: Create video server service
-  template: src='rtsp-simple-server.service.j2' dest='/lib/systemd/system/rtsp-simple-server.service' mode=644
+  template: 
+    src: 'rtsp-simple-server.service.j2' 
+    dest: '/lib/systemd/system/rtsp-simple-server.service' 
+    mode: 0644
   notify:
     - reload systemctl
 
 - name: Enable service rtsp-simple-server, and not touch the state
-  ansible.builtin.service:
+  service:
     name: rtsp-simple-server
     enabled: yes
   become: true
 
 - name: Start service rtsp-simple-server, if not started
-  ansible.builtin.service:
+  service:
     name: rtsp-simple-server
     state: started
   become: true

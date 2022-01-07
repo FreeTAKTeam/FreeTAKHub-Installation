@@ -1,4 +1,4 @@
-
+---
 - name: Install FTS on machine
   import_tasks: installation.yml
 

@@ -1,3 +1,4 @@
+---
 - hosts: webmapservers
   roles:
     - common

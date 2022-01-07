@@ -1,2 +1,3 @@
+---
 - name: reload systemctl
   command: systemctl daemon-reload
