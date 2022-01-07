@@ -1,11 +1,12 @@
 ---
-- name: Install nodered dependencies
+- name: Install NodeRed apt dependencies
   apt:
-    name: nodejs
-    update_cache: yes
-    state: present
+    name: "{{ item }}"
+  loop:
+    - nodejs
+    - npm
 
-- name: Install nodered with npm
+- name: Install NodeRed with npm
   npm:
     name: node-red
     global: yes
@@ -19,13 +20,13 @@
   notify:
     - reload systemctl
 
-- name: Enable service nodered, and not touch the state
+- name: Enable NodeRed service and not touch the state
   service:
     name: nodered
     enabled: yes
   become: true
 
-- name: Start service nodered, if not started
+- name: Start NodeRed service, if not started
   service:
     name: nodered
     state: started

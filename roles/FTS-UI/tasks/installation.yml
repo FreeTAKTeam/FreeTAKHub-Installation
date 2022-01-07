@@ -1,5 +1,5 @@
 ---
-- name: Install apt dependancies
+- name: Install apt dependencies
   apt:
     name: python3.8
   tags: FTS-UI
