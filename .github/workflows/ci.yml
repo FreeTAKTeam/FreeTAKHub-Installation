@@ -37,7 +37,7 @@ jobs:
         run: pip install ansible molecule[docker] docker
 
       - name: Run Molecule tests --scenario-name default
-        run: molecule test
+        run: ANSIBLE_VERBOSITY=4 molecule test
         env:
           MOLECULE_DISTRO: "${{ matrix.distros }}"
           PY_COLORS: '1'
