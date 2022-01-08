@@ -1,0 +1,12 @@
+---
+- name: Windows Playbook with One Instance
+  hosts: instance
+  become: true
+  roles:
+    - common
+    - python3
+    - freetakserver
+    - freetakserver_ui
+    - webmap
+    - videoserver
+    - noderedserver

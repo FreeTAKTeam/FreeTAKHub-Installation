@@ -1,0 +1,9 @@
+---
+- name: Template webmap.service unit file
+  template:
+    src: webmap.service.j2
+    dest: /lib/systemd/system/webmap.service
+    mode: 0644
+  notify:
+    - enable webmap
+    - set webmap state

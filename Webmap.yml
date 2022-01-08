@@ -1,5 +1,0 @@
----
-- hosts: webmaps
-  roles:
-    - common
-    - webtier

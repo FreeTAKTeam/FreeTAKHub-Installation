@@ -1,0 +1,27 @@
+---
+- name: Update API IPv4 in rtsp-simple-server.yml
+  replace:
+    path: "{{ videoserver_config_location }}/rtsp-simple-server.yml"
+    regexp: 'apiAddress: 127.0.0.1:9997'
+    replace: "apiAddress: {{ hostvars.videoserver.ansible_host | default(ansible_default_ipv4.address) }}:9997"
+
+- name: Update API status in rtsp-simple-server.yml
+  replace:
+    path: "{{ videoserver_config_location }}/rtsp-simple-server.yml"
+    regexp: 'api: no'
+    replace: 'api: yes'
+
+- name: Update protocols in rtsp-simple-server.yml
+  replace:
+    path: "{{ videoserver_config_location }}/rtsp-simple-server.yml"
+    regexp: 'protocols: [udp, multicast, tcp]'
+    replace: 'protocols: [tcp]'
+
+- name: Template rtsp-simple-server.service unit file
+  template:
+    src: rtsp-simple-server.service.j2
+    dest: /lib/systemd/system/rtsp-simple-server.service
+    mode: 0644
+  notify:
+    - enable videoserver
+    - set videoserver state

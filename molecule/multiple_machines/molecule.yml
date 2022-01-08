@@ -6,7 +6,25 @@ driver:
   name: docker
 
 platforms:
-  - name: instance
+  - name: freetakserver
+    image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
+    privileged: true
+    pre_build_image: true
+    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: webmap
+    image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
+    privileged: true
+    pre_build_image: true
+    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: videoserver
+    image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
+    privileged: true
+    pre_build_image: true
+    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: noderedserver
     image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
     privileged: true
     pre_build_image: true
@@ -42,7 +60,7 @@ scenario:
   test_sequence:
     - lint
     - destroy
-    - syntax
+    # - syntax
     - create
     - converge
     - idempotence

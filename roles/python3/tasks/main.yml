@@ -1,0 +1,5 @@
+---
+- name: "Set up {{ python3 }} on Ubuntu."
+  include_tasks: "setup-{{ ansible_distribution }}.yml"
+  tags:
+    - python3

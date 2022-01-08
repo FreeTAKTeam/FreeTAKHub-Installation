@@ -1,0 +1,25 @@
+---
+- name: Windows Playbook with Separation of Concern
+  hosts: all
+  become: true
+  roles:
+    - common
+    - python3
+
+- hosts: freetakserver
+  become: true
+  roles:
+    - freetakserver
+    - freetakserver_ui
+
+- hosts: webmap
+  become: true
+  roles: webmap
+
+- hosts: videoserver
+  become: true
+  roles: videoserver
+
+- hosts: noderedserver
+  become: true
+  roles: nodered

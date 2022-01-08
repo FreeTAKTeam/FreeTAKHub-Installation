@@ -1,0 +1,22 @@
+---
+- name: Uninstall FreeTAKServer
+  pip:
+    name: FreeTAKServer
+    state: absent
+    executable: "pip{{ python3_version }}"
+  when:
+    - uninstall_fts
+
+- name: Install FreeTAKServer
+  pip:
+    name: FreeTAKServer
+    executable: "pip{{ python3_version }}"
+  when:
+    - not uninstall_fts
+
+- name: Re-install FreeTAKServer
+  pip:
+    name: FreeTAKServer
+    state: forcereinstall
+    executable: "pip{{ python3_version }}"
+  when: reinstall_fts

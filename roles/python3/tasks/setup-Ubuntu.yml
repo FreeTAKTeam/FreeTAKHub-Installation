@@ -1,0 +1,30 @@
+---
+- name: "Check if {{ pip3 }} is installed"
+  stat:
+    path: "/usr/local/bin/{{ pip3 }}"
+  register: pip3_executable
+
+- name: "Install {{ pip3 }}"
+  block:
+    - name: Download get-pip.py.
+      get_url:
+        url: "{{ pip_installer_url }}"
+        dest: /tmp
+        mode: 0644
+
+    - name: "Install {{ pip3 }}"
+      command: "{{ python3 }} /tmp/get-pip.py"
+      changed_when: false
+
+    - name: "Upgrade {{ pip3 }}"
+      command: pip3 install --upgrade pip
+      changed_when: false
+
+  when: not pip3_executable.stat.exists
+
+- name: "Install {{ pip3 }} dependencies"
+  pip:
+    name: "{{ item }}"
+    executable: "{{ pip3 }}"
+  loop:
+    - virtualenv

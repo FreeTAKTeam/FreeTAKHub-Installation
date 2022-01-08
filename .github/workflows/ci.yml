@@ -1,7 +1,7 @@
 ---
 name: CI
 
-on:
+'on':
   pull_request:
   push:
     branches:
@@ -16,9 +16,8 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      max-parallel: 4
       matrix:
-        distros: 
+        distros:
           - ubuntu2004
 
     steps:
@@ -34,6 +33,13 @@ jobs:
         run: pip install ansible molecule[docker] docker
 
       - name: Run Molecule tests --scenario-name default
+        run: ANSIBLE_VERBOSITY=2 molecule test
+        env:
+          MOLECULE_DISTRO: "${{ matrix.distros }}"
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+
+      - name: Run Molecule tests --scenario-name multiple_machines
         run: ANSIBLE_VERBOSITY=2 molecule test
         env:
           MOLECULE_DISTRO: "${{ matrix.distros }}"

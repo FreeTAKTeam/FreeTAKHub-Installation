@@ -6,8 +6,26 @@ driver:
   name: docker
 
 platforms:
-  - name: instance
-    image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
+  - name: freetakserver
+    image: mcr.microsoft.com/windows
+    privileged: true
+    pre_build_image: true
+    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: webmap
+    image: mcr.microsoft.com/windows
+    privileged: true
+    pre_build_image: true
+    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: videoserver
+    image: mcr.microsoft.com/windows
+    privileged: true
+    pre_build_image: true
+    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  - name: noderedserve
+    image: mcr.microsoft.com/windows
     privileged: true
     pre_build_image: true
     volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro

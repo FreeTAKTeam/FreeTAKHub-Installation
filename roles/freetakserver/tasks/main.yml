@@ -2,10 +2,13 @@
 - name: Include OS-specific variables
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Set up Node-RED
-  include_tasks: "setup-{{ ansible_distribution }}.yml"
-  tags: install_nodered
+- name: Include FTSConfig variables
+  include_vars: "FTSConfig.yml"
 
-- name: Configure Node-RED
+- name: Set up FreeTAKServer
+  include_tasks: "setup-{{ ansible_distribution }}.yml"
+  tags: install_fts
+
+- name: Configure FreeTAKServer
   include_tasks: "configure-{{ ansible_distribution }}.yml"
-  tags: configure_nodered
+  tags: configure_fts

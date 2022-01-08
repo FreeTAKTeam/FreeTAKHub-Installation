@@ -1,0 +1,4 @@
+---
+videoserver_download_location: /tmp
+videoserver_config_location: /opt
+videoserver_executable_location: /usr/local/bin

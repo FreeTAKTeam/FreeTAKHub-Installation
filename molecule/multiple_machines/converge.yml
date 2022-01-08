@@ -1,18 +1,31 @@
 ---
-- name: Linux Playbook with One Instance
-  hosts: instance
+- name: Linux Playbook with Separation of Concern
+  hosts: all
   become: true
+  roles:
+    - common
+    - python3
   pre_tasks:
     - name: Use systemctl replacement workaround
       get_url:
         url: https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py
         dest: /usr/local/bin/systemctl
         mode: 0755
+
+- hosts: freetakserver
+  become: true
   roles:
-    - common
-    - python3
     - freetakserver
     - freetakserver_ui
-    - webmap
-    - videoserver
-    - nodered
+
+- hosts: webmap
+  become: true
+  roles: webmap
+
+- hosts: videoserver
+  become: true
+  roles: videoserver
+
+- hosts: noderedserver
+  become: true
+  roles: nodered

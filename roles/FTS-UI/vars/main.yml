@@ -1,3 +1,0 @@
----
-fts_ui_python_version: python3.8
-fts_ui_installation_path: /usr/local/lib/{{ fts_ui_python_version }}/dist-packages/FreeTAKServer-UI

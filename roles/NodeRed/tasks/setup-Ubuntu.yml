@@ -1,0 +1,10 @@
+---
+- name: Install Node-RED apt dependencies
+  apt:
+    name: "{{ nodered_dependencies }}"
+
+- name: Install Node-RED with npm
+  npm:
+    name: node-red
+    global: true
+    unsafe_perm: true

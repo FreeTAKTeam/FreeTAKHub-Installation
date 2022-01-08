@@ -1,11 +1,11 @@
 ---
-- name: Include videoserver variables
-  include_vars:
-    file: main.yml
-    name: vars
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Install rtsp-simple-server on machine
-  import_tasks: installation.yml
+- name: Set up videoserver
+  include_tasks: "setup-{{ ansible_distribution }}.yml"
+  tags: install_videoserver
 
-- name: Configure rtsp-simple-server on machine
-  import_tasks: configuration.yml
+- name: Configure videoserver
+  include_tasks: "configure-{{ ansible_distribution }}.yml"
+  tags: configure_videoserver

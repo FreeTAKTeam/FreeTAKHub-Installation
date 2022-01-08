@@ -1,3 +1,15 @@
 ---
-- name: reload systemctl
-  command: systemctl daemon-reload
+- name: enable videoserver
+  service:
+    name: rtsp-simple-server
+    enabled: "{{ videoserver_enabled }}"
+
+- name: reload videoserver
+  service:
+    name: rtsp-simple-server
+    state: reloaded
+
+- name: set videoserver state
+  service:
+    name: rtsp-simple-server
+    state: "{{ videoserver_state }}"

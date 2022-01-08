@@ -1,0 +1,18 @@
+---
+- name: Download and unarchive videoserver
+  unarchive:
+    src: "{{ videoserver_download_url }}"
+    dest: "{{ videoserver_download_location }}"
+    remote_src: true
+
+- name: Copy videoserver config to /opt
+  copy:
+    src: "{{ videoserver_download_location }}/rtsp-simple-server.yml"
+    dest: "{{ videoserver_config_location }}/rtsp-simple-server.yml"
+    remote_src: true
+
+- name: Copy videoserver executable to /usr/local/bin
+  copy:
+    src: "{{ videoserver_download_location }}/rtsp-simple-server"
+    dest: "{{ videoserver_executable_location }}/rtsp-simple-server"
+    remote_src: true
