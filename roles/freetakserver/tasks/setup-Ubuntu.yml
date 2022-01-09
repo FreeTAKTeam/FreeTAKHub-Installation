@@ -7,6 +7,10 @@
   when:
     - uninstall_fts
 
+- name: Install FreeTAKServer apt dependencies
+  apt:
+    name: "{{ freetakserver_apt_dependencies }}"
+
 - name: Install FreeTAKServer
   pip:
     name: FreeTAKServer
