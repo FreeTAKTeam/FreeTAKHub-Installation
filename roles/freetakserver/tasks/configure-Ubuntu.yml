@@ -1,0 +1,28 @@
+---
+- name: Template FTSConfig.yaml config file
+  template:
+    src: FTSConfig.yaml.j2
+    dest: "{{ fts_config_path }}"
+    mode: 0644
+
+- name: Update IPv4 addresses in FTSConfig.yaml
+  replace:
+    path: "{{ fts_config_path }}"
+    regexp: "0.0.0.0"
+    replace: "'{{ hostvars['freetakserver']['ansible_default_ipv4']['address'] | default(fts_ip_address) }}'"
+
+- name: Change FirstStart to False in MainConfig.py
+  lineinfile:
+    path: "{{ fts_install_path }}/controllers/configuration/MainConfig.py"
+    regexp: '(\s+)first_start = True'
+    line: '\1first_start = False'
+    backrefs: true
+
+- name: Template fts.service unit file
+  template:
+    src: fts.service.j2
+    dest: /lib/systemd/system/fts.service
+    mode: 0644
+  notify:
+    - enable freetakserver
+    - set freetakserver state

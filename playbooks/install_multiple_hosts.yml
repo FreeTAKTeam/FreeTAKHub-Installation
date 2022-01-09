@@ -1,0 +1,29 @@
+---
+# Example playbook to install all FreeTAKServer and components
+- name: Ubuntu 20.04 Playbook with Multiple Instances
+  hosts: all
+  become: true
+  roles:
+    - common
+
+- hosts: freetakserver
+  become: true
+  roles:
+    - python3
+    - freetakserver
+    - freetakserver_ui
+
+- hosts: webmapserver
+  become: true
+  roles: 
+    - webmap
+
+- hosts: videoserver
+  become: true
+  roles:
+    - videoserver
+
+- hosts: noderedserver
+  become: true
+  roles: 
+    - nodered

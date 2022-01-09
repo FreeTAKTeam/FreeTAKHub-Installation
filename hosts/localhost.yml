@@ -1,0 +1,7 @@
+---
+# Example host file for your local machine
+all:
+  hosts:
+    localhost:
+      ansible_connection: local
+      ansible_user: root

@@ -1,5 +1,5 @@
 [Unit]
-Description=webmap service
+Description=FreeTAKServer service
 After=network.target
 StartLimitIntervalSec=0
 
@@ -7,7 +7,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart={{ webmap_location }}/{{ webmap_response.json.name }}
+ExecStart={{ python3 }} -m FreeTAKServer.controllers.services.FTS
 
 [Install]
 WantedBy=multi-user.target

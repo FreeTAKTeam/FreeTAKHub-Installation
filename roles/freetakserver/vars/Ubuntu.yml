@@ -1,0 +1,10 @@
+---
+fts_repo_path: /opt/FreeTAKServer
+fts_config_path: /opt/FTSConfig.yaml
+fts_db_path: /opt/FreeTAKServer.db
+
+fts_python_packages: "/usr/local/lib/python{{ python3_version }}"
+fts_install_path: "{{ fts_python_packages }}/dist-packages/FreeTAKServer"
+
+fts_apt_dependencies:
+  - netbase

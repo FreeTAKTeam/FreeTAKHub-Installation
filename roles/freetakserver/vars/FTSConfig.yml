@@ -1,0 +1,20 @@
+---
+# System
+fts_connection_message: Connected
+fts_database_type: SQLite
+fts_optimize_api: true
+fts_mainloop_delay: 1
+
+# Addresses
+fts_cot_port: 8087
+fts_sslcot_port: 8089
+fts_api_port: 19023
+fts_fed_port: 9000
+
+# FileSystem
+fts_cot_to_db: true
+
+# Certs
+fts_federation_keypass: demopassfed
+fts_client_cert_password: demopasscert
+fts_websocket_key: YourWebsocketKey

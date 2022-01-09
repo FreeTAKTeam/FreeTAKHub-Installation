@@ -2,10 +2,10 @@
 - name: Include OS-specific variables
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Set up videoserver
+- name: Set up FreeTAKServer-UI
   include_tasks: "setup-{{ ansible_distribution }}.yml"
-  tags: install_videoserver
+  tags: install_fts_ui
 
-- name: Configure videoserver
+- name: Configure FreeTAKServer-UI
   include_tasks: "configure-{{ ansible_distribution }}.yml"
-  tags: configure_videoserver
+  tags: configure_fts_ui

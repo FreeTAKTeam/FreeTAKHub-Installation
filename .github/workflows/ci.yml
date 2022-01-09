@@ -1,14 +1,11 @@
 ---
 name: CI
 
-on:
+'on':
   pull_request:
-    branches:
-      - master
-      - 'develop/**'
   push:
     branches:
-      - master
+      - main
       - 'develop/**'
   schedule:
     - cron: "0 5 * * 0"
@@ -19,9 +16,8 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      max-parallel: 4
       matrix:
-        distros: 
+        distros:
           - ubuntu2004
 
     steps:
@@ -34,10 +30,17 @@ jobs:
           python-version: '3.x'
 
       - name: Install test dependencies
-        run: pip install ansible molecule[docker] docker
+        run: pip install ansible ansible-lint molecule[docker,lint] docker
 
-      - name: Run Molecule tests --scenario-name default
-        run: ANSIBLE_VERBOSITY=2 molecule test
+      - name: "Run Molecule Test: Linux Playbook with One Instance"
+        run: ANSIBLE_VERBOSITY=3 molecule test --scenario-name default
+        env:
+          MOLECULE_DISTRO: "${{ matrix.distros }}"
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+
+      - name: "Run Molecule Test: Linux Playbook with Separation of Concern"
+        run: ANSIBLE_VERBOSITY=3 molecule test --scenario-name multiple_machines
         env:
           MOLECULE_DISTRO: "${{ matrix.distros }}"
           PY_COLORS: '1'

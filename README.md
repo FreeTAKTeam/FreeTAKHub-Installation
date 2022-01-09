@@ -21,15 +21,22 @@ In Ubuntu console:
 
 ```console
 sudo apt update
-sudo apt install software-properties-common
-sudo apt-add-repository –yes –update ppa:ansible/ansible
+sudo apt install -y software-properties-common
+sudo sudo apt-add-repository –y -u ppa:ansible/ansible
+
 sudo apt install ansible
 ```
 
-### Execute playbook
+### Example Playbooks
 
-In console in project root
+An example playbook is located in: `playbooks/install.yml`.
 
-```console
-sudo ansible-playbook -i hosts.ini main.yml
+An example hosts file is located in: `hosts/localhost.yml`.
+
+The playbooks or hosts files may need editing to cover your specific machine.
+
+An example run command: From the root directory of the project, type:
+
+```configure
+sudo ansible-playbook -i hosts/localhost.yml playbooks/install.yml
 ```

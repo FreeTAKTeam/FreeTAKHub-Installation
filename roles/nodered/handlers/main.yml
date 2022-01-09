@@ -1,0 +1,15 @@
+---
+- name: enable nodered
+  service:
+    name: nodered
+    enabled: "{{ nodered_enabled }}"
+
+- name: reload nodered
+  service:
+    name: nodered
+    state: reloaded
+
+- name: set nodered state
+  service:
+    name: nodered
+    state: "{{ nodered_state }}"

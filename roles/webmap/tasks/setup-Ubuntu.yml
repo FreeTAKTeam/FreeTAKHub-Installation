@@ -1,0 +1,21 @@
+---
+- name: Download dependencies
+  apt:
+    name: unzip
+
+- name: Get webmap release information using GitHub API
+  uri:
+    url: https://api.github.com/repos/FreeTAKTeam/FreeTAKHub/releases/latest
+    return_content: true
+  register: webmap_response
+
+- name: Unarchive FTH-webmap-linux.zip
+  unarchive:
+    src: "{{ webmap_response.json.assets[0].browser_download_url }}"
+    dest: "{{ webmap_location }}"
+    remote_src: true
+
+- name: Ensure webmap executable is executable
+  file:
+    path: "{{ webmap_location }}/{{ webmap_response.json.name }}"
+    mode: 0755

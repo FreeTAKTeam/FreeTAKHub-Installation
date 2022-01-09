@@ -1,0 +1,7 @@
+---
+# Set initial service state.
+# Recommended values: `started` or `stopped`.
+nodered_state: started
+
+# Enable service.
+nodered_enabled: true

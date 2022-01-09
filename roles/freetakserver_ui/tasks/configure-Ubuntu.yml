@@ -1,0 +1,21 @@
+---
+- name: Update FreeTAKServer IP values in config.py 
+  replace:
+    path: "{{ fts_ui_install_path }}/config.py"
+    regexp: '127.0.0.1'
+    replace: "{{ hostvars['freetakserver']['ansible_default_ipv4']['address'] | default(fts_ip_address) }}"
+
+- name: Update webmap IP value in config.py
+  replace:
+    path: "{{ fts_ui_install_path }}/config.py"
+    regexp: 'WEBMAPIP = "127.0.0.1"'
+    replace: "WEBMAPIP = \"{{ hostvars['webmapserver']['ansible_default_ipv4']['address'] | default(webmap_ip_address) }}\""
+
+- name: Template fts-ui.service unit file
+  template:
+    src: fts-ui.service.j2
+    dest: /lib/systemd/system/fts-ui.service
+    mode: 0644
+  notify:
+    - enable freetakserver_ui
+    - set freetakserver_ui state

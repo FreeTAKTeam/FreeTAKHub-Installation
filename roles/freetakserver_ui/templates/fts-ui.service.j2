@@ -1,0 +1,13 @@
+[Unit]
+Description=FreeTAKServer-UI service
+After=network.target network-online.target freetakserver.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart={{ python3 }} {{ fts_ui_install_path }}/run.py
+
+[Install]
+WantedBy=multi-user.target

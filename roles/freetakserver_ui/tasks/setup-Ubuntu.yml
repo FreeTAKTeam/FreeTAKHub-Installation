@@ -1,0 +1,20 @@
+---
+- name: Uninstall FreeTAKServer-UI
+  pip:
+    name: FreeTAKServer-UI
+    state: absent
+    executable: "pip{{ python3_version }}"
+  when: uninstall_fts_ui
+
+- name: Install FreeTAKServer-UI
+  pip:
+    name: FreeTAKServer-UI
+    executable: "pip{{ python3_version }}"
+  when: not uninstall_fts_ui
+
+- name: Re-install FreeTAKServer-UI
+  pip:
+    name: FreeTAKServer-UI
+    state: forcereinstall
+    executable: "pip{{ python3_version }}"
+  when: reinstall_fts_ui

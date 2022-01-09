@@ -1,6 +1,6 @@
 ---
-- name: Linux Playbook with One Instance
-  hosts: instance
+- name: Linux Playbook with Separation of Concern
+  hosts: all
   become: true
   pre_tasks:
     - name: Use systemctl replacement workaround
@@ -10,9 +10,25 @@
         mode: 0755
   roles:
     - common
+
+- hosts: freetakserver
+  become: true
+  roles:
     - python3
     - freetakserver
     - freetakserver_ui
+
+- hosts: webmapserver
+  become: true
+  roles: 
     - webmap
+
+- hosts: videoserver
+  become: true
+  roles: 
     - videoserver
+
+- hosts: noderedserver
+  become: true
+  roles: 
     - nodered

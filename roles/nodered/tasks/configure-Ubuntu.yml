@@ -1,0 +1,9 @@
+---
+- name: Template nodered.service unit file
+  template:
+    src: nodered.service.j2
+    dest: /lib/systemd/system/nodered.service
+    mode: 0644
+  notify:
+    - enable nodered
+    - set nodered state

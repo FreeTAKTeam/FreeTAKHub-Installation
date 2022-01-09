@@ -1,0 +1,10 @@
+---
+extends: default
+
+rules:
+  line-length:
+    max: 150
+    level: warning
+
+ignore: |
+  .archive

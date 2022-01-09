@@ -1,0 +1,15 @@
+---
+- name: enable freetakserver_ui
+  service:
+    name: fts-ui
+    enabled: "{{ fts_ui_enabled }}"
+
+- name: reload freetakserver_ui
+  service:
+    name: fts-ui
+    state: reloaded
+
+- name: set freetakserver_ui state
+  service:
+    name: fts-ui
+    state: "{{ fts_ui_state }}"

@@ -1,0 +1,13 @@
+---
+# custom setup commands
+uninstall_fts: false
+reinstall_fts: false
+
+# system information
+fts_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}"
+
+# Set initial service state. Recommended values: `started` or `stopped`.
+fts_state: started
+
+# Enable service. Recommended values: `true` or `false`
+fts_enabled: true

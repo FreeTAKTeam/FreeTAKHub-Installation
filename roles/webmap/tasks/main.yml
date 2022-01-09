@@ -1,38 +1,11 @@
 ---
-- name: Download dependencies
-  apt:
-    name: unzip
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Query git API for latest release of webmap
-  uri:
-    url: https://api.github.com/repos/FreeTAKTeam/FreeTAKHub/releases/latest
-    return_content: true
-  register: json_reponse
+- name: Set up webmap
+  include_tasks: "setup-{{ ansible_distribution }}.yml"
+  tags: install_webmap
 
-- name: Download latest release and save to /tmp/webmap.zip
-  get_url:
-    url: "{{ json_reponse.json.assets[0].browser_download_url }}"
-    dest: /tmp/webmap.zip
-
-- name: Extract /tmp/webmap.zip into /tmp
-  unarchive:
-    src: /tmp/webmap.zip
-    dest: /opt
-    remote_src: yes
-
-- name: Print the json response
-  debug:
-    msg: "{{ json_reponse.json.name }}"
-
-- name: Changing perm of "/opt/webmap.sh", adding "+x", making it executable
-  file:
-    path: "/opt/{{ json_reponse.json.name }}"
-    mode: a+x
-
-- name: create unit file for Webmap
-  template:
-    src: webmap.service.j2
-    dest: /lib/systemd/system/webmap.service
-    mode: 0644
-  notify:
-    - reload systemctl
+- name: Configure webmap
+  include_tasks: "configure-{{ ansible_distribution }}.yml"
+  tags: configure_webmap
