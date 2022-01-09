@@ -40,7 +40,7 @@ jobs:
           ANSIBLE_FORCE_COLOR: '1'
 
       - name: "Run Molecule Test: Linux Playbook with Separation of Concern"
-        run: molecule test --scenario-name multiple_machines
+        run: ANSIBLE_VERBOSITY=3 molecule test --scenario-name multiple_machines
         env:
           MOLECULE_DISTRO: "${{ matrix.distros }}"
           PY_COLORS: '1'
