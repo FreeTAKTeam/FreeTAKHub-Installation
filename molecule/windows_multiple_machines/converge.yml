@@ -4,15 +4,14 @@
   become: true
   roles:
     - common
-    - python3
-
 - hosts: freetakserver
   become: true
   roles:
+    - python3
     - freetakserver
     - freetakserver_ui
 
-- hosts: webmap
+- hosts: webmapserver
   become: true
   roles: webmap
 
