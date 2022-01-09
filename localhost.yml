@@ -3,13 +3,13 @@
 all:
   hosts:
     freetakserver:
-      ansible_host: localhost
+      ansible_connection: local
 
     webmapserver:
-      ansible_host: localhost
+      ansible_connection: local
 
     videoserver:
-      ansible_host: localhost
+      ansible_connection: local
 
     noderedserver:
-      ansible_host: localhost
+      ansible_connection: local
