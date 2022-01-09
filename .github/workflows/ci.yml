@@ -32,15 +32,15 @@ jobs:
       - name: Install test dependencies
         run: pip install ansible ansible-lint molecule[docker,lint] docker
 
-      - name: Run Molecule tests --scenario-name default
-        run: ANSIBLE_VERBOSITY=2 molecule test
+      - name: "Run Molecule Test: Linux Playbook with One Instance"
+        run: molecule test --scenario-name default
         env:
           MOLECULE_DISTRO: "${{ matrix.distros }}"
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
 
-      - name: Run Molecule tests --scenario-name multiple_machines
-        run: ANSIBLE_VERBOSITY=2 molecule test
+      - name: "Run Molecule Test: Linux Playbook with Separation of Concern"
+        run: molecule test --scenario-name multiple_machines
         env:
           MOLECULE_DISTRO: "${{ matrix.distros }}"
           PY_COLORS: '1'
