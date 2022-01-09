@@ -20,12 +20,15 @@
 
 - hosts: webmapserver
   become: true
-  roles: webmap
+  roles: 
+    - webmap
 
 - hosts: videoserver
   become: true
-  roles: videoserver
+  roles: 
+    - videoserver
 
 - hosts: noderedserver
   become: true
-  roles: nodered
+  roles: 
+    - nodered

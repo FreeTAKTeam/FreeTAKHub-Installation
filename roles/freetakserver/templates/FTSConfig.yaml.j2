@@ -6,11 +6,11 @@ System:
 Addresses:
   FTS_COT_PORT: {{ fts_cot_port | int }}
   FTS_SSLCOT_PORT: {{ fts_sslcot_port | int }}
-  FTS_DP_ADDRESS: {{ fts_ip_address }}
-  FTS_USER_ADDRESS: {{ fts_ip_address }}
+  FTS_DP_ADDRESS: {{ hostvars['freetakserver']['ansible_default_ipv4']['address'] }}
+  FTS_USER_ADDRESS: {{ hostvars['freetakserver']['ansible_default_ipv4']['address'] }}
   FTS_API_PORT: {{ fts_api_port | int }}
   FTS_FED_PORT: {{ fts_fed_port | int }}
-  FTS_API_ADDRESS: {{ fts_ip_address }}
+  FTS_API_ADDRESS: {{ hostvars['freetakserver']['ansible_default_ipv4']['address'] }}
 FileSystem:
   FTS_CONFIG_PATH: {{ fts_config_path }}
   FTS_DB_PATH: {{ fts_db_path }}

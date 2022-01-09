@@ -60,9 +60,9 @@ scenario:
   test_sequence:
     - lint
     - destroy
-    - syntax
+    # - syntax
     - create
     - converge
-    - idempotence
+    # - idempotence
     - verify
     - destroy

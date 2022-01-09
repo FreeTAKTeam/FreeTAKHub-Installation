@@ -21,8 +21,9 @@ In Ubuntu console:
 
 ```console
 sudo apt update
-sudo apt install software-properties-common
-sudo apt-add-repository –yes –update ppa:ansible/ansible
+sudo apt install -y software-properties-common
+sudo sudo apt-add-repository –y -u ppa:ansible/ansible
+
 sudo apt install ansible
 ```
 
@@ -31,5 +32,5 @@ sudo apt install ansible
 In console in project root
 
 ```
-sudo ansible-playbook -i hosts.ini main.yml
+sudo ansible-playbook -i hosts/localhost.yml playbooks/install.yml
 ```

@@ -9,7 +9,7 @@
   replace:
     path: "{{ fts_ui_install_path }}/config.py"
     regexp: 'WEBMAPIP = "127.0.0.1"'
-    replace: "WEBMAPIP = \"{{ webmap_ip_address }}\""
+    replace: "WEBMAPIP = \"{{ hostvars['webmapserver']['ansible_default_ipv4']['address'] }}\""
 
 - name: Template fts-ui.service unit file
   template:
