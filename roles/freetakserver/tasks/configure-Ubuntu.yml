@@ -9,7 +9,7 @@
   replace:
     path: "{{ fts_config_path }}"
     regexp: "0.0.0.0"
-    replace: "'{{ hostvars.freetakserver.ansible_host | default(fts_ip_address) }}'"
+    replace: "'{{ fts_ip_address }}'"
 
 - name: Change FirstStart to False in MainConfig.py
   lineinfile:

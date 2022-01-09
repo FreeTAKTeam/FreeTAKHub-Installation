@@ -3,13 +3,13 @@
   replace:
     path: "{{ fts_ui_install_path }}/config.py"
     regexp: '127.0.0.1'
-    replace: "{{ hostvars.freetakserver.ansible_host | default(ansible_default_ipv4.address) }}"
+    replace: "{{ fts_ip_address }}"
 
 - name: Edit config so ip is correct
   replace:
     path: "{{ fts_ui_install_path }}/config.py"
     regexp: 'WEBMAPIP = "127.0.0.1"'
-    replace: "WEBMAPIP = \"{{ hostvars.webmapserver.ansible_host | default(ansible_default_ipv4.address) }}\""
+    replace: "WEBMAPIP = \"{{ webmap_ip_address }}\""
 
 - name: Template fts-ui.service unit file
   template:
