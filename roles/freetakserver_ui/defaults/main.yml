@@ -4,7 +4,7 @@ uninstall_fts_ui: false
 reinstall_fts_ui: false
 
 # system information
-fts__ui_ip_address: "{{ hostvars['freetakserver']['ansible_default_ipv4']['address'] }}"
+fts_ui_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}"
 
 # Set initial service state. Recommended values: `started` or `stopped`.
 fts_ui_state: started
