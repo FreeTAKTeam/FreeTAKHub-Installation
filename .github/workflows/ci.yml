@@ -33,7 +33,7 @@ jobs:
         run: pip install ansible ansible-lint molecule[docker,lint] docker
 
       - name: "Run Molecule Test: Linux Playbook with One Instance"
-        run: molecule test --scenario-name default
+        run: ANSIBLE_VERBOSITY=3 molecule test --scenario-name default
         env:
           MOLECULE_DISTRO: "${{ matrix.distros }}"
           PY_COLORS: '1'
