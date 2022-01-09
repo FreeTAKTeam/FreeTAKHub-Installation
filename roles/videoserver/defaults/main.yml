@@ -1,6 +1,6 @@
 ---
 videoserver_version: 0.17.9
-videoserver_github: "https://github.com/aler9/rtsp-simple-server/"
+videoserver_github: "https://github.com/aler9/rtsp-simple-server"
 video_server_download_path: "{{ videoserver_github }}/releases/download/v{{ videoserver_version }}"
 videoserver_asset: "rtsp-simple-server_v{{ videoserver_version }}_linux_amd64.tar.gz"
 videoserver_download_url: "{{ video_server_download_path }}/{{ videoserver_asset }}"

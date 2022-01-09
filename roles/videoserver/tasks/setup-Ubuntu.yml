@@ -1,18 +1,32 @@
 ---
+- name: Get RTSP Simple Server release information using GitHub API
+  uri:
+    url: "{{ videoserver_url }}"
+    return_content: true
+  register: videoserver_response
+
+- debug:
+    var: videoserver_response
+
 - name: Download and unarchive videoserver
   unarchive:
-    src: "{{ videoserver_download_url }}"
+    src: "{{ videoserver_response.json.assets[1].browser_download_url }}"
     dest: "{{ videoserver_download_location }}"
     remote_src: true
 
 - name: Copy videoserver config to /opt
   copy:
-    src: "{{ videoserver_download_location }}/rtsp-simple-server.yml"
-    dest: "{{ videoserver_config_location }}/rtsp-simple-server.yml"
+    src: "{{ videoserver_config_location }}"
+    dest: "{{ videoserver_config_destination }}"
     remote_src: true
 
 - name: Copy videoserver executable to /usr/local/bin
   copy:
-    src: "{{ videoserver_download_location }}/rtsp-simple-server"
-    dest: "{{ videoserver_executable_location }}/rtsp-simple-server"
+    src: "{{ videoserver_executable_location }}"
+    dest: "{{ videoserver_executable_location }}"
     remote_src: true
+
+- name: Ensure videoserver executable is executable
+  file:
+    path: "{{ videoserver_config_destination }}"
+    mode: 0755

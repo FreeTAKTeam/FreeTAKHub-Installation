@@ -1,4 +1,10 @@
 ---
+videoserver_url: https://api.github.com/repos/aler9/rtsp-simple-server/releases/latest
+
 videoserver_download_location: /tmp
-videoserver_config_location: /opt
-videoserver_executable_location: /usr/local/bin
+
+videoserver_config_location: /tmp/rtsp-simple-server.yml
+videoserver_config_destination: /opt/rtsp-simple-server.yml
+
+videoserver_executable_location: /tmp/rtsp-simple-server
+videoserver_executable_destination: /usr/local/bin/rtsp-simple-server
