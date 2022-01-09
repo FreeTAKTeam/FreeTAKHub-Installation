@@ -9,7 +9,7 @@
 
 - name: Install FreeTAKServer apt dependencies
   apt:
-    name: "{{ freetakserver_apt_dependencies }}"
+    name: "{{ fts_apt_dependencies }}"
 
 - name: Install FreeTAKServer
   pip:
