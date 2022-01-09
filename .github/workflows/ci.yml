@@ -30,7 +30,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install test dependencies
-        run: pip install ansible molecule[docker] docker
+        run: pip install ansible molecule[docker,lint] docker
 
       - name: Run Molecule tests --scenario-name default
         run: ANSIBLE_VERBOSITY=2 molecule test
