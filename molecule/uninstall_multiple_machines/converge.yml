@@ -31,6 +31,9 @@
       include_role:
         name: freetakserver_ui
 
+    - name: Force all notified handlers to run
+      meta: flush_handlers
+
     - name: Uninstall FreeTAKServer
       include_role:
         name: freetakserver
@@ -50,6 +53,9 @@
       include_role:
         name: webmap
 
+    - name: Force all notified handlers to run
+      meta: flush_handlers
+
     - name: Uninstall webmap
       include_role:
         name: webmap
@@ -63,6 +69,9 @@
       include_role:
         name: videoserver
 
+    - name: Force all notified handlers to run
+      meta: flush_handlers
+
     - name: Uninstall videoserver
       include_role:
         name: videoserver
@@ -75,6 +84,9 @@
     - name: Install nodered
       include_role:
         name: nodered
+
+    - name: Force all notified handlers to run
+      meta: flush_handlers
 
     - name: Uninstall nodered
       include_role:
