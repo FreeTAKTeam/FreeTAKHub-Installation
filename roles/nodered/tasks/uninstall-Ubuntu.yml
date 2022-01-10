@@ -14,3 +14,5 @@
   npm:
     name: node-red
     state: absent
+    global: true
+    unsafe_perm: true
