@@ -34,6 +34,9 @@
       include_role:
         name: nodered
 
+    - name: Force all notified handlers to run
+      meta: flush_handlers
+
     - name: Uninstall FreeTAKServer
       include_role:
         name: freetakserver
