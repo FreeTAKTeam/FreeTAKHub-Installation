@@ -3,6 +3,7 @@
   service:
     name: "{{ fts_ui_service_name }}"
     state: stopped
+  ignore_errors: true
 
 - name: Remove unit file
   file:
