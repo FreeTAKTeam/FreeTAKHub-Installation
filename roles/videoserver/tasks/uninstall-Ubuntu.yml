@@ -1,13 +1,13 @@
 ---
 - name: Stop service
   service:
-    name: "{{ video_service_name }}"
+    name: "{{ videoserver_service_name }}"
     state: stopped
   ignore_errors: true
 
 - name: Remove unit file
   file:
-    path: "{{ unit_files_location }}/{{ video_service_name }}.service"
+    path: "{{ unit_files_location }}/{{ videoserver_service_name }}.service"
     state: absent
 
 - name: Uninstall
