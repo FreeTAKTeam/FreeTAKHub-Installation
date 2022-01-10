@@ -17,6 +17,6 @@
     unsafe_perm: true
   register: nodered
 
-- name: "Configure for {{ ansible_distribution }}"
+- name: "Configure"
   include_tasks: "configure-{{ ansible_distribution }}.yml"
   when: nodered.changed

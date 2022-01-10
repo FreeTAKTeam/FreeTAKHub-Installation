@@ -57,7 +57,7 @@
         - "{{ videoserver_package_location }}"
         - "{{ videoserver_folder }}"
 
-    - name: "Configure RTSP Simple Server (videoserver) for {{ ansible_distribution }}"
+    - name: "Configure"
       include_tasks: "configure-{{ ansible_distribution }}.yml"
 
   when: not videoserver.stat.exists
