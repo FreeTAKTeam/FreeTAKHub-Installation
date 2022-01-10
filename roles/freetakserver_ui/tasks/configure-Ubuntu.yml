@@ -15,7 +15,7 @@
     regexp: 'WEBMAPIP = "127.0.0.1"'
     replace: "WEBMAPIP = \"{{ webmap_ip_address }}\""
 
-- name: Template fts-ui.service unit file
+- name: Template unit file
   template:
     src: fts-ui.service.j2
     dest: "{{ unit_files_location }}/{{ fts_ui_service_name }}.service"
