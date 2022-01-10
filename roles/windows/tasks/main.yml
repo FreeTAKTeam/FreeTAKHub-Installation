@@ -1,0 +1,13 @@
+---
+- name: Install chocolatey
+  win_chocolatey:
+    name:
+      - chocolatey
+      - chocolatey-core.extension
+    state: present
+
+- name: "Add chocolatey to PATH."
+  win_path:
+    name: PATH
+    elements: '%ALLUSERSPROFILE%\chocolatey\bin'
+    state: present
