@@ -23,6 +23,9 @@ EnvironmentFile=-/root/.node-red/environment
 # uncomment next line if you need to wait for time sync before starting
 #ExecStartPre=/bin/bash -c '/bin/journalctl -b -u systemd-timesyncd | /bin/grep -q "systemd-timesyncd.* Synchronized to time server"'
 
+StandardOutput=append:/var/log/{{ node_service_name }}/{{ node_service_name }}-stdout.log
+StandardError=append:/var/log/{{ node_service_name }}/{{ node_service_name }}-stderr.log
+
 ExecStart=/usr/bin/env node-red $NODE_OPTIONS $NODE_RED_OPTIONS
 #ExecStart=/usr/bin/env node $NODE_OPTIONS red.js $NODE_RED_OPTIONS
 
