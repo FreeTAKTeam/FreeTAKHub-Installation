@@ -1,0 +1,8 @@
+---
+- name: Uninstall
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ webmap_executable_location }}"
+    - "{{ webmap_config_location }}"

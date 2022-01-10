@@ -1,0 +1,13 @@
+---
+- name: Wait for apt lock
+  shell: >
+    while fuser /var/lib/dpkg/lock >
+    /dev/null 2>&1;
+    do sleep 3; done;
+
+- name: Uninstall
+  npm:
+    name: node-red
+    state: absent
+    global: true
+    unsafe_perm: true

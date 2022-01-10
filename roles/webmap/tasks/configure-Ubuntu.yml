@@ -1,8 +1,8 @@
 ---
-- name: Template webmap.service unit file
+- name: Template unit file
   template:
     src: webmap.service.j2
-    dest: /lib/systemd/system/webmap.service
+    dest: "{{ unit_files_location }}/{{ webmap_service_name }}.service"
     mode: 0644
   notify:
     - enable webmap

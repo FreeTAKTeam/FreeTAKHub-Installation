@@ -1,0 +1,58 @@
+---
+- name: Linux Playbook with One Instance
+  hosts: instance
+  become: true
+  tasks:
+    - name: Prevent handlers from running
+      set_fact:
+        run_handlers: false
+
+    - name: Install FreeTAKServer
+      include_role:
+        name: freetakserver
+
+    - name: Install FreeTAKServer-UI
+      include_role:
+        name: freetakserver_ui
+
+    - name: Install webmap
+      include_role:
+        name: webmap
+
+    - name: Install videoserver
+      include_role:
+        name: videoserver
+
+    - name: Install nodered
+      include_role:
+        name: nodered
+
+    - name: Uninstall FreeTAKServer
+      include_role:
+        name: freetakserver
+      vars:
+        uninstall_fts: true
+
+    - name: Uninstall FreeTAKServer-UI
+      include_role:
+        name: freetakserver_ui
+      vars:
+        uninstall_fts_ui: true
+
+    - name: Uninstall webmap
+      include_role:
+        name: webmap
+      vars:
+        uninstall_webmap: true
+
+    - name: Uninstall videoserver
+      include_role:
+        name: videoserver
+      vars:
+        uninstall_videoserver: true
+
+    - name: Uninstall nodered
+      include_role:
+        name: nodered
+      vars:
+        uninstall_nodered: true

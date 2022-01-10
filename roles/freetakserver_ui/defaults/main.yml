@@ -1,10 +1,15 @@
 ---
 # custom setup commands
 uninstall_fts_ui: false
-reinstall_fts_ui: false
 
 # system information
 fts_ui_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+
+# FreeTAKServer-UI pip package name
+fts_ui_pip_package_name: FreeTAKServer-UI
+
+# system service name
+fts_ui_service_name: fts-ui
 
 # Set initial service state. Recommended values: `started` or `stopped`.
 fts_ui_state: started

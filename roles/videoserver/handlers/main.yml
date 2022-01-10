@@ -1,15 +1,18 @@
 ---
 - name: enable videoserver
   service:
-    name: rtsp-simple-server
+    name: "{{ videoserver_service_name }}"
     enabled: "{{ videoserver_enabled }}"
+  when: run_handlers
 
 - name: reload videoserver
   service:
-    name: rtsp-simple-server
+    name: "{{ videoserver_service_name }}"
     state: reloaded
+  when: run_handlers
 
 - name: set videoserver state
   service:
-    name: rtsp-simple-server
+    name: "{{ videoserver_service_name }}"
     state: "{{ videoserver_state }}"
+  when: run_handlers

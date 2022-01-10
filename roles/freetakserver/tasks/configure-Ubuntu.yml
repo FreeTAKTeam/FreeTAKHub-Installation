@@ -1,4 +1,8 @@
 ---
+- name: Print IPv4 information
+  debug:
+    msg: "Using: {{ fts_ip_address }} for {{ role_name }}"
+
 - name: Template FTSConfig.yaml config file
   template:
     src: FTSConfig.yaml.j2
@@ -18,10 +22,10 @@
     line: '\1first_start = False'
     backrefs: true
 
-- name: Template fts.service unit file
+- name: Template unit file
   template:
     src: fts.service.j2
-    dest: /lib/systemd/system/fts.service
+    dest: "{{ unit_files_location }}/{{ fts_service_name }}.service"
     mode: 0644
   notify:
     - enable freetakserver

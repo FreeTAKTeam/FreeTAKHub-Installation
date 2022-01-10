@@ -4,13 +4,19 @@
     while fuser /var/lib/dpkg/lock >
     /dev/null 2>&1;
     do sleep 3; done;
+  changed_when: false
 
-- name: Install Node-RED apt dependencies
+- name: Install apt dependencies
   apt:
     name: "{{ nodered_dependencies }}"
 
-- name: Install Node-RED with npm
+- name: Install with npm
   npm:
     name: node-red
     global: true
     unsafe_perm: true
+  register: nodered
+
+- name: "Configure for {{ ansible_distribution }}"
+  include_tasks: "configure-{{ ansible_distribution }}.yml"
+  when: nodered.changed

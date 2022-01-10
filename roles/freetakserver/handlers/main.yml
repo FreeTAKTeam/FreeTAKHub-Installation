@@ -1,15 +1,17 @@
 ---
 - name: enable freetakserver
   service:
-    name: fts
+    name: "{{ fts_service_name }}"
     enabled: "{{ fts_enabled }}"
+  when: run_handlers
 
 - name: set freetakserver state
   service:
-    name: fts
+    name: "{{ fts_service_name }}"
     state: "{{ fts_state }}"
+  when: run_handlers
 
 - name: reload freetakserver
   service:
-    name: fts
-    state: reloaded
+    name: "{{ fts_service_name }}"
+  when: run_handlers

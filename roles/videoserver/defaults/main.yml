@@ -1,15 +1,16 @@
 ---
-videoserver_version: 0.17.9
-videoserver_github: "https://github.com/aler9/rtsp-simple-server"
-video_server_download_path: "{{ videoserver_github }}/releases/download/v{{ videoserver_version }}"
-videoserver_asset: "rtsp-simple-server_v{{ videoserver_version }}_linux_amd64.tar.gz"
-videoserver_download_url: "{{ video_server_download_path }}/{{ videoserver_asset }}"
+uninstall_videoserver: false
+
+videoserver_api_url: https://api.github.com/repos/aler9/rtsp-simple-server/releases/latest
 
 # system information
 videoserver_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
 
-# Set initial service state.
-# Recommended values: `started` or `stopped`.
+videoserver_executable: rtsp-simple-server
+videoserver_config_file: rtsp-simple-server.yml
+videoserver_service_name: rtsp-simple-server
+
+# Set initial service state. Recommended values: `started` or `stopped`.
 videoserver_state: started
 
 # Enable service.

@@ -27,16 +27,25 @@ sudo sudo apt-add-repository –y -u ppa:ansible/ansible
 sudo apt install ansible
 ```
 
-### Example Playbooks
+### Install
 
-An example playbook is located in: `install.yml`.
+An example default install playbook is defined in: `freetakhub_install.yml`.
 
-An example hosts file is located in: `hosts.yml`.
+This playbook installs all FreeTAKServer and components to your machine.
 
-The `install.yml` or `hosts.yml` may need to be modified for your specific use case.
+To execute the default install playbook, enter:
 
-An example run command: From the root directory of the project, type:
+```console
+sudo ansible-playbook freetakhub_install.yml
+```
+### Uninstall
 
-```configure
-sudo ansible-playbook install.yml -i hosts.yml -e "@ip_addresses.yml"
+An example default uninstall playbook is defined in: `freetakhub_install.yml`.
+
+The playbook uninstalls all FreeTAKServer and components on your machine.
+
+To execute the default uninstall playbook, enter:
+
+```console
+sudo ansible-playbook freetakhub_uninstall.yml
 ```

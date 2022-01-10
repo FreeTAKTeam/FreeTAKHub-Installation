@@ -1,0 +1,8 @@
+---
+- name: Uninstall
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ videoserver_executable_location }}"
+    - "{{ videoserver_config_location }}"

@@ -1,10 +1,13 @@
 ---
-- name: Linux Playbook with Separation of Concern
-  hosts: all
+- name: Install all FreeTAKServer and components
+  hosts: localhost
   become: true
   pre_tasks:
-    - name: Include IPv4 address variables
-      include_vars: ../../ip_addresses.yml
+    - name: "Create systemctl backup"
+      copy:
+        src: /usr/local/bin/systemctl
+        dest: /usr/local/bin/systemctl.backup
+        remote_src: true
 
     - name: Use systemctl replacement workaround
       get_url:
@@ -12,8 +15,9 @@
         dest: /usr/local/bin/systemctl
         mode: 0755
 
-- hosts: freetakserver
-  become: true
+    - name: Include IPv4 address variables
+      include_vars: ip_addresses.yml
+
   tasks:
     - name: Install FreeTAKServer
       include_role:
@@ -23,23 +27,14 @@
       include_role:
         name: freetakserver_ui
 
-- hosts: webmapserver
-  become: true
-  tasks:
     - name: Install webmap
       include_role:
         name: webmap
 
-- hosts: videoserver
-  become: true
-  tasks:
     - name: Install videoserver
       include_role:
         name: videoserver
 
-- hosts: noderedserver
-  become: true
-  tasks:
     - name: Install nodered
       include_role:
         name: nodered

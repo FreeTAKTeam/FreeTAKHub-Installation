@@ -3,6 +3,10 @@
   hosts: all
   become: true
   pre_tasks:
+    - name: Prevent handlers from running
+      set_fact:
+        run_handlers: false
+
     - name: Include IPv4 address variables
       include_vars: ../../ip_addresses.yml
 
@@ -23,12 +27,30 @@
       include_role:
         name: freetakserver_ui
 
+    - name: Uninstall FreeTAKServer
+      include_role:
+        name: freetakserver
+      vars:
+        uninstall_fts: true
+
+    - name: Uninstall FreeTAKServer-UI
+      include_role:
+        name: freetakserver_ui
+      vars:
+        uninstall_fts_ui: true
+
 - hosts: webmapserver
   become: true
   tasks:
     - name: Install webmap
       include_role:
         name: webmap
+
+    - name: Uninstall webmap
+      include_role:
+        name: webmap
+      vars:
+        uninstall_webmap: true
 
 - hosts: videoserver
   become: true
@@ -37,9 +59,21 @@
       include_role:
         name: videoserver
 
+    - name: Uninstall videoserver
+      include_role:
+        name: videoserver
+      vars:
+        uninstall_videoserver: true
+
 - hosts: noderedserver
   become: true
   tasks:
     - name: Install nodered
       include_role:
         name: nodered
+
+    - name: Uninstall nodered
+      include_role:
+        name: nodered
+      vars:
+        uninstall_nodered: true

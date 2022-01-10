@@ -45,24 +45,38 @@ lint: |
 
 scenario:
   create_sequence:
+    - dependency
     - create
+    - prepare
   check_sequence:
+    - dependency
+    - cleanup
     - destroy
     - create
+    - prepare
     - converge
     - check
     - destroy
   converge_sequence:
+    - dependency
     - create
+    - prepare
     - converge
   destroy_sequence:
+    - dependency
+    - cleanup
     - destroy
   test_sequence:
-    # - lint
+    - dependency
+    - lint
+    - cleanup
     - destroy
-    # - syntax
+    - syntax
     - create
+    - prepare
     - converge
-    # - idempotence
+    - idempotence
+    - side_effect
     - verify
+    - cleanup
     - destroy

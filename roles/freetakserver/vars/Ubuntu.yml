@@ -1,5 +1,4 @@
 ---
-fts_repo_path: /opt/FreeTAKServer
 fts_config_path: /opt/FTSConfig.yaml
 fts_db_path: /opt/FreeTAKServer.db
 

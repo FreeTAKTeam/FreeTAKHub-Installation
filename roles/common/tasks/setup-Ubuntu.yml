@@ -1,0 +1,8 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: true
+    cache_valid_time: 86400
+  register: update
+  retries: 5
+  until: update is success

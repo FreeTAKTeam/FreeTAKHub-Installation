@@ -2,7 +2,7 @@
 After=network.target
 
 [Service]
-ExecStart={{ videoserver_executable_location }}/rtsp-simple-server {{ videoserver_config_location }}/rtsp-simple-server.yml
+ExecStart={{ videoserver_executable_location }} {{ videoserver_config_location }}
 
 [Install]
 WantedBy=multi-user.target

@@ -1,20 +1,25 @@
 ---
-- name: Uninstall FreeTAKServer-UI
-  pip:
-    name: FreeTAKServer-UI
-    state: absent
-    executable: "pip{{ python3_version }}"
-  when: uninstall_fts_ui
+- name: Check if FreeTAKServer-UI is installed
+  shell: >
+        set -o pipefail &&
+        {{ pip3 }} list |
+        grep FreeTAKServer-UI
+  args:
+    warn: false
+    executable: /bin/bash
+  register: result
+  changed_when: false
+  ignore_errors: true
 
 - name: Install FreeTAKServer-UI
-  pip:
-    name: FreeTAKServer-UI
-    executable: "pip{{ python3_version }}"
-  when: not uninstall_fts_ui
+  block:
 
-- name: Re-install FreeTAKServer-UI
-  pip:
-    name: FreeTAKServer-UI
-    state: forcereinstall
-    executable: "pip{{ python3_version }}"
-  when: reinstall_fts_ui
+    - name: "Install {{ fts_ui_pip_package_name }}"
+      pip:
+        name: "{{ fts_ui_pip_package_name }}"
+        executable: "pip{{ python3_version }}"
+
+    - name: Configure FreeTAKServer-UI
+      include_tasks: "configure-{{ ansible_distribution }}.yml"
+
+  when: (result.stdout | length == 0)

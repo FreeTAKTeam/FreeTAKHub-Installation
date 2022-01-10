@@ -1,5 +1,8 @@
 ---
-- name: "Install {{ python3 }}"
+- name: "Include {{ ansible_distribution }}-specific variables"
+  include_vars: "{{ ansible_distribution }}.yml"
+
+- name: "Install"
   apt:
     name: "python{{ python3_version }}"
 
@@ -26,9 +29,7 @@
 
   when: not pip3_executable.stat.exists
 
-- name: "Install {{ pip3 }} dependencies"
+- name: "Install {{ pip3 }} packages"
   pip:
-    name: "{{ item }}"
+    name: "{{ pip3_packages }}"
     executable: "{{ pip3 }}"
-  loop:
-    - virtualenv
