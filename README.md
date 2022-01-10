@@ -40,7 +40,7 @@ sudo ansible-playbook freetakhub_install.yml
 ```
 ### Uninstall
 
-An example default uninstall playbook is defined in: `freetakhub_install.yml`.
+An example default uninstall playbook is defined in: `freetakhub_uninstall.yml`.
 
 The playbook uninstalls all FreeTAKServer and components on your machine.
 
