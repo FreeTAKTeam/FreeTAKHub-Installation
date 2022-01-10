@@ -17,7 +17,9 @@ To install on Windows, you will have to:
 
     See: <https://docs.microsoft.com/en-us/windows/wsl/install>
 
-    See Also: <https://www.omgubuntu.co.uk/how-to-install-wsl2-on-windows-10>
+    See also: <https://www.omgubuntu.co.uk/how-to-install-wsl2-on-windows-10>
+
+    See also: https://www.sitepoint.com/wsl2/
 
 1. Install the WSL Ubuntu 20.04 distribution.
 
@@ -25,7 +27,7 @@ To install on Windows, you will have to:
 
 ### Step 1. Install Ansible control nodes with OS packages
 
-In Ubuntu console:
+In the Ubuntu console:
 
 ```console
 pip install ansible
