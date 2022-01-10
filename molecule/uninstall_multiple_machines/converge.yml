@@ -3,10 +3,6 @@
   hosts: all
   become: true
   pre_tasks:
-    - name: Prevent handlers from running
-      set_fact:
-        run_handlers: false
-
     - name: "Include {{ ansible_distribution }} common variables"
       include_vars:
         file: "../../roles/common/vars/{{ ansible_distribution }}.yml"
