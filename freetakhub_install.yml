@@ -3,7 +3,7 @@
   hosts: localhost
   become: true
   pre_tasks:
-    - name: "Create systemctl backup"
+    - name: Create systemctl backup
       copy:
         src: /usr/local/bin/systemctl
         dest: /usr/local/bin/systemctl.backup
