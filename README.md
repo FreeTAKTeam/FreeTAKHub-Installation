@@ -30,14 +30,13 @@ To install on Windows, you will have to:
 In the Ubuntu console:
 
 ```console
-pip install ansible
 sudo apt update
-sudo apt-get install -y python3-pip libssl-dev software-properties-common git
-sudo sudo apt-add-repository –y -u ppa:ansible/ansible
-sudo apt install -y ansible
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible git
 ```
-See: <https://www.jeffgeerling.com/blog/2017/using-ansible-through-windows-10s-subsystem-linux>
-See also: <https://fakhridarmawan.medium.com/install-ansible-on-windows-subsystem-linux-ac9245219077>
+
+See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-ubuntu>
 
 ### Step 2. Clone the FreeTAKHub-Installation Git repository
 
