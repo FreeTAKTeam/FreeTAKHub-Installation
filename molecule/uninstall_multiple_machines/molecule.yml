@@ -41,7 +41,6 @@ verifier:
 lint: |
   set -e
   yamllint .
-  ansible-lint .
 
 scenario:
   create_sequence:
@@ -75,7 +74,7 @@ scenario:
     - create
     - prepare
     - converge
-    - idempotence
+    # - idempotence
     - side_effect
     - verify
     - cleanup
