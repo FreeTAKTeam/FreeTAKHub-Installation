@@ -1,9 +1,14 @@
 ---
-- name: Wait for apt lock
-  shell: >
-    while fuser /var/lib/dpkg/lock >
-    /dev/null 2>&1;
-    do sleep 3; done;
+- name: Stop service
+  service:
+    name: "{{ nodered_service_name }}"
+    state: stopped
+  ignore_errors: true
+
+- name: Remove unit file
+  file:
+    path: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
+    state: absent
 
 - name: Uninstall
   npm:

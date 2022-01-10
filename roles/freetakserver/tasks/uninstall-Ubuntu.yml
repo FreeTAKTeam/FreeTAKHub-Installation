@@ -1,8 +1,9 @@
 ---
 - name: Stop service
   service:
-    name: fts
+    name: "{{ fts_service_name }}"
     state: stopped
+  ignore_errors: true
 
 - name: Remove unit file
   file:
