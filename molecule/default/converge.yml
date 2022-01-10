@@ -9,8 +9,6 @@
         dest: /usr/local/bin/systemctl
         mode: 0755
   roles:
-    - common
-    - python3
     - freetakserver
     - freetakserver_ui
     - webmap

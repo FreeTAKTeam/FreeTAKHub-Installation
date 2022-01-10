@@ -29,14 +29,14 @@ sudo apt install ansible
 
 ### Example Playbooks
 
-An example playbook is located in: `playbooks/install.yml`.
+An example playbook is located in: `install.yml`.
 
-An example hosts file is located in: `hosts/localhost.yml`.
+An example hosts file is located in: `hosts.yml`.
 
-The playbooks or hosts files may need editing to cover your specific machine.
+The `install.yml` or `hosts.yml` may need to be modified for your specific use case.
 
 An example run command: From the root directory of the project, type:
 
 ```configure
-sudo ansible-playbook -i hosts/localhost.yml playbooks/install.yml
+sudo ansible-playbook install.yml -i hosts.yml -e "@ip_addresses.yml"
 ```

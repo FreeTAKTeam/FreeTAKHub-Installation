@@ -1,11 +1,20 @@
 ---
 - name: Include OS-specific variables
-  include_vars: "{{ ansible_distribution }}.yml"
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yml"
+    - "roles/freetakserver_ui/vars/{{ ansible_distribution }}.yml"
 
 - name: Set up FreeTAKServer-UI
-  include_tasks: "setup-{{ ansible_distribution }}.yml"
+  include_tasks: "{{ item }}"
+  with_first_found:
+    - "setup-{{ ansible_distribution }}.yml"
+    - "roles/freetakserver_ui/tasks/setup-{{ ansible_distribution }}.yml"
   tags: install_fts_ui
 
 - name: Configure FreeTAKServer-UI
-  include_tasks: "configure-{{ ansible_distribution }}.yml"
+  include_tasks: "{{ item }}"
+  with_first_found:
+    - "configure-{{ ansible_distribution }}.yml"
+    - "roles/freetakserver_ui/tasks/configure-{{ ansible_distribution }}.yml"
   tags: configure_fts_ui

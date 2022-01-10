@@ -1,11 +1,20 @@
 ---
-- name: Include OS-specific variables
-  include_vars: "{{ ansible_distribution }}.yml"
+- name: "Include OS-specific variables for {{ ansible_distribution }}"
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yml"
+    - "roles/webmap/vars/{{ ansible_distribution }}.yml"
 
-- name: Set up webmap
-  include_tasks: "setup-{{ ansible_distribution }}.yml"
+- name: "Set up webmap for {{ ansible_distribution }}"
+  include_tasks: "{{ item }}"
+  with_first_found:
+    - "setup-{{ ansible_distribution }}.yml"
+    - "roles/webmap/tasks/setup-{{ ansible_distribution }}.yml"
   tags: install_webmap
 
-- name: Configure webmap
-  include_tasks: "configure-{{ ansible_distribution }}.yml"
+- name: "Configure webmap for {{ ansible_distribution }}"
+  include_tasks: "{{ item }}"
+  with_first_found:
+    - "configure-{{ ansible_distribution }}.yml"
+    - "roles/webmap/tasks/configure-{{ ansible_distribution }}.yml"
   tags: configure_webmap

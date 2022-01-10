@@ -2,8 +2,6 @@
 - name: Windows Playbook with Separation of Concern
   hosts: all
   become: true
-  roles:
-    - common
 
 - hosts: freetakserver
   become: true

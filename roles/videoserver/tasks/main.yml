@@ -1,11 +1,20 @@
 ---
-- name: Include OS-specific variables
-  include_vars: "{{ ansible_distribution }}.yml"
+- name: "Include OS-specific variables for {{ ansible_distribution }}"
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yml"
+    - "roles/videoserver/vars/{{ ansible_distribution }}.yml"
 
-- name: Set up videoserver
-  include_tasks: "setup-{{ ansible_distribution }}.yml"
+- name: "Set up RTSP Simple Server (videoserver) for {{ ansible_distribution }}"
+  include_tasks: "{{ item }}"
+  with_first_found:
+    - "setup-{{ ansible_distribution }}.yml"
+    - "roles/videoserver/tasks/setup-{{ ansible_distribution }}.yml"
   tags: install_videoserver
 
-- name: Configure videoserver
-  include_tasks: "configure-{{ ansible_distribution }}.yml"
+- name: "Configure RTSP Simple Server (videoserver) for {{ ansible_distribution }}"
+  include_tasks: "{{ item }}"
+  with_first_found:
+    - "configure-{{ ansible_distribution }}.yml"
+    - "roles/videoserver/tasks/configure-{{ ansible_distribution }}.yml"
   tags: configure_videoserver

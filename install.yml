@@ -1,6 +1,6 @@
 ---
-- name: Windows Playbook with One Instance
-  hosts: instance
+- name: Install all FreeTAKServer and components 
+  hosts: all
   become: true
   roles:
     - freetakserver

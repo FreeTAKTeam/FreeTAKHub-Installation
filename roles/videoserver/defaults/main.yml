@@ -6,7 +6,7 @@ videoserver_asset: "rtsp-simple-server_v{{ videoserver_version }}_linux_amd64.ta
 videoserver_download_url: "{{ video_server_download_path }}/{{ videoserver_asset }}"
 
 # system information
-videoserver_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}"
+videoserver_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
 
 # Set initial service state.
 # Recommended values: `started` or `stopped`.

@@ -1,5 +1,7 @@
 ---
-- name: "Set up python{{ python3_version }} on Ubuntu."
-  include_tasks: "setup-{{ ansible_distribution }}.yml"
-  tags:
-    - python3
+- name: "Set up python{{ python3_version }} on {{ ansible_distribution }}"
+  include_tasks: "{{ item }}"
+  with_first_found:
+    - "setup-{{ ansible_distribution }}.yml"
+    - "./roles/python3/tasks/setup-{{ ansible_distribution }}.yml"
+  tags: install_python3
