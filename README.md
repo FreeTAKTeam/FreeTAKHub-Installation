@@ -9,7 +9,9 @@ FreeTAKHub installation is a set of Ansible scripts that allow you to:
 
 ## PRE-INSTALLATION STEPS: Windows
 
-Currently FreeTAKHub Installation supports Ubuntu 20.04.
+Currently FreeTAKServer and and components has been tested successfully on Ubuntu 20.04.
+
+Other Linux distributions may work, but they have not been tested.
 
 To install on Windows, you will have to:
 
