@@ -1,8 +1,6 @@
 ---
-- name: Update apt cache
-  apt:
-    update_cache: true
-    cache_valid_time: 86400
-  register: update
-  retries: 5
-  until: update is success
+- name: "Include {{ ansible_distribution }}-specific variables"
+  include_vars: "{{ ansible_distribution }}.yml"
+
+- name: Setup
+  include_tasks: "setup-{{ ansible_distribution }}.yml"

@@ -1,8 +1,13 @@
 ---
-webmap_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}"
+uninstall_webmap: false
 
-# Set initial service state.
-# Recommended values: `started` or `stopped`.
+webmap_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+
+webmap_executable: FTH-webmap-linux
+webmap_config_file: webMAP_config.json
+webmap_service_name: webmap
+
+# Set initial service state. Recommended values: `started` or `stopped`.
 webmap_state: started
 
 # Enable service.

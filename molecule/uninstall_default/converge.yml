@@ -1,0 +1,66 @@
+---
+- name: Linux Playbook with One Instance
+  hosts: instance
+  become: true
+  tasks:
+    - name: Include IPv4 address variables
+      include_vars: ../../ip_addresses.yml
+
+    - name: Use systemctl replacement workaround
+      get_url:
+        url: https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py
+        dest: /usr/local/bin/systemctl
+        mode: 0755
+
+    - name: Install FreeTAKServer
+      include_role:
+        name: freetakserver
+
+    - name: Install FreeTAKServer-UI
+      include_role:
+        name: freetakserver_ui
+
+    - name: Install webmap
+      include_role:
+        name: webmap
+
+    - name: Install videoserver
+      include_role:
+        name: videoserver
+
+    - name: Install nodered
+      include_role:
+        name: nodered
+
+    - name: Force all notified handlers to run
+      meta: flush_handlers
+
+    - name: Uninstall FreeTAKServer
+      include_role:
+        name: freetakserver
+      vars:
+        uninstall_fts: true
+
+    - name: Uninstall FreeTAKServer-UI
+      include_role:
+        name: freetakserver_ui
+      vars:
+        uninstall_fts_ui: true
+
+    - name: Uninstall webmap
+      include_role:
+        name: webmap
+      vars:
+        uninstall_webmap: true
+
+    - name: Uninstall videoserver
+      include_role:
+        name: videoserver
+      vars:
+        uninstall_videoserver: true
+
+    - name: Uninstall nodered
+      include_role:
+        name: nodered
+      vars:
+        uninstall_nodered: true

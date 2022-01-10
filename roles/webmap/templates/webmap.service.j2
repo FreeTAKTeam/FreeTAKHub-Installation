@@ -7,7 +7,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart={{ webmap_location }}/{{ webmap_response.json.name }}
+ExecStart={{ webmap_executable_location }}
 
 [Install]
 WantedBy=multi-user.target

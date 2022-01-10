@@ -5,38 +5,67 @@ FreeTAKHub installation is a set of Ansible scripts that allow you to:
 - install FTS and all the additional modules
 - configure FTS
 
-## Control Machine
+# Install
 
-To use this module you need to install Ansible on your control machine that will control all the installations of FTS.
+## PRE-INSTALLATION STEPS: Windows
 
-### Install Ansible with pip
+Currently FreeTAKServer and and components has been tested successfully on Ubuntu 20.04.
 
-```console
-pip install ansible
-```
+Other Linux distributions may work, but they have not been tested.
 
-### Install Ansible control nodes with OS packages
+To install on Windows, you will have to:
 
-In Ubuntu console:
+1. Install WSL2.
+
+    See: <https://docs.microsoft.com/en-us/windows/wsl/install>
+
+    See also: <https://www.omgubuntu.co.uk/how-to-install-wsl2-on-windows-10>
+
+    See also: https://www.sitepoint.com/wsl2/
+
+1. Install the WSL Ubuntu 20.04 distribution.
+
+    See: <https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71>
+
+### Step 1. Install Ansible and package dependencies
+
+In the Ubuntu console:
 
 ```console
 sudo apt update
-sudo apt install -y software-properties-common
-sudo sudo apt-add-repository –y -u ppa:ansible/ansible
-
-sudo apt install ansible
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible git
 ```
 
-### Example Playbooks
+See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-ubuntu>
 
-An example playbook is located in: `playbooks/install.yml`.
+### Step 2. Clone the FreeTAKHub-Installation Git repository
 
-An example hosts file is located in: `hosts/localhost.yml`.
+```console
+git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
+```
 
-The playbooks or hosts files may need editing to cover your specific machine.
+### Step 3. Install with Ansible
 
-An example run command: From the root directory of the project, type:
+An example default install playbook is defined in: `freetakhub_install.yml`.
 
-```configure
-sudo ansible-playbook -i hosts/localhost.yml playbooks/install.yml
+This playbook installs all FreeTAKServer and components to your machine.
+
+To execute the default install playbook, from the top directory, enter:
+
+```console
+sudo ansible-playbook freetakhub_install.yml
+```
+
+# Uninstall
+
+An example default uninstall playbook is defined in: `freetakhub_uninstall.yml`.
+
+The playbook uninstalls all FreeTAKServer and components on your machine.
+
+To execute the default uninstall playbook, from the top directory, enter:
+
+```console
+sudo ansible-playbook freetakhub_uninstall.yml
 ```

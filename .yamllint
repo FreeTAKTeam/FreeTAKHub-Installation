@@ -2,6 +2,9 @@
 extends: default
 
 rules:
+  braces: disable
+  comments-indentation:
+    level: warning
   line-length:
     max: 150
     level: warning

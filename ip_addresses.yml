@@ -1,0 +1,6 @@
+---
+fts_ip_address: localhost
+fts_ui_ip_address: localhost
+webmap_ip_address: localhost
+videoserver_ip_address: localhost
+noderedserver_ip_address: localhost

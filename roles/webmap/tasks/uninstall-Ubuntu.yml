@@ -1,0 +1,19 @@
+---
+- name: Stop service
+  service:
+    name: "{{ webmap_service_name }}"
+    state: stopped
+  ignore_errors: true
+
+- name: Remove unit file
+  file:
+    path: "{{ unit_files_location }}/{{ webmap_service_name }}.service"
+    state: absent
+
+- name: Uninstall
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ webmap_executable_location }}"
+    - "{{ webmap_config_location }}"

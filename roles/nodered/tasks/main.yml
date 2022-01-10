@@ -1,11 +1,11 @@
 ---
-- name: Include OS-specific variables
+- name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Set up Node-RED
-  include_tasks: "setup-{{ ansible_distribution }}.yml"
-  tags: install_nodered
+- name: Uninstall
+  include_tasks: "uninstall-{{ ansible_distribution }}.yml"
+  when: uninstall_nodered
 
-- name: Configure Node-RED
-  include_tasks: "configure-{{ ansible_distribution }}.yml"
-  tags: configure_nodered
+- name: Install
+  include_tasks: "setup-{{ ansible_distribution }}.yml"
+  when: not uninstall_nodered

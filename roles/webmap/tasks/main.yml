@@ -1,11 +1,11 @@
 ---
-- name: Include OS-specific variables
+- name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Set up webmap
-  include_tasks: "setup-{{ ansible_distribution }}.yml"
-  tags: install_webmap
+- name: Uninstall
+  include_tasks: "uninstall-{{ ansible_distribution }}.yml"
+  when: uninstall_webmap
 
-- name: Configure webmap
-  include_tasks: "configure-{{ ansible_distribution }}.yml"
-  tags: configure_webmap
+- name: Setup
+  include_tasks: "setup-{{ ansible_distribution }}.yml"
+  when: not uninstall_webmap

@@ -3,32 +3,43 @@
   hosts: all
   become: true
   pre_tasks:
+    - name: Include IPv4 address variables
+      include_vars: ../../ip_addresses.yml
+
     - name: Use systemctl replacement workaround
       get_url:
         url: https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py
         dest: /usr/local/bin/systemctl
         mode: 0755
-  roles:
-    - common
 
 - hosts: freetakserver
   become: true
-  roles:
-    - python3
-    - freetakserver
-    - freetakserver_ui
+  tasks:
+    - name: Install FreeTAKServer
+      include_role:
+        name: freetakserver
+
+    - name: Install FreeTAKServer-UI
+      include_role:
+        name: freetakserver_ui
 
 - hosts: webmapserver
   become: true
-  roles: 
-    - webmap
+  tasks:
+    - name: Install webmap
+      include_role:
+        name: webmap
 
 - hosts: videoserver
   become: true
-  roles: 
-    - videoserver
+  tasks:
+    - name: Install videoserver
+      include_role:
+        name: videoserver
 
 - hosts: noderedserver
   become: true
-  roles: 
-    - nodered
+  tasks:
+    - name: Install nodered
+      include_role:
+        name: nodered

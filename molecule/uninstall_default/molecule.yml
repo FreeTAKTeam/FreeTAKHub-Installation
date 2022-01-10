@@ -6,26 +6,8 @@ driver:
   name: docker
 
 platforms:
-  - name: freetakserver
-    image: mcr.microsoft.com/windows
-    privileged: true
-    pre_build_image: true
-    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
-
-  - name: webmap
-    image: mcr.microsoft.com/windows
-    privileged: true
-    pre_build_image: true
-    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
-
-  - name: videoserver
-    image: mcr.microsoft.com/windows
-    privileged: true
-    pre_build_image: true
-    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
-
-  - name: noderedserve
-    image: mcr.microsoft.com/windows
+  - name: instance
+    image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
     privileged: true
     pre_build_image: true
     volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
@@ -41,28 +23,41 @@ verifier:
 lint: |
   set -e
   yamllint .
-  ansible-lint .
 
 scenario:
   create_sequence:
+    - dependency
     - create
+    - prepare
   check_sequence:
+    - dependency
+    - cleanup
     - destroy
     - create
+    - prepare
     - converge
     - check
     - destroy
   converge_sequence:
+    - dependency
     - create
+    - prepare
     - converge
   destroy_sequence:
+    - dependency
+    - cleanup
     - destroy
   test_sequence:
-    # - lint
+    - dependency
+    - lint
+    - cleanup
     - destroy
-    # - syntax
+    - syntax
     - create
+    - prepare
     - converge
     # - idempotence
+    - side_effect
     - verify
+    - cleanup
     - destroy

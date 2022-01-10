@@ -1,0 +1,25 @@
+---
+- name: Stop service
+  service:
+    name: "{{ fts_service_name }}"
+    state: stopped
+  ignore_errors: true
+
+- name: Remove unit file
+  file:
+    path: "{{ unit_files_location }}/{{ fts_service_name }}.service"
+    state: absent
+
+- name: Remove files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ fts_config_path }}"
+    - "{{ fts_db_path }}"
+
+- name: Uninstall
+  pip:
+    name: "{{ fts_pip_package_name }}"
+    state: absent
+    executable: "pip{{ python3_version }}"

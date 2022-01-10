@@ -1,8 +1,12 @@
 ---
-- name: Template nodered.service unit file
+- name: Print IPv4 information
+  debug:
+    msg: "Using: {{ fts_ip_address }} for {{ role_name }}"
+
+- name: Template unit file
   template:
     src: nodered.service.j2
-    dest: /lib/systemd/system/nodered.service
+    dest: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
     mode: 0644
   notify:
     - enable nodered

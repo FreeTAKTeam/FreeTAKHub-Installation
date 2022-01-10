@@ -23,7 +23,6 @@ verifier:
 lint: |
   set -e
   yamllint .
-  ansible-lint .
 
 scenario:
   create_sequence:
@@ -40,11 +39,16 @@ scenario:
   destroy_sequence:
     - destroy
   test_sequence:
-    # - lint
+    - dependency
+    - lint
+    - cleanup
     - destroy
-    # - syntax
+    - syntax
     - create
+    - prepare
     - converge
-    # - idempotence
+    - idempotence
+    - side_effect
     - verify
+    - cleanup
     - destroy

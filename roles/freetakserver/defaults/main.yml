@@ -1,10 +1,13 @@
 ---
 # custom setup commands
 uninstall_fts: false
-reinstall_fts: false
 
 # system information
-fts_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0]) }}"
+fts_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+
+fts_pip_package_name: FreeTAKServer
+
+fts_service_name: fts
 
 # Set initial service state. Recommended values: `started` or `stopped`.
 fts_state: started
