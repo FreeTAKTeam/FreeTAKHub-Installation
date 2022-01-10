@@ -33,8 +33,17 @@ In the Ubuntu console:
 
 ```console
 sudo apt update
+```
+
+```console
 sudo apt -y install software-properties-common
+```
+
+```console
 sudo add-apt-repository --y --update ppa:ansible/ansible
+```
+
+```console
 sudo apt install -y ansible git
 ```
 
