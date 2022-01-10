@@ -7,6 +7,13 @@
       set_fact:
         run_handlers: false
 
+    - name: "Include {{ ansible_distribution }} common variables"
+      include_vars:
+        file: "roles/common/vars/{{ ansible_distribution }}.yml"
+
+    - name: Include IPv4 address variables
+      include_vars: ../../ip_addresses.yml
+
     - name: Install FreeTAKServer
       include_role:
         name: freetakserver
