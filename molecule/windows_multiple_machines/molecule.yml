@@ -7,25 +7,25 @@ driver:
 
 platforms:
   - name: freetakserver
-    image: mcr.microsoft.com/windows
+    image: mcr.microsoft.com/windows:20H2
     privileged: true
     pre_build_image: true
     volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
 
   - name: webmap
-    image: mcr.microsoft.com/windows
+    image: mcr.microsoft.com/windows:20H2
     privileged: true
     pre_build_image: true
     volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
 
   - name: videoserver
-    image: mcr.microsoft.com/windows
+    image: mcr.microsoft.com/windows:20H2
     privileged: true
     pre_build_image: true
     volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: noderedserve
-    image: mcr.microsoft.com/windows
+  - name: noderedserver
+    image: mcr.microsoft.com/windows:20H2
     privileged: true
     pre_build_image: true
     volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
@@ -41,7 +41,6 @@ verifier:
 lint: |
   set -e
   yamllint .
-  ansible-lint .
 
 scenario:
   create_sequence:

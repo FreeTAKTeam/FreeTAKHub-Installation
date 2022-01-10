@@ -41,7 +41,6 @@ verifier:
 lint: |
   set -e
   yamllint .
-  ansible-lint .
 
 scenario:
   create_sequence:
