@@ -60,4 +60,4 @@
     - name: "Configure RTSP Simple Server (videoserver) for {{ ansible_distribution }}"
       include_tasks: "configure-{{ ansible_distribution }}.yml"
 
-  when: not webmap.stat.exists
+  when: not videoserver.stat.exists
