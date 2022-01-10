@@ -10,7 +10,6 @@
     path: "{{ unit_files_location }}/{{ webmap_service_name }}.service"
     state: absent
 
-
 - name: Uninstall
   file:
     path: "{{ item }}"
