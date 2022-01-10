@@ -12,9 +12,10 @@
 
 - name: Install with npm
   npm:
-    name: node-red
+    name: "{{ item }}"
     global: true
     unsafe_perm: true
+  loop: "{{ nodered_npm_packages | list }}"
   register: nodered
 
 - name: "Configure"

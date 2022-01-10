@@ -11,3 +11,11 @@ nodered_state: started
 
 # Enable service.
 nodered_enabled: true
+
+nodered_dependencies:
+  - nodejs
+  - npm
+
+nodered_npm_packages:
+  - node-red
+  - node-red-dashboard
