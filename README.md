@@ -68,18 +68,6 @@ To execute the default install playbook, from the top directory, enter:
 sudo ansible-playbook install_all.yml
 ```
 
-## Uninstall
-
-An example default uninstall playbook is defined in: `uninstall_all.yml`.
-
-The playbook uninstalls all FreeTAKServer and components on your machine.
-
-To execute the default uninstall playbook, from the top directory, enter:
-
-```console
-sudo ansible-playbook uninstall_all.yml
-```
-
 # Install on DigitalOcean with Terraform and Ansible
 
 This installation method has been tested with Ubuntu 20.04.
