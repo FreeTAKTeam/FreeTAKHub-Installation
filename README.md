@@ -114,10 +114,25 @@ In the Ubuntu console:
 
 ```console
 sudo apt update
+```
+
+```console
 sudo apt install -y software-properties-common gnupg curl git
+```
+
+```console
 sudo add-apt-repository -y --update ppa:ansible/ansible
+```
+
+```console
 curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+```
+
+```console
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+```
+
+```console
 sudo apt install -y ansible terraform
 ```
 
