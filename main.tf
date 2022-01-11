@@ -129,7 +129,7 @@ resource "digitalocean_droplet" "videoserver" {
 data "digitalocean_ssh_keys" "keys" {}
 variable "digitalocean_token" {}
 variable "private_key_path" {
-  description = "Absolute path to private key. For example: /home/admin/.ssh/id_rsa"
+  description = "Absolute path to private key. For example: /home/adminuser/.ssh/id_rsa"
   type        = string
 }
 
