@@ -3,7 +3,6 @@
   hosts: all
   become: true
   roles:
-    - digitalocean
     - freetakserver
     - freetakserver_ui
     - webmap
