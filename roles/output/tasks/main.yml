@@ -7,6 +7,10 @@
   debug:
     msg: "FreeTAKServer-UI IPv4: {{ fts_ui_ipv4 }}"
 
+- name: WebMap IPv4
+  debug:
+    msg: "{{ webmap_ipv4 }}"
+
 - name: Video Server IPv4
   debug:
     msg: "Video Server IPv4: {{ videoserver_ipv4 }}"
