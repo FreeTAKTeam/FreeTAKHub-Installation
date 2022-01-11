@@ -13,6 +13,7 @@
 
 - name: Script to install the NodeSource Node.js 17.x repo
   shell: curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -
+  command_warnings: false
 
 - name: Install nodejs
   apt:

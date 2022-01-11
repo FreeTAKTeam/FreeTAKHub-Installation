@@ -19,8 +19,10 @@
   service:
     name: "{{ videoserver_service_name }}"
     enabled: "{{ videoserver_enabled }}"
+    use: systemd
 
 - name: set videoserver state
   service:
     name: "{{ videoserver_service_name }}"
     state: "{{ videoserver_state }}"
+    use: systemd

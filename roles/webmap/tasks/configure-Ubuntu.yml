@@ -9,8 +9,10 @@
   service:
     name: webmap
     enabled: "{{ webmap_enabled }}"
+    use: systemd
 
 - name: set webmap state
   service:
     name: webmap
     state: "{{ webmap_state }}"
+    use: systemd

@@ -29,8 +29,10 @@
   service:
     name: "{{ fts_ui_service_name }}"
     enabled: "{{ fts_ui_enabled }}"
+    use: systemd
 
 - name: set freetakserver_ui state
   service:
     name: "{{ fts_ui_service_name }}"
     state: "{{ fts_ui_state }}"
+    use: systemd

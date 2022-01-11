@@ -5,6 +5,12 @@
 .cache
 .vscode
 
+.config.nodes.json
+.config.runtime.json
+JsonDB/
+error.log
+package.json
+
 ### Terraform ###
 # Local .terraform directories
 ./terraform

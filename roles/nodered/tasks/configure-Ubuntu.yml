@@ -19,8 +19,10 @@
   service:
     name: "{{ nodered_service_name }}"
     enabled: "{{ nodered_enabled }}"
+    use: systemd
 
 - name: set nodered state
   service:
     name: "{{ nodered_service_name }}"
     state: "{{ nodered_state }}"
+    use: systemd
