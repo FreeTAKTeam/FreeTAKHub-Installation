@@ -1,0 +1,6 @@
+---
+- name: Install Video Server
+  hosts: all
+  become: true
+  roles:
+    - videoserver

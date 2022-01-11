@@ -3,16 +3,13 @@
   service:
     name: "{{ fts_ui_service_name }}"
     enabled: "{{ fts_ui_enabled }}"
-  when: run_handlers
 
 - name: reload freetakserver_ui
   service:
     name: "{{ fts_ui_service_name }}"
     state: reloaded
-  when: run_handlers
 
 - name: set freetakserver_ui state
   service:
     name: "{{ fts_ui_service_name }}"
     state: "{{ fts_ui_state }}"
-  when: run_handlers

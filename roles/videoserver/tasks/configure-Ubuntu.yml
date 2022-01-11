@@ -1,31 +1,26 @@
 ---
 - name: Print IPv4 information
   debug:
-    msg: "Using: {{ videoserver_ip_address }} for {{ role_name }}"
+    msg: "Video Server IPv4: {{ videoserver_ipv4 }}"
 
-- name: "Update API IPv4 in {{ videoserver_config_file }}"
-  replace:
-    path: "{{ videoserver_config_location }}"
-    regexp: 'apiAddress: 127.0.0.1:9997'
-    replace: "apiAddress: {{ videoserver_ip_address }}:9997"
-
-- name: "Update API status {{ videoserver_config_file }}"
-  replace:
-    path: "{{ videoserver_config_location }}"
-    regexp: 'api: no'
-    replace: 'api: yes'
-
-- name: "Update protocols in {{ videoserver_config_file }}"
-  replace:
-    path: "{{ videoserver_config_location }}"
-    regexp: 'protocols: [udp, multicast, tcp]'
-    replace: 'protocols: [tcp]'
+- name: Template config file
+  template:
+    src: rtsp-simple-server.yml.j2
+    dest: "{{ videoserver_config_location }}"
+    mode: 0644
 
 - name: Template unit file
   template:
     src: rtsp-simple-server.service.j2
     dest: "{{ unit_files_location }}/{{ videoserver_service_name }}.service"
     mode: 0644
-  notify:
-    - enable videoserver
-    - set videoserver state
+
+- name: enable videoserver
+  service:
+    name: "{{ videoserver_service_name }}"
+    enabled: "{{ videoserver_enabled }}"
+
+- name: set videoserver state
+  service:
+    name: "{{ videoserver_service_name }}"
+    state: "{{ videoserver_state }}"

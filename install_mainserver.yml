@@ -1,0 +1,8 @@
+---
+- name: Install FreeTAKServer, UI, and WebMap
+  hosts: all
+  become: true
+  roles:
+    - freetakserver
+    - freetakserver_ui
+    - webmap

@@ -2,7 +2,7 @@
 uninstall_nodered: false
 
 # system information
-nodered_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+nodered_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
 
 nodered_service_name: nodered
 
@@ -13,9 +13,9 @@ nodered_state: started
 nodered_enabled: true
 
 nodered_dependencies:
-  - nodejs
   - npm
 
 nodered_npm_packages:
   - node-red
+  - node-red-admin
   - node-red-dashboard

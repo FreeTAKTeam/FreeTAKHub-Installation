@@ -1,19 +1,19 @@
 ---
-- name: Print IPv4 information
-  debug:
-    msg: "Using: {{ fts_ip_address }} for {{ role_name }}"
-
 - name: Template FTSConfig.yaml config file
   template:
     src: FTSConfig.yaml.j2
     dest: "{{ fts_config_path }}"
     mode: 0644
 
-- name: Update IPv4 addresses in FTSConfig.yaml
+- name: Print IPv4 information
+  debug:
+    msg: "FreeTAKServer IPv4: {{ fts_ipv4 }}"
+
+- name: Update FreeTAKServer IPv4 addresses in FTSConfig.yaml
   replace:
     path: "{{ fts_config_path }}"
     regexp: "0.0.0.0"
-    replace: "'{{ fts_ip_address }}'"
+    replace: "'{{ fts_ipv4 }}'"
 
 - name: Change FirstStart to False in MainConfig.py
   lineinfile:
@@ -27,6 +27,13 @@
     src: fts.service.j2
     dest: "{{ unit_files_location }}/{{ fts_service_name }}.service"
     mode: 0644
-  notify:
-    - enable freetakserver
-    - set freetakserver state
+
+- name: enable freetakserver
+  service:
+    name: "{{ fts_service_name }}"
+    enabled: "{{ fts_enabled }}"
+
+- name: set freetakserver state
+  service:
+    name: "{{ fts_service_name }}"
+    state: "{{ fts_state }}"

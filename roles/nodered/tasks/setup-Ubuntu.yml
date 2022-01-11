@@ -6,18 +6,21 @@
     do sleep 3; done;
   changed_when: false
 
-- name: Install apt dependencies
+- name: Install npm
   apt:
-    name: "{{ nodered_dependencies }}"
+    name: npm
+  ignore_errors: true
 
-- name: Install with npm
+- name: Script to install the NodeSource Node.js 17.x repo
+  shell: curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -
+
+- name: Install nodejs
+  apt:
+    name: nodejs
+
+- name: Install packages with npm
   npm:
     name: "{{ item }}"
     global: true
     unsafe_perm: true
   loop: "{{ nodered_npm_packages | list }}"
-  register: nodered
-
-- name: "Configure"
-  include_tasks: "configure-{{ ansible_distribution }}.yml"
-  when: nodered.changed

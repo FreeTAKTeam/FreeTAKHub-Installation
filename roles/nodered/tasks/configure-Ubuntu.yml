@@ -1,13 +1,26 @@
 ---
-- name: Print IPv4 information
-  debug:
-    msg: "Using: {{ fts_ip_address }} for {{ role_name }}"
+- name: Ensure group "nodered" exists
+  group:
+    name: nodered
+    state: present
+
+- name: Ensure group "nodered" exists
+  user:
+    name: nodered
+    group: nodered
 
 - name: Template unit file
   template:
     src: nodered.service.j2
     dest: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
     mode: 0644
-  notify:
-    - enable nodered
-    - set nodered state
+
+- name: enable nodered
+  service:
+    name: "{{ nodered_service_name }}"
+    enabled: "{{ nodered_enabled }}"
+
+- name: set nodered state
+  service:
+    name: "{{ nodered_service_name }}"
+    state: "{{ nodered_state }}"

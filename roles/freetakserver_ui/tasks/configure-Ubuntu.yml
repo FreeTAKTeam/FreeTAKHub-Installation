@@ -1,25 +1,36 @@
 ---
-- name: Print IPv4 information
+- name: Print FreeTAKServer IPv4 information
   debug:
-    msg: "Using: {{ fts_ui_ip_address }} for {{ role_name }}"
+    msg: "FreeTAKServer IPv4: {{ fts_ipv4 }}"
 
 - name: Update FreeTAKServer IPv4 values in config.py
   replace:
     path: "{{ fts_ui_install_path }}/config.py"
     regexp: '127.0.0.1'
-    replace: "{{ fts_ip_address }}"
+    replace: "{{ fts_ipv4 }}"
+
+- name: Print FreeTAKServer IPv4 information
+  debug:
+    msg: "WebMap IPv4: {{ webmap_ipv4 }}"
 
 - name: Update webmap IPv4 value in config.py
   replace:
     path: "{{ fts_ui_install_path }}/config.py"
     regexp: 'WEBMAPIP = "127.0.0.1"'
-    replace: "WEBMAPIP = \"{{ webmap_ip_address }}\""
+    replace: "WEBMAPIP = \"{{ webmap_ipv4 }}\""
 
 - name: Template unit file
   template:
     src: fts-ui.service.j2
     dest: "{{ unit_files_location }}/{{ fts_ui_service_name }}.service"
     mode: 0644
-  notify:
-    - enable freetakserver_ui
-    - set freetakserver_ui state
+
+- name: enable freetakserver_ui
+  service:
+    name: "{{ fts_ui_service_name }}"
+    enabled: "{{ fts_ui_enabled }}"
+
+- name: set freetakserver_ui state
+  service:
+    name: "{{ fts_ui_service_name }}"
+    state: "{{ fts_ui_state }}"

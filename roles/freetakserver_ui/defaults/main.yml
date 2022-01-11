@@ -3,7 +3,7 @@
 uninstall_fts_ui: false
 
 # system information
-fts_ui_ip_address: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+fts_ui_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
 
 # FreeTAKServer-UI pip package name
 fts_ui_pip_package_name: FreeTAKServer-UI

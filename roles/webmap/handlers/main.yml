@@ -1,18 +1,15 @@
 ---
-- name: reload webmap
-  service:
-    name: webmap
-    state: reloaded
-  when: run_handlers
-
 - name: enable webmap
   service:
     name: webmap
     enabled: "{{ webmap_enabled }}"
-  when: run_handlers
+
+- name: reload webmap
+  service:
+    name: webmap
+    state: reloaded
 
 - name: set webmap state
   service:
     name: webmap
     state: "{{ webmap_state }}"
-  when: run_handlers

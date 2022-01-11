@@ -3,16 +3,13 @@
   service:
     name: "{{ nodered_service_name }}"
     enabled: "{{ nodered_enabled }}"
-  when: run_handlers
 
 - name: reload nodered
   service:
     name: "{{ nodered_service_name }}"
     state: reloaded
-  when: run_handlers
 
 - name: set nodered state
   service:
     name: "{{ nodered_service_name }}"
     state: "{{ nodered_state }}"
-  when: run_handlers

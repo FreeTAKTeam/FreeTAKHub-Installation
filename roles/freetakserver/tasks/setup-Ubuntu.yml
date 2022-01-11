@@ -1,28 +1,9 @@
 ---
-- name: Check installation
-  shell: >
-        set -o pipefail &&
-        {{ pip3 }} list |
-        grep FreeTAKServer
-  args:
-    warn: false
-    executable: /bin/bash
-  register: result
-  changed_when: false
-  ignore_errors: true
+- name: Install apt dependencies
+  apt:
+    name: "{{ fts_apt_dependencies }}"
 
-- name: Install
-  block:
-    - name: Install apt dependencies
-      apt:
-        name: "{{ fts_apt_dependencies }}"
-
-    - name: "Install {{ fts_pip_package_name }}"
-      pip:
-        name: "{{ fts_pip_package_name }}"
-        executable: "pip{{ python3_version }}"
-
-    - name: "Configure"
-      include_tasks: "configure-{{ ansible_distribution }}.yml"
-
-  when: (result.stdout | length == 0)
+- name: "Install {{ fts_pip_package_name }}"
+  pip:
+    name: "{{ fts_pip_package_name }}"
+    executable: "pip{{ python3_version }}"

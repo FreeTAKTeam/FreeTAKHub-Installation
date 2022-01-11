@@ -1,0 +1,41 @@
+---
+- name: Uninstall all FreeTAKServer and components
+  hosts: all
+  become: true
+  tasks:
+    - name: "Include {{ ansible_distribution }} common variables"
+      include_vars:
+        file: "roles/common/vars/{{ ansible_distribution }}.yml"
+
+    - name: Uninstall FreeTAKServer
+      include_role:
+        name: freetakserver
+      vars:
+        uninstall_fts: true
+
+    - name: Uninstall FreeTAKServer-UI
+      include_role:
+        name: freetakserver_ui
+      vars:
+        uninstall_fts_ui: true
+
+    - name: Uninstall webmap
+      include_role:
+        name: webmap
+      vars:
+        uninstall_webmap: true
+
+    - name: Uninstall videoserver
+      include_role:
+        name: videoserver
+      vars:
+        uninstall_videoserver: true
+
+    - name: Uninstall nodered
+      include_role:
+        name: nodered
+      vars:
+        uninstall_nodered: true
+
+    - name: Force all notified handlers to run
+      meta: flush_handlers

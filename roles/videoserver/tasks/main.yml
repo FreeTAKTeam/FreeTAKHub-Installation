@@ -2,10 +2,8 @@
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Uninstall
-  include_tasks: "uninstall-{{ ansible_distribution }}.yml"
-  when: uninstall_videoserver
-
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
-  when: not uninstall_videoserver
+
+- name: Configure
+  include_tasks: "configure-{{ ansible_distribution }}.yml"

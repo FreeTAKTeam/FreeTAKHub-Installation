@@ -39,16 +39,16 @@ scenario:
   destroy_sequence:
     - destroy
   test_sequence:
-    - dependency
-    - lint
-    - cleanup
+    # - dependency
+    # - lint
+    # - cleanup
     - destroy
-    - syntax
+    # - syntax
     - create
-    - prepare
+    # - prepare
     - converge
-    - idempotence
-    - side_effect
-    - verify
-    - cleanup
+    # - idempotence
+    # - side_effect
+    # - verify
+    # - cleanup
     - destroy
