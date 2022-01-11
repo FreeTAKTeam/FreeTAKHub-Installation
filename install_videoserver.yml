@@ -4,3 +4,4 @@
   become: true
   roles:
     - videoserver
+    - output

@@ -1,0 +1,20 @@
+---
+- name: FreeTAKServer IPv4
+  debug:
+    msg: "FreeTAKServer IPv4: {{ fts_ipv4 }}"
+
+- name: FreeTAKServer-UI IPv4
+  debug:
+    msg: "FreeTAKServer-UI IPv4: {{ fts_ui_ipv4 }}"
+
+- name: Video Server IPv4
+  debug:
+    msg: "Video Server IPv4: {{ videoserver_ipv4 }}"
+
+- name: Node-RED Server IPv4
+  debug:
+    msg: "Node-RED IPv4: {{ nodered_ipv4 }}"
+
+- name: FreeTAKServer-UI URL
+  debug:
+    msg: "FreeTAKServer-UI URL: http://{{ fts_ui_ipv4 }}:5000/"
