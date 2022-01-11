@@ -60,6 +60,7 @@ In case you already created the repository previously, pull the latest:
 
 ```console
 cd FreeTAKTeam/FreeTAKHub-Installation
+```
 
 ```console
 git pull  https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
