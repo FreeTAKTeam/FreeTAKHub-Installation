@@ -56,6 +56,13 @@ See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installat
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
+In case you already created the repository previosly
+
+```console
+cd FreeTAKTeam/FreeTAKHub-Installation
+git pull  https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
+```
+
 ## Step 3. Install with Ansible
 
 An example default install playbook is defined in: `install_all.yml`.
@@ -65,6 +72,7 @@ This playbook installs all FreeTAKServer and components to your machine.
 To execute the default install playbook, from the top directory, enter:
 
 ```console
+cd FreeTAKTeam/FreeTAKHub-Installation
 sudo ansible-playbook install_all.yml
 ```
 
