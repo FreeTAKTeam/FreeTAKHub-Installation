@@ -65,7 +65,7 @@ This playbook installs all FreeTAKServer and components to your machine.
 To execute the default install playbook, from the top directory, enter:
 
 ```console
-sudo ansible-playbook freetakhub_install.yml
+sudo ansible-playbook install_all.yml
 ```
 
 ## Uninstall
@@ -77,7 +77,7 @@ The playbook uninstalls all FreeTAKServer and components on your machine.
 To execute the default uninstall playbook, from the top directory, enter:
 
 ```console
-sudo ansible-playbook freetakhub_uninstall.yml
+sudo ansible-playbook uninstall_all.yml
 ```
 
 # Install on DigitalOcean with Terraform and Ansible
