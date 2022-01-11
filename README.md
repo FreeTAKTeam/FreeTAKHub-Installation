@@ -208,7 +208,7 @@ var.digitalocean_token
   Enter a value: <DIGITALOCEAN_TOKEN_HERE>
 
 var.private_key_path
-  ABSOLUTE path to private key, for example: /home/admin/.ssh/id_rsa
+  ABSOLUTE path to private key, for example: /home/adminuser/.ssh/id_rsa
 
-  Enter a value: /home/admin/.ssh/id_rsa
+  Enter a value: /home/adminuser/.ssh/id_rsa
 ```
