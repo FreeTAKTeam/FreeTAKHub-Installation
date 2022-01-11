@@ -154,7 +154,7 @@ git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 Go into the directory:
 
 ```console
-cd FreeTAKHub-Installation
+cd FreeTAKTeam/FreeTAKHub-Installation
 ```
 
 ## Step 4. Generate a public/private key pair
