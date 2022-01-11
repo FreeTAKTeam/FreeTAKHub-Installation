@@ -1,4 +1,4 @@
-# provider information
+# PROVIDER INFORMATION
 terraform {
   required_providers {
     digitalocean = {
