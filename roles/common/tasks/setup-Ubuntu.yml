@@ -5,4 +5,23 @@
     cache_valid_time: 86400
   register: update
   retries: 5
+  ignore_errors: true
   until: update is success
+
+- name: Detect /usr/local/bin/systemctl file
+  stat:
+    path: /usr/local/bin/systemctl
+  register: systemctl_file
+
+- name: Create systemctl backup
+  copy:
+    src: /usr/local/bin/systemctl
+    dest: /usr/local/bin/systemctl.backup
+    remote_src: true
+  when: systemctl_file.stat.exists
+
+- name: Use systemctl workaround
+  get_url:
+    url: https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py
+    dest: /usr/local/bin/systemctl
+    mode: 0755

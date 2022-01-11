@@ -1,63 +1,46 @@
 ---
-- name: Check installation
-  stat:
+
+- name: Get RTSP Simple Server release information with GitHub API
+  uri:
+    url: "{{ videoserver_api_url }}"
+    return_content: true
+  register: videoserver_response
+
+- name: Set facts from GitHub API release information
+  set_fact:
+    videoserver_download_url: "{{ videoserver_response.json.assets[1].browser_download_url }}"
+
+- name: "Download RTSP Simple Server to {{ videoserver_package_location }}"
+  get_url:
+    url: "{{ videoserver_download_url }}"
+    dest: "{{ videoserver_package_location }}"
+
+- name: "Create temporary videoserver directory in {{ videoserver_folder }}"
+  file:
+    path: "{{ videoserver_folder }}"
+    state: directory
+
+- name: "Unarchive videoserver package to {{ videoserver_folder }}"
+  unarchive:
+    src: "{{ videoserver_package_location }}"
+    dest: "{{ videoserver_folder }}"
+    remote_src: true
+
+- name: "Copy videoserver executable to {{ videoserver_executable_location }}"
+  copy:
+    src: "{{ videoserver_folder }}/{{ videoserver_executable }}"
+    dest: "{{ videoserver_executable_location }}"
+    remote_src: true
+
+- name: Ensure videoserver executable is executable
+  file:
     path: "{{ videoserver_executable_location }}"
-  register: videoserver
+    mode: 0755
 
-- name: Install
-  block:
-    - name: Get RTSP Simple Server release information with GitHub API
-      uri:
-        url: "{{ videoserver_api_url }}"
-        return_content: true
-      register: videoserver_response
-
-    - name: Set facts from GitHub API release information
-      set_fact:
-        videoserver_download_url: "{{ videoserver_response.json.assets[1].browser_download_url }}"
-
-    - name: "Download RTSP Simple Server to {{ videoserver_package_location }}"
-      get_url:
-        url: "{{ videoserver_download_url }}"
-        dest: "{{ videoserver_package_location }}"
-
-    - name: "Create temporary videoserver directory in {{ videoserver_folder }}"
-      file:
-        path: "{{ videoserver_folder }}"
-        state: directory
-
-    - name: "Unarchive videoserver package to {{ videoserver_folder }}"
-      unarchive:
-        src: "{{ videoserver_package_location }}"
-        dest: "{{ videoserver_folder }}"
-        remote_src: true
-
-    - name: "Copy videoserver config to {{ videoserver_config_location }}"
-      copy:
-        src: "{{ videoserver_folder }}/{{ videoserver_config_file }}"
-        dest: "{{ videoserver_config_location }}"
-        remote_src: true
-
-    - name: "Copy videoserver executable to {{ videoserver_executable_location }}"
-      copy:
-        src: "{{ videoserver_folder }}/{{ videoserver_executable }}"
-        dest: "{{ videoserver_executable_location }}"
-        remote_src: true
-
-    - name: Ensure videoserver executable is executable
-      file:
-        path: "{{ videoserver_executable_location }}"
-        mode: 0755
-
-    - name: Remove temporary files
-      file:
-        path: "{{ item }}"
-        state: absent
-      loop:
-        - "{{ videoserver_package_location }}"
-        - "{{ videoserver_folder }}"
-
-    - name: "Configure"
-      include_tasks: "configure-{{ ansible_distribution }}.yml"
-
-  when: not videoserver.stat.exists
+- name: Remove temporary files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ videoserver_package_location }}"
+    - "{{ videoserver_folder }}"

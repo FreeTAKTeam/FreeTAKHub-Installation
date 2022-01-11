@@ -6,12 +6,6 @@
     - name: Include IPv4 address variables
       include_vars: ../../ip_addresses.yml
 
-    - name: Use systemctl replacement workaround
-      get_url:
-        url: https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py
-        dest: /usr/local/bin/systemctl
-        mode: 0755
-
 - hosts: freetakserver
   become: true
   tasks:

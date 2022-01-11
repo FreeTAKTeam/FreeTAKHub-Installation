@@ -1,0 +1,11 @@
+---
+- name: Install all FreeTAKServer and components
+  hosts: all
+  become: true
+  roles:
+    - digitalocean
+    - freetakserver
+    - freetakserver_ui
+    - webmap
+    - videoserver
+    - nodered

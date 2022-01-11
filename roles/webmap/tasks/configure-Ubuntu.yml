@@ -4,6 +4,13 @@
     src: webmap.service.j2
     dest: "{{ unit_files_location }}/{{ webmap_service_name }}.service"
     mode: 0644
-  notify:
-    - enable webmap
-    - set webmap state
+
+- name: enable webmap
+  service:
+    name: webmap
+    enabled: "{{ webmap_enabled }}"
+
+- name: set webmap state
+  service:
+    name: webmap
+    state: "{{ webmap_state }}"

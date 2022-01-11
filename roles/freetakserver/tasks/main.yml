@@ -5,10 +5,8 @@
 - name: Include FTSConfig variables
   include_vars: "FTSConfig.yml"
 
-- name: Uninstall
-  include_tasks: "uninstall-{{ ansible_distribution }}.yml"
-  when: uninstall_fts
-
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
-  when: not uninstall_fts
+
+- name: "Configure"
+  include_tasks: "configure-{{ ansible_distribution }}.yml"

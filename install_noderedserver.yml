@@ -1,0 +1,6 @@
+---
+- name: Install Node-RED
+  hosts: all
+  become: true
+  roles:
+    - nodered

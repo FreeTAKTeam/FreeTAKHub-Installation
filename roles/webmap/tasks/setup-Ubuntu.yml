@@ -1,74 +1,12 @@
 ---
-- name: Check installation
-  stat:
-    path: "{{ webmap_executable_location }}"
-  register: webmap
+- name: "Copy {{ webmap_config_file }} to {{ webmap_config_location }}"
+  copy:
+    src: "{{ webmap_config_file }}"
+    dest: "{{ webmap_config_location }}"
+    mode: 0644
 
-- name: Install webmap
-  block:
-    - name: Download dependencies
-      apt:
-        name: "{{ webmap_apt_dependencies }}"
-
-    - name: Get webmap release information with GitHub API
-      uri:
-        url: https://api.github.com/repos/FreeTAKTeam/FreeTAKHub/releases/latest
-        return_content: true
-      register: webmap_response
-
-    - name: Set facts from GitHub API release information
-      set_fact:
-        webmap_download_url: "{{ webmap_response.json.assets[0].browser_download_url }}"
-        webmap_raw_executable_name: "{{ webmap_response.json.name }}"
-
-    - name: Download webmap
-      get_url:
-        url: "{{ webmap_download_url }}"
-        dest: "{{ webmap_package_location }}"
-
-    - name: Create temporary webmap directory
-      file:
-        path: "{{ webmap_folder }}"
-        state: directory
-
-    - name: "Unarchive webmap package"
-      unarchive:
-        src: "{{ webmap_package_location }}"
-        dest: "{{ webmap_folder }}"
-        remote_src: true
-
-    - name: "Rename {{ webmap_raw_executable_name }} to {{ webmap_executable }}"
-      copy:
-        src: "{{ webmap_folder }}/{{ webmap_raw_executable_name }}"
-        dest: "{{ webmap_folder }}/{{ webmap_executable }}"
-        remote_src: true
-
-    - name: "Copy {{ webmap_config_file }} to {{ webmap_config_location }}"
-      copy:
-        src: "{{ webmap_folder }}/{{ webmap_config_file }}"
-        dest: "{{ webmap_config_location }}"
-        remote_src: true
-
-    - name: "Copy {{ webmap_executable }} to {{ webmap_executable_location }}"
-      copy:
-        src: "{{ webmap_folder }}/{{ webmap_executable }}"
-        dest: "{{ webmap_executable_location }}"
-        remote_src: true
-
-    - name: "Set {{ webmap_executable }} executable permissions"
-      file:
-        path: "{{ webmap_executable_location }}"
-        mode: 0755
-
-    - name: Remove temporary files
-      file:
-        path: "{{ item }}"
-        state: absent
-      loop:
-        - "{{ webmap_package_location }}"
-        - "{{ webmap_folder }}"
-
-    - name: "Configure webmap for {{ ansible_distribution }}"
-      include_tasks: "configure-{{ ansible_distribution }}.yml"
-
-  when: not webmap.stat.exists
+- name: "Copy {{ webmap_executable }} to {{ webmap_executable_location }}"
+  copy:
+    src: "{{ webmap_executable }}"
+    dest: "{{ webmap_executable_location }}"
+    mode: 0755

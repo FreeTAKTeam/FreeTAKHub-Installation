@@ -1,13 +1,12 @@
 # FreeTAKHub Installation
 
-FreeTAKHub installation is a set of Ansible scripts that allow you to:
+FreeTAKHub installation is a set of Ansible/Terraform scripts that allow you to:
+
 - create the target nodes
 - install FTS and all the additional modules
 - configure FTS
 
-# Install
-
-## PRE-INSTALLATION STEPS: Windows
+# Windows Prerequisites
 
 Currently FreeTAKServer and and components has been tested successfully on Ubuntu 20.04.
 
@@ -21,13 +20,15 @@ To install on Windows, you will have to:
 
     See also: <https://www.omgubuntu.co.uk/how-to-install-wsl2-on-windows-10>
 
-    See also: https://www.sitepoint.com/wsl2/
+    See also: <https://www.sitepoint.com/wsl2/>
 
 1. Install the WSL Ubuntu 20.04 distribution.
 
     See: <https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71>
 
-### Step 1. Install Ansible and package dependencies
+# Install with Ansible
+
+## Step 1. Install Ansible and package dependencies
 
 In the Ubuntu console:
 
@@ -40,15 +41,15 @@ sudo apt install ansible git
 
 See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-ubuntu>
 
-### Step 2. Clone the FreeTAKHub-Installation Git repository
+## Step 2. Clone the FreeTAKHub-Installation Git repository
 
 ```console
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
-### Step 3. Install with Ansible
+## Step 3. Install with Ansible
 
-An example default install playbook is defined in: `freetakhub_install.yml`.
+An example default install playbook is defined in: `install_all.yml`.
 
 This playbook installs all FreeTAKServer and components to your machine.
 
@@ -58,9 +59,9 @@ To execute the default install playbook, from the top directory, enter:
 sudo ansible-playbook freetakhub_install.yml
 ```
 
-# Uninstall
+## Uninstall
 
-An example default uninstall playbook is defined in: `freetakhub_uninstall.yml`.
+An example default uninstall playbook is defined in: `uninstall_all.yml`.
 
 The playbook uninstalls all FreeTAKServer and components on your machine.
 
@@ -68,4 +69,101 @@ To execute the default uninstall playbook, from the top directory, enter:
 
 ```console
 sudo ansible-playbook freetakhub_uninstall.yml
+```
+
+# Install on DigitalOcean with Terraform and Ansible
+
+This installation method has been tested with Ubuntu 20.04.
+
+Other Linux distributions may work, but they have not been tested.
+
+## Step 1. Create admin user
+
+The later executions will require admin privileges.
+
+Create an admin user first:
+
+```console
+sudo adduser --disabled-password --gecos "" admin
+```
+
+Add admin user to sudoers group:
+
+```console
+sudo usermod -aG sudo admin
+```
+
+Become the admin user:
+
+```console
+sudo su - admin
+```
+
+## Step 2. Download Terraform and Ansible
+
+In the Ubuntu console:
+
+```console
+sudo apt update
+sudo apt install -y software-properties-common gnupg curl git
+sudo add-apt-repository -y --update ppa:ansible/ansible
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+sudo apt install -y ansible terraform
+```
+
+## Step 3. Clone the FreeTAKHub-Installation Git repository
+
+```console
+git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
+```
+
+## Step 4. Generate a public/private key pair
+
+For the default, enter (and keep pressing enter):
+
+```console
+ssh-keygen
+```
+
+Print out the public key for the next step.
+
+If you did the default, the command will be:
+
+```console
+cat ~/.ssh/id_rsa.pub
+```
+
+## Step 5. Add you public key to your Digital Ocean project
+
+See: <https://docs.digitalocean.com/products/droplets/how-to/add-ssh-keys/to-account/>
+
+## Step 6. Generate a Digital Ocean Personal Access Token
+
+See: <https://docs.digitalocean.com/reference/api/create-personal-access-token/>
+
+## Step 7. Execute
+
+In the top-level directory of the project, initialize Terraform:
+
+```console
+terraform init
+```
+
+Then apply:
+
+```console
+terraform apply
+```
+
+You will then be prompted for your DigitalOcean Token and private key path:
+
+```console
+var.digitalocean_token
+  Enter a value: <DIGITALOCEAN_TOKEN_HERE>
+
+var.private_key_path
+  ABSOLUTE path to private key, for example: /home/admin/.ssh/id_rsa
+
+  Enter a value: /home/admin/.ssh/id_rsa
 ```

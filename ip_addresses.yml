@@ -1,6 +1,6 @@
 ---
-fts_ip_address: localhost
-fts_ui_ip_address: localhost
-webmap_ip_address: localhost
-videoserver_ip_address: localhost
-noderedserver_ip_address: localhost
+fts_ipv4: localhost
+fts_ui_ipv4: localhost
+webmap_ipv4: localhost
+videoserver_ipv4: localhost
+noderedserver_ipv4: localhost
