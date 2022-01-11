@@ -1,6 +1,6 @@
 ---
 - name: Install Node-RED
-  hosts: all
+  hosts: localhost
   become: true
   roles:
     - nodered

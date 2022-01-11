@@ -1,6 +1,6 @@
 ---
 - name: Install all FreeTAKServer and components
-  hosts: all
+  hosts: localhost
   become: true
   roles:
     - freetakserver

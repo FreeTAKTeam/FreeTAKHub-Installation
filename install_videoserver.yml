@@ -1,6 +1,6 @@
 ---
 - name: Install Video Server
-  hosts: all
+  hosts: localhost
   become: true
   roles:
     - videoserver

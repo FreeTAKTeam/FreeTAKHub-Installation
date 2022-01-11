@@ -1,6 +1,6 @@
 ---
 - name: Install FreeTAKServer, UI, and WebMap
-  hosts: all
+  hosts: localhost
   become: true
   roles:
     - freetakserver
