@@ -19,7 +19,7 @@
   debug:
     msg: "http://{{ webmap_ipv4 }}:8000/"
 
-- name: Node-RED Access Point
+- name: Node-RED URL
   debug:
     msg: "http://{{ nodered_ipv4 }}:1880/"
 
