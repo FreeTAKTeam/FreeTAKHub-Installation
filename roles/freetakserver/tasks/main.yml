@@ -8,5 +8,5 @@
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 
-- name: "Configure"
+- name: Configure
   include_tasks: "configure-{{ ansible_distribution }}.yml"

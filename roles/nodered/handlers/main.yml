@@ -13,3 +13,7 @@
   service:
     name: "{{ nodered_service_name }}"
     state: "{{ nodered_state }}"
+
+- name: print nodered url
+  debug:
+    msg: "http://{{ noderedserver_ipv4 }}:1880/"

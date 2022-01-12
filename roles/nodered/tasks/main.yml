@@ -7,3 +7,8 @@
 
 - name: Configure
   include_tasks: "configure-{{ ansible_distribution }}.yml"
+
+- name: Notify handlers to print at the end
+  shell: ":"
+  notify:
+    - print nodered url

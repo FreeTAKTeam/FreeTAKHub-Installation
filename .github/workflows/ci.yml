@@ -39,24 +39,9 @@ jobs:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
 
-      # - name: Run Molecule Install Test - Linux Playbook with Separation of Concern
-      #   run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name multiple_machines
-      #   env:
-      #     MOLECULE_DISTRO: "${{ matrix.distros }}"
-      #     PY_COLORS: '1'
-      #     ANSIBLE_FORCE_COLOR: '1'
-
-
-      # - name: Run Molecule Uninstall Test - Linux Playbook with One Instance
-      #   run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name uninstall_default
-      #   env:
-      #     MOLECULE_DISTRO: "${{ matrix.distros }}"
-      #     PY_COLORS: '1'
-      #     ANSIBLE_FORCE_COLOR: '1'
-
-      # - name: Run Molecule Uninstall Test - Linux Playbook with Separation of Concern
-      #   run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name uninstall_multiple_machines
-      #   env:
-      #     MOLECULE_DISTRO: "${{ matrix.distros }}"
-      #     PY_COLORS: '1'
-      #     ANSIBLE_FORCE_COLOR: '1'
+      - name: Run Molecule Install Test - Linux Playbook with Separation of Concern
+        run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name multiple_machines
+        env:
+          MOLECULE_DISTRO: "${{ matrix.distros }}"
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'

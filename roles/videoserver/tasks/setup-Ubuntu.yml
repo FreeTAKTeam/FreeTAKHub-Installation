@@ -1,46 +1,17 @@
 ---
-
-- name: Get RTSP Simple Server release information with GitHub API
-  uri:
-    url: "{{ videoserver_api_url }}"
-    return_content: true
-  register: videoserver_response
-
-- name: Set facts from GitHub API release information
-  set_fact:
-    videoserver_download_url: "{{ videoserver_response.json.assets[1].browser_download_url }}"
-
-- name: "Download RTSP Simple Server to {{ videoserver_package_location }}"
-  get_url:
-    url: "{{ videoserver_download_url }}"
-    dest: "{{ videoserver_package_location }}"
-
-- name: "Create temporary videoserver directory in {{ videoserver_folder }}"
-  file:
-    path: "{{ videoserver_folder }}"
-    state: directory
-
-- name: "Unarchive videoserver package to {{ videoserver_folder }}"
+- name: "Unarchive {{ videoserver_package }} to {{ videoserver_folder }}"
   unarchive:
-    src: "{{ videoserver_package_location }}"
-    dest: "{{ videoserver_folder }}"
-    remote_src: true
+    src: "{{ videoserver_package }}"
+    dest: /tmp
+    creates: "{{ videoserver_folder }}"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
 
-- name: "Copy videoserver executable to {{ videoserver_executable_location }}"
+- name: "Copy {{ videoserver_folder }}/{{ videoserver_executable }} to {{ videoserver_executable_location }}"
   copy:
     src: "{{ videoserver_folder }}/{{ videoserver_executable }}"
     dest: "{{ videoserver_executable_location }}"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
     remote_src: true
-
-- name: Ensure videoserver executable is executable
-  file:
-    path: "{{ videoserver_executable_location }}"
     mode: 0755
-
-- name: Remove temporary files
-  file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - "{{ videoserver_package_location }}"
-    - "{{ videoserver_folder }}"

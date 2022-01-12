@@ -3,12 +3,19 @@
   hosts: instance
   become: true
   pre_tasks:
+    - name: Cleanup
+      import_tasks: ../../roles/common/tasks/cleanup.yml
+
     - name: Include IPv4 address variables
       include_vars: ../../ip_addresses.yml
+
+  post_tasks:
+    - name: Cleanup
+      import_tasks: ../../roles/common/tasks/cleanup.yml
+
   roles:
     - freetakserver
     - freetakserver_ui
     - webmap
     - videoserver
     - nodered
-    - output

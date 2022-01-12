@@ -13,3 +13,11 @@
   service:
     name: "{{ fts_ui_service_name }}"
     state: "{{ fts_ui_state }}"
+
+- name: print fts_ui url
+  debug:
+    msg: "FreeTAKServer-UI URL: http://{{ fts_ui_ipv4 }}:5000/"
+
+- name: print fts_ui credentials
+  debug:
+    msg: "username: admin     password: password"

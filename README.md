@@ -79,12 +79,12 @@ cd FreeTAKTeam/FreeTAKHub-Installation
 ```
 
 ```console
-sudo ansible-playbook install_all.yml
+sudo ansible-playbook -i localhost, --connection=local install_all.yml
 ```
 
 ## Step 4. Check your installation
 
-### Check FTS core 
+### Check FTS core
 open a browser to
 
 ```

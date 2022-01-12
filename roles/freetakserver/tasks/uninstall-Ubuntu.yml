@@ -10,6 +10,12 @@
     path: "{{ unit_files_location }}/{{ fts_service_name }}.service"
     state: absent
 
+- name: Uninstall
+  pip:
+    name: "{{ fts_pip_package_name }}"
+    state: absent
+    executable: "pip{{ python3_version }}"
+
 - name: Remove files
   file:
     path: "{{ item }}"
@@ -17,9 +23,3 @@
   loop:
     - "{{ fts_config_path }}"
     - "{{ fts_db_path }}"
-
-- name: Uninstall
-  pip:
-    name: "{{ fts_pip_package_name }}"
-    state: absent
-    executable: "pip{{ python3_version }}"

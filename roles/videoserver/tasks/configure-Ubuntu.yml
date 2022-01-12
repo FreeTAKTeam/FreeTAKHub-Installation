@@ -1,28 +1,28 @@
 ---
-- name: Print IPv4 information
-  debug:
-    msg: "Video Server IPv4: {{ videoserver_ipv4 }}"
-
 - name: Template config file
   template:
     src: rtsp-simple-server.yml.j2
     dest: "{{ videoserver_config_location }}"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
     mode: 0644
 
 - name: Template unit file
   template:
     src: rtsp-simple-server.service.j2
     dest: "{{ unit_files_location }}/{{ videoserver_service_name }}.service"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
     mode: 0644
 
-- name: enable videoserver
-  service:
-    name: "{{ videoserver_service_name }}"
-    enabled: "{{ videoserver_enabled }}"
-    use: systemd
+- name: Kill any currently running processes
+  include_tasks: ../../common/tasks/kill.yml
+  vars:
+    process: "rtsp-simple-server"
 
-- name: set videoserver state
-  service:
-    name: "{{ videoserver_service_name }}"
-    state: "{{ videoserver_state }}"
-    use: systemd
+- name: Enable and set service
+  include_tasks: ../../common/tasks/service.yml
+  vars:
+    service_name: "{{ videoserver_service_name }}"
+    service_enabled: "{{ videoserver_enabled }}"
+    service_state: "{{ videoserver_state }}"

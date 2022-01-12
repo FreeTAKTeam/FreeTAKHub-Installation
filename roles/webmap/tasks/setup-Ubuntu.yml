@@ -1,12 +1,17 @@
 ---
-- name: "Copy {{ webmap_config_file }} to {{ webmap_config_location }}"
-  copy:
-    src: "{{ webmap_config_file }}"
-    dest: "{{ webmap_config_location }}"
-    mode: 0644
+- name: "Unarchive {{ webmap_package }} to {{ webmap_folder }}"
+  unarchive:
+    src: "{{ webmap_package }}"
+    dest: /tmp
+    creates: "{{ webmap_folder }}"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
 
-- name: "Copy {{ webmap_executable }} to {{ webmap_executable_location }}"
+- name: "Copy {{ webmap_folder }}/{{ webmap_executable }} to {{ webmap_executable_location }}"
   copy:
-    src: "{{ webmap_executable }}"
+    src: "{{ webmap_folder }}/{{ webmap_executable }}"
     dest: "{{ webmap_executable_location }}"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
+    remote_src: true
     mode: 0755

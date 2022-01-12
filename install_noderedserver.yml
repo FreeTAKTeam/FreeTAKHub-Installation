@@ -1,7 +1,15 @@
 ---
 - name: Install Node-RED
-  hosts: localhost
+  hosts: all
   become: true
+  become_user: root
+  pre_tasks:
+    - name: Cleanup
+      import_tasks: roles/common/tasks/cleanup.yml
+
+  post_tasks:
+    - name: Cleanup
+      import_tasks: roles/common/tasks/cleanup.yml
+
   roles:
     - nodered
-    - output

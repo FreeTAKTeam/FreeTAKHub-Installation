@@ -1,7 +1,15 @@
 ---
 - name: Install Video Server
-  hosts: localhost
+  hosts: all
   become: true
+  become_user: root
+  pre_tasks:
+    - name: Cleanup
+      import_tasks: roles/common/tasks/cleanup.yml
+
+  post_tasks:
+    - name: Cleanup
+      import_tasks: roles/common/tasks/cleanup.yml
+
   roles:
     - videoserver
-    - output

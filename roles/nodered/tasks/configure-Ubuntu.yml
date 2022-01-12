@@ -13,16 +13,29 @@
   template:
     src: nodered.service.j2
     dest: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
     mode: 0644
 
-- name: enable nodered
+- name: Kill any currently running processes
+  include_tasks: ../../common/tasks/kill.yml
+  vars:
+    process: "node-red"
+
+- name: Enable service
   service:
     name: "{{ nodered_service_name }}"
     enabled: "{{ nodered_enabled }}"
     use: systemd
+  register: enable_nodered_state
+  retries: 5
+  until: enable_nodered_state is success
 
-- name: set nodered state
+- name: Set service state
   service:
     name: "{{ nodered_service_name }}"
     state: "{{ nodered_state }}"
     use: systemd
+  register: set_nodered_state
+  retries: 5
+  until: set_nodered_state is success

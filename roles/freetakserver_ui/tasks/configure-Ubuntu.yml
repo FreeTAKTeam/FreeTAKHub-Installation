@@ -1,38 +1,39 @@
 ---
-- name: Print FreeTAKServer IPv4 information
-  debug:
-    msg: "FreeTAKServer IPv4: {{ fts_ipv4 }}"
-
-- name: Update FreeTAKServer IPv4 values in config.py
-  replace:
-    path: "{{ fts_ui_install_path }}/config.py"
-    regexp: '127.0.0.1'
-    replace: "{{ fts_ipv4 }}"
-
-- name: Print FreeTAKServer IPv4 information
-  debug:
-    msg: "WebMap IPv4: {{ webmap_ipv4 }}"
-
-- name: Update webmap IPv4 value in config.py
-  replace:
-    path: "{{ fts_ui_install_path }}/config.py"
-    regexp: 'WEBMAPIP = "127.0.0.1"'
-    replace: "WEBMAPIP = \"{{ webmap_ipv4 }}\""
+- name: Template unit file
+  template:
+    src: config.py.j2
+    dest: "{{ fts_ui_install_path }}/config.py"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
+    mode: 0644
 
 - name: Template unit file
   template:
     src: fts-ui.service.j2
     dest: "{{ unit_files_location }}/{{ fts_ui_service_name }}.service"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
     mode: 0644
 
-- name: enable freetakserver_ui
+- name: Kill any currently running processes
+  include_tasks: ../../common/tasks/kill.yml
+  vars:
+    process: "{{ fts_ui_install_path }}/run.py"
+
+- name: Enable service
   service:
     name: "{{ fts_ui_service_name }}"
     enabled: "{{ fts_ui_enabled }}"
     use: systemd
+  register: enable_fts_ui
+  retries: 5
+  until: enable_fts_ui is success
 
-- name: set freetakserver_ui state
+- name: Set service state
   service:
     name: "{{ fts_ui_service_name }}"
     state: "{{ fts_ui_state }}"
     use: systemd
+  register: set_fts_ui_state
+  retries: 5
+  until: set_fts_ui_state is success

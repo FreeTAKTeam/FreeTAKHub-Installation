@@ -1,8 +1,4 @@
 ---
-webmap_package_location: /tmp/webmap.zip
 webmap_folder: /tmp/webmap
-webmap_executable_location: /opt/FTH-webmap-linux
 webmap_config_location: /opt/webMAP_config.json
-
-webmap_apt_dependencies:
-  - unzip
+webmap_executable_location: /opt/FTH-webmap-linux

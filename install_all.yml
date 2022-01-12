@@ -1,11 +1,19 @@
 ---
-- name: Install all FreeTAKServer and components
-  hosts: localhost
+- name: Install FreeTAKServer and all components
+  hosts: all
   become: true
+  become_user: root
+  pre_tasks:
+    - name: Cleanup
+      import_tasks: roles/common/tasks/cleanup.yml
+
+  post_tasks:
+    - name: Cleanup
+      import_tasks: roles/common/tasks/cleanup.yml
+
   roles:
     - freetakserver
     - freetakserver_ui
     - webmap
     - videoserver
     - nodered
-    - output

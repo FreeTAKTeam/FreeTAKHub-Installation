@@ -10,10 +10,13 @@
 JsonDB/
 error.log
 package.json
+lib/
+
+node_modules/
 
 ### Terraform ###
 # Local .terraform directories
-./terraform
+./terraform/
 **/.terraform/*
 .terraform.lock.hcl
 

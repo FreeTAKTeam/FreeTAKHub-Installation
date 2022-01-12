@@ -3,17 +3,9 @@
   template:
     src: FTSConfig.yaml.j2
     dest: "{{ fts_config_path }}"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
     mode: 0644
-
-- name: Print IPv4 information
-  debug:
-    msg: "FreeTAKServer IPv4: {{ fts_ipv4 }}"
-
-- name: Update FreeTAKServer IPv4 addresses in FTSConfig.yaml
-  replace:
-    path: "{{ fts_config_path }}"
-    regexp: "0.0.0.0"
-    replace: "'{{ fts_ipv4 }}'"
 
 - name: Change FirstStart to False in MainConfig.py
   lineinfile:
@@ -26,16 +18,18 @@
   template:
     src: fts.service.j2
     dest: "{{ unit_files_location }}/{{ fts_service_name }}.service"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
     mode: 0644
 
-- name: enable freetakserver
-  service:
-    name: "{{ fts_service_name }}"
-    enabled: "{{ fts_enabled }}"
-    use: systemd
+- name: Kill any currently running processes
+  include_tasks: ../../common/tasks/kill.yml
+  vars:
+    process: "FreeTAKServer.controllers.services.FTS"
 
-- name: set freetakserver state
-  service:
-    name: "{{ fts_service_name }}"
-    state: "{{ fts_state }}"
-    use: systemd
+- name: Enable and set service
+  include_tasks: ../../common/tasks/service.yml
+  vars:
+    service_name: "{{ fts_service_name }}"
+    service_enabled: "{{ fts_enabled }}"
+    service_state: "{{ fts_state }}"
