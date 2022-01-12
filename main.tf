@@ -40,10 +40,10 @@ resource "digitalocean_droplet" "mainserver" {
   provisioner "local-exec" {
     command = join(" ", [
       "ANSIBLE_HOST_KEY_CHECKING=False",
-      "sudo ansible-playbook",
-      "-u root -i '${digitalocean_droplet.mainserver.ipv4_address},'",
-      "-e \"fts_ipv4=${digitalocean_droplet.mainserver.ipv4_address}\"",
-      "-e \"webmap_ipv4=${digitalocean_droplet.mainserver.ipv4_address}\"",
+      "ansible-playbook",
+      "-u root -i '${self.ipv4_address},'",
+      "-e \"fts_ipv4=${self.ipv4_address}\"",
+      "-e \"webmap_ipv4=${self.ipv4_address}\"",
       "install_mainserver.yml"
     ])
   }
@@ -62,7 +62,7 @@ resource "digitalocean_droplet" "noderedserver" {
   provisioner "remote-exec" {
 
     connection {
-      host        = digitalocean_droplet.noderedserver.ipv4_address
+      host        = self.ipv4_address
       user        = "root"
       type        = "ssh"
       private_key = file("${var.private_key_path}")
@@ -79,8 +79,8 @@ resource "digitalocean_droplet" "noderedserver" {
   provisioner "local-exec" {
     command = join(" ", [
       "ANSIBLE_HOST_KEY_CHECKING=False",
-      "sudo ansible-playbook",
-      "-u root -i '${digitalocean_droplet.noderedserver.ipv4_address},'",
+      "ansible-playbook",
+      "-u root -i '${self.ipv4_address},'",
       "install_noderedserver.yml"
     ])
   }
@@ -99,7 +99,7 @@ resource "digitalocean_droplet" "videoserver" {
   provisioner "remote-exec" {
 
     connection {
-      host        = digitalocean_droplet.videoserver.ipv4_address
+      host        = self.ipv4_address
       user        = "root"
       type        = "ssh"
       private_key = file("${var.private_key_path}")
@@ -116,9 +116,9 @@ resource "digitalocean_droplet" "videoserver" {
   provisioner "local-exec" {
     command = join(" ", [
       "ANSIBLE_HOST_KEY_CHECKING=False",
-      "sudo ansible-playbook",
-      "-u root -i '${digitalocean_droplet.videoserver.ipv4_address},'",
-      "-e \"videoserver_ipv4=${digitalocean_droplet.videoserver.ipv4_address}\"",
+      "ansible-playbook",
+      "-u root -i '${self.ipv4_address},'",
+      "-e \"videoserver_ipv4=${self.ipv4_address}\"",
       "install_videoserver.yml"
     ])
   }
