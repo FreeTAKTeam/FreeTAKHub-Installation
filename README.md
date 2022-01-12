@@ -85,11 +85,13 @@ sudo ansible-playbook -i localhost, --connection=local install_all.yml
 ## Step 4. Check your installation
 
 ### Check FTS core
-open a browser to
 
-```
+open a browser to:
+
+```console
 http://[YOURIP]::5000/
 ```
+
 - login with admin / password
 - change your password immediately
 - check if the services are on OK (blue)
@@ -99,17 +101,22 @@ http://[YOURIP]::5000/
 - you should see the client connected in the webmap
 
 ### Check video server
-open a browser to
+
+open a browser to:
+
 http://[YOURIP]:9997/v1/config/get
 
-you will see a configuration in Json format like this
-```
+you will see a configuration in Json format like this:
+
+```console
 {"logLevel":"info","logDestinations":["stdout"],"logFile":"rtsp-simple-server.log","readTimeout":"10s","writeTimeout":"10s","readBufferCount":512,"api":true,"apiAddress":"167.71.128.102:9997","metrics":false,"metricsAddress":"127.0.0.1:9998","pprof":false,"pprofAddress":"127.0.0.1:9999","runOnConnect":"","runOnConnectRestart":false,"rtspDisable":false,"protocols":["multicast","tcp","udp"],"encryption":"no","rtspAddress":":8554","rtspsAddress":":8555","rtpAddress":":8000","rtcpAddress":":8001","multicastIPRange":"224.1.0.0/16","multicastRTPPort":8002,"multicastRTCPPort":8003,"serverKey":"server.key","serverCert":"server.crt","authMethods":["basic","digest"],"readBufferSize":2048,"rtmpDisable":false,"rtmpAddress":":1935","hlsDisable":false,"hlsAddress":":8888","hlsAlwaysRemux":false,"hlsSegmentCount":3,"hlsSegmentDuration":"1s","hlsAllowOrigin":"*","paths":{"~^.*$":{"source":"publisher","sourceProtocol":"automatic","sourceAnyPortEnable":false,"sourceFingerprint":"","sourceOnDemand":false,"sourceOnDemandStartTimeout":"10s","sourceOnDemandCloseAfter":"10s","sourceRedirect":"","disablePublisherOverride":false,"fallback":"","publishUser":"","publishPass":"","publishIPs":[],"readUser":"","readPass":"","readIPs":[],"runOnInit":"","runOnInitRestart":false,"runOnDemand":"","runOnDemandRestart":false,"runOnDemandStartTimeout":"10s","runOnDemandCloseAfter":"10s","runOnPublish":"","runOnPublishRestart":false,"runOnRead":"","runOnReadRestart":false}}}
 ```
 
 ### NodeRed
+
 open a browser to
-```
+
+```console
 http://[YOURIP]::8081/
 ```
 
@@ -243,4 +250,10 @@ var.private_key_path
   ABSOLUTE path to private key, for example: /home/adminuser/.ssh/id_rsa
 
   Enter a value: /home/adminuser/.ssh/id_rsa
+```
+
+To destroy your droplets:
+
+```console
+terraform destroy
 ```

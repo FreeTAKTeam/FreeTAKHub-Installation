@@ -163,7 +163,7 @@ output "Node-RED_Server_URL" {
 }
 
 output "Video_Server_URL" {
-  value = digitalocean_droplet.videoserver.ipv4_address
+  value = "http://${digitalocean_droplet.videoserver.ipv4_address}:9997/v1/config/get"
 }
 
 output "Main_Server_WebMap_URL" {
