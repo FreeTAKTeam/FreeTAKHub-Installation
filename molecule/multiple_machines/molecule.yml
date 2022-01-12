@@ -12,12 +12,6 @@ platforms:
     pre_build_image: true
     volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
 
-  - name: webmapserver
-    image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
-    privileged: true
-    pre_build_image: true
-    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
-
   - name: videoserver
     image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
     privileged: true
@@ -32,6 +26,8 @@ platforms:
 
 provisioner:
   name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: "../../roles"
   playbooks:
     converge: ${MOLECULE_PLAYBOOK:-converge.yml}
 

@@ -17,16 +17,20 @@
 
 - name: Node-RED Server IPv4
   debug:
-    msg: "Node-RED IPv4: {{ nodered_ipv4 }}"
+    msg: "Node-RED Server IPv4: {{ noderedserver_ipv4 }}"
 
 - name: WebMap Server Access point
   debug:
     msg: "http://{{ webmap_ipv4 }}:8000/"
 
-- name: Node-RED URL
+- name: Node-RED Server URL
   debug:
-    msg: "http://{{ nodered_ipv4 }}:1880/"
+    msg: "http://{{ noderedserver_ipv4 }}:1880/"
 
 - name: FreeTAKServer-UI URL
   debug:
     msg: "FreeTAKServer-UI URL: http://{{ fts_ui_ipv4 }}:5000/"
+
+- name: FreeTAKServer-UI Initial Credentials
+  debug:
+    msg: "username: admin     password: password"

@@ -2,7 +2,7 @@
 uninstall_nodered: false
 
 # system information
-nodered_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+noderedserver_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
 
 nodered_service_name: nodered
 

@@ -8,32 +8,20 @@
 
 - hosts: freetakserver
   become: true
-  tasks:
-    - name: Install FreeTAKServer
-      include_role:
-        name: freetakserver
-
-    - name: Install FreeTAKServer-UI
-      include_role:
-        name: freetakserver_ui
-
-- hosts: webmapserver
-  become: true
-  tasks:
-    - name: Install webmap
-      include_role:
-        name: webmap
+  roles:
+    - freetakserver
+    - freetakserver_ui
+    - webmap
+    - output
 
 - hosts: videoserver
   become: true
-  tasks:
-    - name: Install videoserver
-      include_role:
-        name: videoserver
+  roles:
+    - videoserver
+    - output
 
 - hosts: noderedserver
   become: true
-  tasks:
-    - name: Install nodered
-      include_role:
-        name: nodered
+  roles:
+    - nodered
+    - output
