@@ -9,7 +9,7 @@ Restart=always
 RestartSec=1
 StandardOutput=append:/var/log/{{ webmap_service_name }}/{{ webmap_service_name }}-stdout.log
 StandardError=append:/var/log/{{ webmap_service_name }}/{{ webmap_service_name }}-stderr.log
-ExecStart={{ webmap_executable_location }}
+ExecStart={{ webmap_executable_location }} {{ webmap_config_location }}
 
 [Install]
 WantedBy=multi-user.target
