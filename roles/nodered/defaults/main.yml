@@ -19,3 +19,7 @@ nodered_npm_packages:
   - node-red
   - node-red-admin
   - node-red-dashboard
+
+nodered_flows:
+  - salute.json
+  - videochecker.json

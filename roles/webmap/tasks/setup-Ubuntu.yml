@@ -1,4 +1,9 @@
 ---
+- name: Install npm
+  apt:
+    name: unzip
+  ignore_errors: true
+
 - name: "Unarchive {{ webmap_package }} to {{ webmap_folder }}"
   unarchive:
     src: "{{ webmap_package }}"

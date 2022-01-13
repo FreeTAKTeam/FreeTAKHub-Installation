@@ -26,3 +26,21 @@
     global: true
     unsafe_perm: true
   loop: "{{ nodered_npm_packages | list }}"
+
+- name: "Copy Node-RED flows to {{ nodered_flows_location }}"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ nodered_flows_location | default('/root/.node-red') }}"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
+    mode: 0755
+  loop: "{{ nodered_flows }}"
+
+- name: Import Node-RED flows via HTTP POST
+  uri:
+    url: "http://{{ noderedserver_ipv4 }}:1880/flows"
+    method: POST
+    body: "{{ lookup('file','{{ item }}') }}"
+    status_code: 204
+    body_format: json
+  loop: "{{ nodered_flows }}"

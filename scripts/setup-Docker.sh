@@ -15,7 +15,6 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io
 echo "Adding current user to docker group"
 sudo groupadd docker
 sudo usermod -aG docker ${USER}
-sudo su -s ${USER}
 sudo chmod 777 /var/run/docker.sock
 
 echo "Enabling Docker services"

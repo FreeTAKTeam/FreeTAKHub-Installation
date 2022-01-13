@@ -1,1 +1,2 @@
 ---
+nodered_flows_location: "/{{ ansible_user }}/.node-red"

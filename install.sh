@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
 
-ansible-playbook -i localhost, --connection=local install_all.yml
+ansible-playbook -u root -i localhost, --connection=local install_all.yml -K
 
 set +x
