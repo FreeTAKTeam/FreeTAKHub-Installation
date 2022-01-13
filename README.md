@@ -26,31 +26,25 @@ To install on Windows, you will have to:
 
     See: <https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71>
 
-# Install with Ansible
+# Step 1. Clone the FreeTAKHub-Installation Git repository
 
-## Step 1. Install Ansible and package dependencies
-
-In the Ubuntu console:
+In the console:
 
 ```console
 sudo apt update
 ```
 
 ```console
-sudo apt -y install software-properties-common
+sudo apt install -y git
 ```
+
+Go to your home directory:
 
 ```console
-sudo add-apt-repository --y --update ppa:ansible/ansible
+cd ~
 ```
 
-```console
-sudo apt install -y ansible git
-```
-
-See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-ubuntu>
-
-## Step 2. Clone the FreeTAKHub-Installation Git repository
+The clone the repo with:
 
 ```console
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
@@ -66,23 +60,70 @@ cd FreeTAKTeam/FreeTAKHub-Installation
 git pull  https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
-## Step 3. Install with Ansible
-
-An example default install playbook is defined in: `install_all.yml`.
-
-This playbook installs all FreeTAKServer and components to your machine.
-
-To execute the default install playbook, go into FreeTAKHub-Installation
+Make sure you are in the `FreeTAKTeam/FreeTAKHub-Installation` directory:
 
 ```console
 cd FreeTAKTeam/FreeTAKHub-Installation
 ```
 
+# Step 2. Install Ansible
+
+## Automated Installation for Ansible
+
+In the `FreeTAKTeam/FreeTAKHub-Installation` directory, enter:
+
 ```console
-sudo ansible-playbook -i localhost, --connection=local install_all.yml
+./init.sh
 ```
 
-## Step 4. Check your installation
+Optional: To activate the virtual environment, enter:
+
+```console
+activate
+```
+
+To deactivate:
+
+```console
+deactivate
+```
+
+To know more about Python virtual environments and why they are a good idea, see:
+
+<https://realpython.com/python-virtual-environments-a-primer/>
+
+
+## Manual Installation for Ansible
+
+In the console:
+
+```console
+sudo apt update
+```
+
+```console
+sudo apt -y install software-properties-common
+```
+
+```console
+sudo add-apt-repository --y --update ppa:ansible/ansible
+```
+
+```console
+sudo apt install -y ansible
+```
+
+See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-on-ubuntu>
+
+## Step 3. Install FreeTAKServer and Components
+
+This script install FreeTAKServer and all of its components to your machine:
+
+```console
+./install.sh
+```
+
+## Checking Your Installation
 
 ### Check FTS core
 
@@ -120,71 +161,23 @@ open a browser to
 http://[YOURIP]::8081/
 ```
 
-
 # Install on DigitalOcean with Terraform and Ansible
 
 This installation method has been tested with Ubuntu 20.04.
 
 Other Linux distributions may work, but they have not been tested.
 
-## Step 1. Create admin user
+# Step 1. Clone the FreeTAKHub-Installation Git repository
 
-The later executions will require admin privileges.
-
-Create an adminuser first:
-
-```console
-sudo adduser adminuser
-```
-
-Add passwordless to adminuser.
-
-First type:
-
-```console
-sudo visudo
-```
-
-Then add at the bottom:
-
-```console
-adminuser ALL=(ALL) NOPASSWD: ALL
-```
-
-To save and quit in the `nano` editor:
-
-1. Press `CTRL + O` then `ENTER` to save.
-1. Then press `CTRL + X` to exit.
-
-## Step 2. Download Terraform and Ansible
-
-In the Ubuntu console:
+In the console:
 
 ```console
 sudo apt update
 ```
 
 ```console
-sudo apt install -y software-properties-common gnupg curl git
+sudo apt install -y git
 ```
-
-```console
-sudo add-apt-repository -y --update ppa:ansible/ansible
-```
-
-```console
-curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-```
-
-```console
-sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-```
-
-```console
-sudo apt install -y ansible terraform
-```
-
-## Step 3. Clone the FreeTAKHub-Installation Git repository
 
 Go to your home directory:
 
@@ -192,41 +185,62 @@ Go to your home directory:
 cd ~
 ```
 
+The clone the repo with:
+
 ```console
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
-Go into the directory:
+In case you already created the repository previously, pull the latest:
 
 ```console
 cd FreeTAKTeam/FreeTAKHub-Installation
 ```
 
-## Step 4. Generate a public/private key pair
-
-For the default, enter (and keep pressing enter):
-
 ```console
-ssh-keygen
+git pull  https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
-Print out the public key for the next step.
-
-If you did the default, the command will be:
+Make sure you are in the `FreeTAKTeam/FreeTAKHub-Installation` directory:
 
 ```console
-cat ~/.ssh/id_rsa.pub
+cd FreeTAKTeam/FreeTAKHub-Installation
 ```
 
-## Step 5. Add your public key to your Digital Ocean project
+## Step 2. Install Terraform and Ansible
+
+In the `FreeTAKTeam/FreeTAKHub-Installation` directory, enter:
+
+```console
+./init.sh
+```
+
+Optional: To activate the virtual environment, enter:
+
+```console
+activate
+```
+
+To deactivate:
+
+```console
+deactivate
+```
+
+To know more about Python virtual environments and why they are a good idea, see:
+
+<https://realpython.com/python-virtual-environments-a-primer/>
+
+
+## Step 3. Add your public key to your Digital Ocean project
 
 See: <https://docs.digitalocean.com/products/droplets/how-to/add-ssh-keys/to-account/>
 
-## Step 6. Generate a Digital Ocean Personal Access Token
+## Step 4. Generate a Digital Ocean Personal Access Token
 
 See: <https://docs.digitalocean.com/reference/api/create-personal-access-token/>
 
-## Step 7. Execute
+## Step 5. Install FreeTAKServer and Components onto DigitalOcean
 
 In the top-level directory of the project, initialize Terraform:
 
@@ -247,9 +261,9 @@ var.digitalocean_token
   Enter a value: <DIGITALOCEAN_TOKEN_HERE>
 
 var.private_key_path
-  ABSOLUTE path to private key, for example: /home/adminuser/.ssh/id_rsa
+  ABSOLUTE path to private key, for example: /home/user/.ssh/id_rsa
 
-  Enter a value: /home/adminuser/.ssh/id_rsa
+  Enter a value: /home/user/.ssh/id_rsa
 ```
 
 To destroy your droplets:
