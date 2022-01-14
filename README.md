@@ -68,8 +68,8 @@ cd FreeTAKTeam/FreeTAKHub-Installation
 
 # Step 2. Install Ansible
 
-## Automated Installation for Ansible
-
+## Automated Ansible Installation 
+complete automated installation of Ansible.
 In the `FreeTAKTeam/FreeTAKHub-Installation` directory, enter:
 
 ```console
@@ -94,6 +94,7 @@ To know more about Python virtual environments and why they are a good idea, see
 
 
 ## Manual Installation for Ansible
+if you prefer to have more control use this method.
 
 In the console:
 
