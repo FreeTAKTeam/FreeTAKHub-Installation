@@ -18,6 +18,9 @@ nodered_dependencies:
 nodered_npm_packages:
   - node-red
   - node-red-admin
+
+nodered_nodes:
+  - node-red-contrib-config
   - node-red-dashboard
 
 nodered_flows:

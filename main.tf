@@ -81,6 +81,7 @@ resource "digitalocean_droplet" "noderedserver" {
       "ANSIBLE_HOST_KEY_CHECKING=False",
       "ansible-playbook",
       "-u root -i '${self.ipv4_address},'",
+      "-e \"videoserver_ipv4=${self.ipv4_address}\"",
       "install_noderedserver.yml"
     ])
   }
@@ -128,7 +129,7 @@ resource "digitalocean_droplet" "videoserver" {
 # KEYS/TOKENS
 data "digitalocean_ssh_keys" "keys" {}
 variable "digitalocean_token" {
-  default     = "1b70adbd82c2f2a6b2cff9be4411bf54f50d5e3ae31209662b1162c07dbe1f4b"
+  default     = "ba4ad7f7ea37ffd5f6d646e65d9e67bca70eb2a2be2d21539a427768a344066e"
 }
 variable "private_key_path" {
   description = "Absolute path to private key. For example: /home/user/.ssh/id_rsa"

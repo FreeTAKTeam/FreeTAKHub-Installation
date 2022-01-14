@@ -27,20 +27,31 @@
     unsafe_perm: true
   loop: "{{ nodered_npm_packages | list }}"
 
-- name: "Copy Node-RED flows to {{ nodered_flows_location }}"
-  copy:
-    src: "{{ item }}"
-    dest: "{{ nodered_flows_location | default('/root/.node-red') }}"
+- name: Install Node-RED nodes via npm
+  npm:
+    name: "{{ item }}"
+    path: "{{ nodered_install_folder | default('/root/.node-red') }}"
+  loop: "{{ nodered_nodes }}"
+
+- name: Create flows directory
+  ansible.builtin.file:
+    path: "{{ nodered_install_folder | default('/root/.node-red') }}/lib/flows"
+    state: directory
+    mode: 0755
+
+- name: "Template Node-RED flows to {{ nodered_install_folder }}/lib/flows"
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ nodered_install_folder | default('/root/.node-red') }}/lib/flows/{{ item }}"
     owner: "{{ ansible_user | default('root') }}"
     group: "{{ ansible_user | default('root') }}"
     mode: 0755
   loop: "{{ nodered_flows }}"
 
-- name: Import Node-RED flows via HTTP POST
-  uri:
-    url: "http://{{ noderedserver_ipv4 }}:1880/flows"
-    method: POST
-    body: "{{ lookup('file','{{ item }}') }}"
-    status_code: 204
-    body_format: json
-  loop: "{{ nodered_flows }}"
+- name: "Template flows.json to {{ nodered_install_folder }}"
+  template:
+    src: "flows.json.j2"
+    dest: "{{ nodered_install_folder | default('/root/.node-red') }}"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
+    mode: 0755
