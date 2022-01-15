@@ -81,7 +81,9 @@ resource "digitalocean_droplet" "noderedserver" {
       "ANSIBLE_HOST_KEY_CHECKING=False",
       "ansible-playbook",
       "-u root -i '${self.ipv4_address},'",
-      "-e \"videoserver_ipv4=${self.ipv4_address}\"",
+      "-e \"videoserver_ipv4=${digitalocean_droplet.videoserver.ipv4_address}\"",
+      "-e \"nodered_wait_for_videoserver=true", # Node-RED Server will wait for Video Server
+      "-e \"nodered_wait_for_videoserver_timeout=600", # Max seconds Node-RED Server will wait
       "install_noderedserver.yml"
     ])
   }

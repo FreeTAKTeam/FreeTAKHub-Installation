@@ -1,0 +1,13 @@
+---
+- name: reload nodered flows
+  uri:
+    url: "http://{{ noderedserver_ipv4 }}:1880/flows"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Node-RED-API-Version: v1
+      Node-RED-Deployment-Type: reload
+    body:
+      flows: [{}]
+    body_format: json
+    status_code: 204

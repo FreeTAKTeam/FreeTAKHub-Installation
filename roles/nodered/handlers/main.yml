@@ -14,6 +14,13 @@
     name: "{{ nodered_service_name }}"
     state: "{{ nodered_state }}"
 
+- name: wait for lock release
+  shell: >
+    while fuser /var/lib/dpkg/lock >
+    /dev/null 2>&1;
+    do sleep 3; done;
+  changed_when: false
+
 - name: print nodered url
   debug:
     msg: "Node-RED Server URL: http://{{ noderedserver_ipv4 }}:1880/"

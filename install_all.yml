@@ -1,6 +1,9 @@
 ---
 - name: Install FreeTAKServer and all components
   hosts: all
+  vars:
+    nodered_wait_for_videoserver: true # Node-RED Server will wait for Video Server
+    nodered_wait_for_videoserver_timeout: 600 # Max seconds Node-RED Server will wait
   become: true
   become_user: root
   pre_tasks:
@@ -8,6 +11,9 @@
       import_tasks: roles/common/tasks/cleanup.yml
 
   post_tasks:
+    - name: Reload Node-RED Server flows to ensure Video Server connection
+      import_tasks: roles/nodered/tasks/reload-nodered.yml
+
     - name: Cleanup
       import_tasks: roles/common/tasks/cleanup.yml
 

@@ -1,15 +1,10 @@
 ---
-- name: Wait for apt lock
-  shell: >
-    while fuser /var/lib/dpkg/lock >
-    /dev/null 2>&1;
-    do sleep 3; done;
-  changed_when: false
-
 - name: Install npm
   apt:
     name: npm
   ignore_errors: true
+  notify:
+    - wait for lock release
 
 - name: Execute script to install the NodeSource Node.js 17.x repo
   shell: curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -

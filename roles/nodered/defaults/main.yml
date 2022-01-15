@@ -1,16 +1,12 @@
 ---
-uninstall_nodered: false
+# When Node-RED has a flow that connects to an RTSP server, set to true
+nodered_wait_for_videoserver: false
+
+# Max seconds Node-RED Server will wait to connect to Video Server
+nodered_wait_for_videoserver_timeout: 600
 
 # system information
 noderedserver_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
-
-nodered_service_name: nodered
-
-# Set initial service state. Recommended values: `started` or `stopped`.
-nodered_state: started
-
-# Enable service.
-nodered_enabled: true
 
 nodered_dependencies:
   - npm
@@ -28,3 +24,11 @@ nodered_flows:
   - videochecker.json
 
 nodered_post_flows_body: "{{ lookup('template', 'flows.json.j2') }}"
+
+nodered_service_name: nodered
+
+# Set initial service state. Recommended values: `started` or `stopped`.
+nodered_state: started
+
+# Enable service.
+nodered_enabled: true

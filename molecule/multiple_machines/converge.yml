@@ -1,6 +1,9 @@
 ---
 - name: Linux Playbook with Separation of Concern
   hosts: all
+  vars:
+    nodered_wait_for_videoserver: true # Node-RED Server will wait for Video Server
+    nodered_wait_for_videoserver_timeout: 600 # Max seconds Node-RED Server will wait
   become: true
   pre_tasks:
     - name: Cleanup
