@@ -11,22 +11,22 @@
     unsafe_perm: true
   loop: "{{ nodered_npm_packages | list }}"
 
-- name: Install Node-RED nodes via npm
+- name: Install Node-RED nodes with npm
   npm:
     name: "{{ item }}"
-    path: "{{ nodered_install_folder | default('/root/.node-red') }}"
+    path: "{{ nodered_install_folder }}"
   loop: "{{ nodered_nodes | list }}"
 
 - name: Create flows directory
   file:
-    path: "{{ nodered_install_folder | default('/root/.node-red') }}/lib/flows"
+    path: "{{ nodered_install_folder }}/lib/flows"
     state: directory
     mode: 0755
 
-- name: "Template backup Node-RED flows to /.node-red/lib/flows"
+- name: "Template backup Node-RED flows"
   template:
     src: "{{ item }}.j2"
-    dest: "{{ nodered_install_folder | default('/root/.node-red') }}/lib/flows/{{ item }}"
+    dest: "{{ nodered_install_folder }}/lib/flows/{{ item }}"
     owner: "{{ ansible_user | default('root') }}"
     group: "{{ ansible_user | default('root') }}"
     mode: 0644

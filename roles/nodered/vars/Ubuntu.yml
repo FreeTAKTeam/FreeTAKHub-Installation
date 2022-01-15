@@ -1,5 +1,5 @@
 ---
-nodered_install_folder: "/{{ ansible_user }}/.node-red"
+nodered_install_folder: "/root/.node-red"
 
 npm_apt_packages:
   - npm
