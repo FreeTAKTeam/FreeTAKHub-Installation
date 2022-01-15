@@ -12,7 +12,7 @@
 
   post_tasks:
     - name: Reload Node-RED Server flows to ensure Video Server connection
-      import_tasks: roles/nodered/tasks/reload-nodered.yml
+      import_tasks: roles/nodered/tasks/reload-flows.yml
 
     - name: Cleanup
       import_tasks: roles/common/tasks/cleanup.yml
