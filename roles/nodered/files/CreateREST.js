@@ -1,9 +1,6 @@
 msg.payload = {
-
   name: msg.payload.name,
-
   address: msg.payload.address,
-
   body:
   {
     userCallsign: msg.payload.userCallsign,
@@ -24,5 +21,4 @@ msg.payload = {
     FinalRemarks: msg.payload.FinalRemarks,
   },
 }
-
 return msg;
