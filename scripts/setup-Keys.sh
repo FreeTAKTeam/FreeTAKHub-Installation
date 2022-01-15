@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 set -x
 
 if [[ ! -e /home/$USER/.ssh/id_rsa.pub ]]; then
