@@ -34,6 +34,8 @@ In the console:
 sudo apt update
 ```
 
+Make sure you have Git installed:
+
 ```console
 sudo apt install -y git
 ```
@@ -44,19 +46,19 @@ Go to your home directory:
 cd ~
 ```
 
-The clone the repo with:
+Clone the repo:
 
 ```console
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
-Go into the top-level directory of the repository:
+Go to the top-level directory of the repository:
 
 ```console
 cd FreeTAKHub-Installation
 ```
 
-In case you already created the repository previously, pull the latest:
+In case you already previously created the repository, pull the latest:
 
 ```console
 git pull
@@ -64,9 +66,9 @@ git pull
 
 # Step 2. Install Ansible
 
-## Automated Ansible Installation 
+## Automated Ansible Installation
 
-In the `FreeTAKTeam/FreeTAKHub-Installation` directory, enter:
+In the top-level directory, enter:
 
 ```console
 ./init.sh
@@ -248,6 +250,8 @@ In the console:
 sudo apt update
 ```
 
+Make sure you have Git installed:
+
 ```console
 sudo apt install -y git
 ```
@@ -258,19 +262,19 @@ Go to your home directory:
 cd ~
 ```
 
-The clone the repo with:
+Clone the repo with:
 
 ```console
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
-Go into the top-level directory
+Go to the top-level directory
 
 ```console
 cd FreeTAKHub-Installation
 ```
 
-In case you already created the repository previously, pull the latest:
+In case you already previously created the repository, pull the latest:
 
 ```console
 git pull
@@ -278,7 +282,7 @@ git pull
 
 ## Step 2. Install Terraform and Ansible
 
-In the top-level directory of the repository, enter:
+In the top-level directory of the repository:
 
 ```console
 ./init.sh
