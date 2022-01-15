@@ -1,17 +1,8 @@
 ---
-- name: Update apt cache
-  apt:
-    update_cache: true
-    cache_valid_time: 86400
-  register: update
-  retries: 5
-  ignore_errors: true
-  until: update is success
-
 - name: Install unzip
   apt:
     name: unzip
-  ignore_errors: true
+  register: install_unzip
 
 - name: Get webmap release information with GitHub API
   uri:
@@ -50,7 +41,7 @@
     mode: 0755
     remote_src: true
 
-- name: "Copy {{ webmap_folder }}/{{ webmap_executable }} to {{ webmap_executable_location }}"
+- name: "Copy {{ webmap_executable }} to {{ webmap_executable_location }}"
   copy:
     src: "/tmp/{{ webmap_executable }}"
     dest: "{{ webmap_executable_location }}"

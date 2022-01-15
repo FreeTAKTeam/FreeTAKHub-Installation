@@ -1,19 +1,8 @@
 ---
-- name: Install npm
+- name: Install npm and nodejs
   apt:
-    name: npm
+    name: "{{ npm_apt_packages | list }}"
   ignore_errors: true
-  notify:
-    - wait for lock release
-
-- name: Execute script to install the NodeSource Node.js 17.x repo
-  shell: curl -fsSL https://deb.nodesource.com/setup_17.x | sudo -E bash -
-  args:
-    warn: no
-
-- name: Install nodejs
-  apt:
-    name: nodejs
 
 - name: Install packages with npm
   npm:
@@ -34,7 +23,7 @@
     state: directory
     mode: 0755
 
-- name: "Template backup Node-RED flows to {{ nodered_install_folder | default('/root/.node-red') }}/lib/flows"
+- name: "Template backup Node-RED flows to /.node-red/lib/flows"
   template:
     src: "{{ item }}.j2"
     dest: "{{ nodered_install_folder | default('/root/.node-red') }}/lib/flows/{{ item }}"
