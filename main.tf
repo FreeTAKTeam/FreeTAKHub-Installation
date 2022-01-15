@@ -128,12 +128,9 @@ resource "digitalocean_droplet" "videoserver" {
 
 # KEYS/TOKENS
 data "digitalocean_ssh_keys" "keys" {}
-variable "digitalocean_token" {
-  default     = "ba4ad7f7ea37ffd5f6d646e65d9e67bca70eb2a2be2d21539a427768a344066e"
-}
+variable "digitalocean_token" {}
 variable "private_key_path" {
   description = "Absolute path to private key. For example: /home/user/.ssh/id_rsa"
-  default     = "/home/user/.ssh/id_rsa"
   type        = string
 }
 
