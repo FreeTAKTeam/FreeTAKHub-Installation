@@ -2,8 +2,10 @@
 - name: Linux Playbook with One Instance
   hosts: instance
   vars:
-    nodered_wait_for_videoserver: true # Node-RED Server will wait for Video Server
-    nodered_wait_for_videoserver_timeout: 600 # Max seconds Node-RED Server will wait
+    # Node-RED Server will wait for Video Server
+    nodered_wait_for_videoserver: true
+    # Max seconds Node-RED Server will wait
+    nodered_wait_for_videoserver_timeout: 600
   become: true
   pre_tasks:
     - name: Cleanup
