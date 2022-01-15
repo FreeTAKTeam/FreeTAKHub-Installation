@@ -5,6 +5,7 @@ videoserver_api_url: https://api.github.com/repos/aler9/rtsp-simple-server/relea
 videoserver_package: rtsp-simple-server.tar.gz
 videoserver_executable: rtsp-simple-server
 videoserver_config_file: rtsp-simple-server.yml
+
 videoserver_service_name: rtsp-simple-server
 
 # Set initial service state. Recommended values: `started` or `stopped`.

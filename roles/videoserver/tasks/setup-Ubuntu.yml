@@ -32,5 +32,5 @@
     dest: "{{ videoserver_executable_location }}"
     owner: "{{ ansible_user | default('root') }}"
     group: "{{ ansible_user | default('root') }}"
-    remote_src: true
     mode: 0755
+    remote_src: true

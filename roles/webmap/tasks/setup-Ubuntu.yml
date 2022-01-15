@@ -1,22 +1,60 @@
 ---
-- name: Install npm
+- name: Update apt cache
+  apt:
+    update_cache: true
+    cache_valid_time: 86400
+  register: update
+  retries: 5
+  ignore_errors: true
+  until: update is success
+
+- name: Install unzip
   apt:
     name: unzip
   ignore_errors: true
 
-- name: "Unarchive {{ webmap_package }} to {{ webmap_folder }}"
-  unarchive:
-    src: "{{ webmap_package }}"
-    dest: /tmp
-    creates: "{{ webmap_folder }}"
+- name: Get webmap release information with GitHub API
+  uri:
+    url: "{{ webmap_api_url }}"
+    return_content: true
+  register: webmap_response
+
+- name: Set facts from GitHub API release information
+  set_fact:
+    webmap_download_url: "{{ webmap_response.json.assets[0].browser_download_url }}"
+    webmap_raw_executable_name: "{{ webmap_response.json.name }}"
+
+- name: Download webmap
+  get_url:
+    url: "{{ webmap_download_url }}"
+    dest: "{{ webmap_package_location }}"
     owner: "{{ ansible_user | default('root') }}"
     group: "{{ ansible_user | default('root') }}"
+    mode: 0755
+
+- name: "Unarchive {{ webmap_package }} to /tmp"
+  unarchive:
+    src: "/tmp/{{ webmap_package }}"
+    dest: /tmp
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
+    mode: 0755
+    remote_src: true
+
+- name: "Rename {{ webmap_raw_executable_name }} to {{ webmap_executable }}"
+  copy:
+    src: "/tmp/{{ webmap_raw_executable_name }}"
+    dest: "/tmp/{{ webmap_executable }}"
+    owner: "{{ ansible_user | default('root') }}"
+    group: "{{ ansible_user | default('root') }}"
+    mode: 0755
+    remote_src: true
 
 - name: "Copy {{ webmap_folder }}/{{ webmap_executable }} to {{ webmap_executable_location }}"
   copy:
-    src: "{{ webmap_folder }}/{{ webmap_executable }}"
+    src: "/tmp/{{ webmap_executable }}"
     dest: "{{ webmap_executable_location }}"
     owner: "{{ ansible_user | default('root') }}"
     group: "{{ ansible_user | default('root') }}"
-    remote_src: true
     mode: 0755
+    remote_src: true
