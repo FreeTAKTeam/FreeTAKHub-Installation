@@ -13,8 +13,8 @@
   template:
     src: nodered.service.j2
     dest: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0644
 
 - name: Kill any currently running processes

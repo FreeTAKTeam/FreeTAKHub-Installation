@@ -27,8 +27,8 @@
   template:
     src: "{{ item }}.j2"
     dest: "{{ nodered_install_folder }}/lib/flows/{{ item }}"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0644
   loop: "{{ nodered_flows }}"
 
@@ -36,6 +36,6 @@
   template:
     src: "flows.json.j2"
     dest: "/tmp/flows.json"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0644

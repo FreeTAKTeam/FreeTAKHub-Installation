@@ -3,16 +3,16 @@
   template:
     src: config.py.j2
     dest: "{{ fts_ui_install_path }}/config.py"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0644
 
 - name: Template unit file
   template:
     src: fts-ui.service.j2
     dest: "{{ unit_files_location }}/{{ fts_ui_service_name }}.service"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0644
 
 - name: Kill any currently running processes

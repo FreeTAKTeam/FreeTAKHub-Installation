@@ -13,16 +13,16 @@
   get_url:
     url: "{{ videoserver_download_url }}"
     dest: "/tmp/{{ videoserver_package }}"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0755
 
 - name: "Unarchive {{ videoserver_package }} to /tmp"
   unarchive:
     src: "/tmp/{{ videoserver_package }}"
     dest: /tmp
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0755
     remote_src: true
 
@@ -30,7 +30,7 @@
   copy:
     src: "/tmp/{{ videoserver_executable }}"
     dest: "{{ videoserver_executable_location }}"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0755
     remote_src: true

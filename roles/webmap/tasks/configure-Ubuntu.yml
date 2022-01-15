@@ -3,16 +3,16 @@
   template:
     src: webMAP_config.json.j2
     dest: "{{ webmap_config_location }}"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0644
 
 - name: Template unit file
   template:
     src: webmap.service.j2
     dest: "{{ unit_files_location }}/{{ webmap_service_name }}.service"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0644
 
 - name: Kill any currently running processes

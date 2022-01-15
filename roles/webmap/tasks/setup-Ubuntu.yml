@@ -19,16 +19,16 @@
   get_url:
     url: "{{ webmap_download_url }}"
     dest: "{{ webmap_package_location }}"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0755
 
 - name: "Unarchive {{ webmap_package }} to /tmp"
   unarchive:
     src: "/tmp/{{ webmap_package }}"
     dest: /tmp
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0755
     remote_src: true
 
@@ -36,8 +36,8 @@
   copy:
     src: "/tmp/{{ webmap_raw_executable_name }}"
     dest: "/tmp/{{ webmap_executable }}"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0755
     remote_src: true
 
@@ -45,7 +45,7 @@
   copy:
     src: "/tmp/{{ webmap_executable }}"
     dest: "{{ webmap_executable_location }}"
-    owner: "{{ ansible_user | default('root') }}"
-    group: "{{ ansible_user | default('root') }}"
+    owner: root
+    group: root
     mode: 0755
     remote_src: true
