@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -x
 
-# make sure you have Git installed
 echo "Downloading package information from configured sources..."
 sudo apt -y update
 
@@ -27,4 +26,6 @@ echo "Run the installation script..."
 ./install.sh
 
 echo "Going back to your original working directory..."
+popd
+
 set +x
