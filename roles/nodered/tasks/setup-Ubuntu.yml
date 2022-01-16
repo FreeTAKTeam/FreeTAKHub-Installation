@@ -1,4 +1,11 @@
 ---
+- name: wait for lock-frontend release
+  shell: >
+    while fuser /var/lib/dpkg/lock-frontend >
+    /dev/null 2>&1;
+    do sleep 3; done;
+  changed_when: false
+
 - name: Install npm and nodejs
   apt:
     name: "{{ npm_apt_packages | list }}"
