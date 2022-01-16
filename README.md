@@ -8,17 +8,19 @@ Currently, FreeTAKHub has 5 components:
 4. Video Server
 5. Node-RED Server
 
-The installation is a set of Ansible/Terraform scripts that allow you to:
+The installation is a set of Ansible/Terraform scripts that allows you to:
 
 - create the target nodes
 - install FTS and all the additional modules
 - configure FTS
 
-## Windows Prerequisites
-
 Currently FreeTAKServer and components have been tested successfully on Ubuntu 20.04.
 
 Other Linux distributions may work, but they have not been tested.
+
+## Windows Prerequisites
+this is re quired only if you want to use windows.
+
 
 To install on Windows, you will have to:
 
@@ -36,6 +38,7 @@ To install on Windows, you will have to:
 
 
 # Easy One-Liner Install
+this approach assumes that you have a empty Ubuntu 20.04.
 
 ```console
 wget -qO - "https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh" | bash
