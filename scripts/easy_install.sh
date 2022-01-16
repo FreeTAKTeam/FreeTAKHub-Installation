@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 set -x
 
-echo "Downloading package information from configured sources..."
+echo "Downloading dependencies"
+sudo apt-add-repository -y ppa:ansible/ansible
 sudo apt -y update
-
-echo "Making sure you have Git installed..."
-sudo apt -y install git
+sudo apt -y install ansible git
 
 echo "Saving current working directory..."
 pushd .
@@ -19,11 +18,23 @@ git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 echo "Going into the FreeTAKHub-Installation directory..."
 cd FreeTAKHub-Installation
 
-echo "Run the initialization script..."
-./init.sh
+echo "Running initialization..."
+echo "Add passwordless Ansible execution for the current user"
+# only add if non-existent
+LINE="$USER ALL=(ALL) NOPASSWD:/usr/bin/ansible-playbook,/usr/bin/terraform"
+FILE="/etc/sudoers.d/dont-prompt-$USER-for-sudo-password"
+grep -qF -- "$LINE" "$FILE" || echo "$LINE" >> "$FILE"
 
-echo "Run the installation script..."
-./install.sh
+# create a key for the user if it doesn't exist
+if [[ ! -e /home/$USER/.ssh/id_rsa.pub ]]; then
+    ssh-keygen -t rsa -f "/home/$USER/.ssh/id_rsa" -N ""
+fi
+
+# print key to console
+cat /home/$USER/.ssh/id_rsa.pub
+
+echo "Running Ansible Playbook..."
+ansible-playbook -u root -i localhost, --connection=local install_all.yml
 
 echo "Going back to your original working directory..."
 popd
