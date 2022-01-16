@@ -6,7 +6,7 @@ FreeTAKHub installation is a set of Ansible/Terraform scripts that allow you to:
 - install FTS and all the additional modules
 - configure FTS
 
-# Windows Prerequisites
+## Windows Prerequisites
 
 Currently FreeTAKServer and components have been tested successfully on Ubuntu 20.04.
 
@@ -26,7 +26,7 @@ To install on Windows, you will have to:
 
     See: <https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71>
 
-# Step 1. Clone the FreeTAKHub-Installation Git repository
+## Step 1. Clone the FreeTAKHub-Installation Git repository
 
 In the console:
 
@@ -64,9 +64,9 @@ In case you already previously created the repository, pull the latest:
 git pull
 ```
 
-# Step 2. Install Ansible
+## Step 2. Install Ansible
 
-## Automated Ansible Installation
+### Automated Ansible Installation
 
 In the top-level directory, enter:
 
@@ -91,7 +91,7 @@ To know more about Python virtual environments and why they are a good idea, see
 <https://realpython.com/python-virtual-environments-a-primer/>
 
 
-## Manual Installation for Ansible
+### Manual Installation for Ansible
 if you prefer to have more control use this method.
 
 In the console:
@@ -140,7 +140,7 @@ http://[YOURIP]::5000/
 - click on the Webmap tab
 - you should see the client connected in the webmap
 
-### Check video server
+#### Check video server
 
 Open a browser to:
 
@@ -242,7 +242,7 @@ This installation method has been tested with Ubuntu 20.04.
 
 Other Linux distributions may work, but they have not been tested.
 
-# Step 1. Clone the FreeTAKHub-Installation Git repository
+## Step 1. Clone the FreeTAKHub-Installation Git repository
 
 In the console:
 
