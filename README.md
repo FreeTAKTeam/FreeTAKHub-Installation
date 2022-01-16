@@ -37,8 +37,16 @@ To install on Windows, you will have to:
     See: <https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71>
 
 
-# Easy One-Liner Install
+# Zero Touch Deployment
 this approach assumes that you have a empty Ubuntu 20.04.
+the script will install and configure automagically all the components
+* FTS: hosts the core of FTS
+* FTS Web UI: uses the API service 1935 to interacts with FTS
+* FTH webMap :  this connects to FTS using the TCP COT service and port 8087
+* Video Service: streams video. 
+* FTH server: runs other integrations such Video Service Checker and SALUTe report  a. the video Service checker has a strategy to verify if streams are running there and notify FTS
+![image](https://user-images.githubusercontent.com/60719165/149667427-c65877ef-56dc-4a5d-a32a-e2693de7fda5.png)
+
 
 ```console
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | bash
