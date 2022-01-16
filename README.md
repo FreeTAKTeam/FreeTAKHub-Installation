@@ -1,6 +1,14 @@
 # FreeTAKHub Installation
 
-FreeTAKHub installation is a set of Ansible/Terraform scripts that allow you to:
+Currently, FreeTAKHub has 5 components:
+
+1. FreeTAKServer (FTS)
+2. FreeTAKServer-UI
+3. WebMap Server
+4. Video Server
+5. Node-RED Server
+
+The installation is a set of Ansible/Terraform scripts that allow you to:
 
 - create the target nodes
 - install FTS and all the additional modules
@@ -25,6 +33,15 @@ To install on Windows, you will have to:
 1. Install the WSL Ubuntu 20.04 distribution.
 
     See: <https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71>
+
+
+# Easy One-Liner Install
+
+```console
+wget -qO - "https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh" | bash
+```
+
+# Install FreeTAKHub to your machine with Ansible
 
 ## Step 1. Clone the FreeTAKHub-Installation Git repository
 
