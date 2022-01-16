@@ -41,7 +41,7 @@ To install on Windows, you will have to:
 this approach assumes that you have a empty Ubuntu 20.04.
 
 ```console
-wget -qO - "https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh" | bash
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | bash
 ```
 
 # Install FreeTAKHub to your machine with Ansible
