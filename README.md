@@ -5,22 +5,24 @@ Currently, FreeTAKHub has 5 components:
 1. FreeTAKServer (FTS)
 2. FreeTAKServer-UI
 3. WebMap Server
-4. Video Server
+4. Video Server (RTSP Server)
 5. Node-RED Server
 
-The installation is a set of Ansible/Terraform scripts that allows you to:
+The installation is a set of Ansible/Terraform scripts that allow you to:
 
-- create the target nodes
-- install FTS and all the additional modules
-- configure FTS
+- Create the target nodes.
+- Install FTS and all the additional modules.
+- Configure FTS.
 
 Currently FreeTAKServer and components have been tested successfully on Ubuntu 20.04.
 
 Other Linux distributions may work, but they have not been tested.
 
 ## Windows Prerequisites
-this is re quired only if you want to use windows.
 
+This is required only if you want to use Windows.
+
+You must be running Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11.
 
 To install on Windows, you will have to:
 
@@ -38,13 +40,16 @@ To install on Windows, you will have to:
 
 
 # Zero Touch Deployment
-this approach assumes that you have a empty Ubuntu 20.04.
-the script will install and configure automagically all the components
+
+This approach assumes that you have a empty Ubuntu 20.04.
+
+The script will install and configure all FreeTAKHub components.
+
 * FTS: hosts the core of FTS
 * FTS Web UI: uses the API service 1935 to interacts with FTS
 * FTH webMap :  this connects to FTS using the TCP COT service and port 8087
 * Video Service: streams video. 
-* FTH server: runs other integrations such Video Service Checker and SALUTe report  a. the video Service checker has a strategy to verify if streams are running there and notify FTS
+* FTH server: runs other integrations such as the Video Service Checker and SALUTE report. The video Service checker has a strategy to verify if streams are running there and notifies FTS.
 ![image](https://user-images.githubusercontent.com/60719165/149667427-c65877ef-56dc-4a5d-a32a-e2693de7fda5.png)
 
 
@@ -117,7 +122,6 @@ deactivate
 To know more about Python virtual environments and why they are a good idea, see:
 
 <https://realpython.com/python-virtual-environments-a-primer/>
-
 
 ### Manual Installation for Ansible
 if you prefer to have more control use this method.
