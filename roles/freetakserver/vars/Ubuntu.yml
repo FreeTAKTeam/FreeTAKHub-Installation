@@ -7,3 +7,5 @@ fts_install_path: "{{ fts_python_packages }}/dist-packages/FreeTAKServer"
 
 fts_apt_dependencies:
   - netbase
+  - gcc
+  - python3-dev
