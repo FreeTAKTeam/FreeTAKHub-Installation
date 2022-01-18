@@ -1,6 +1,6 @@
 ---
 nodered_install_folder: "/root/.node-red"
 
-npm_apt_packages:
+nodered_apt_dependencies:
   - npm
   - nodejs

@@ -12,3 +12,4 @@
   shell: ":"
   notify:
     - print nodered url
+    - print nodered token

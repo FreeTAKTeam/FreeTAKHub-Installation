@@ -6,10 +6,10 @@
     do sleep 3; done;
   changed_when: false
 
-- name: Install npm and nodejs
+- name: Install apt dependencies
   apt:
-    name: "{{ npm_apt_packages | list }}"
-  ignore_errors: true
+    name: "{{ item }}"
+  loop: "{{ nodered_apt_dependencies | list}}"
 
 - name: Install packages with npm
   npm:

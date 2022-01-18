@@ -88,7 +88,6 @@ resource "digitalocean_droplet" "noderedserver" {
       "install_noderedserver.yml"
     ])
   }
-
 }
 
 # VIDEO SERVER DROPLET

@@ -1,7 +1,0 @@
----
-- name: Install Ansible and Terraform
-  hosts: installation_instance
-  become: true
-  tasks:
-    - name: Install Ansible and Terraform
-      shell: sudo bash ../../install.sh

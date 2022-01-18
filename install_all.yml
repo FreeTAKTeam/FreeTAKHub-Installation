@@ -3,7 +3,7 @@
   hosts: all
   vars:
     # Node-RED Server will wait for Video Server
-    nodered_wait_for_videoserver: true
+    nodered_wait_for_videoserver: false
     # Max seconds Node-RED Server will wait
     nodered_wait_for_videoserver_timeout: 600
   become: true

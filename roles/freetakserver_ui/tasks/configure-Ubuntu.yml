@@ -1,5 +1,5 @@
 ---
-- name: Template unit file
+- name: Template config file
   template:
     src: config.py.j2
     dest: "{{ fts_ui_install_path }}/config.py"
