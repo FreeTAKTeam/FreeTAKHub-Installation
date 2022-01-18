@@ -2,16 +2,23 @@
 - name: "Skipping webmap install due to non-intel platform"
   debug:
     msg: "non-intel, skipping webmap install"
-  when: ansible_architecture != "x86_64"
+  when: (ansible_architecture != "x86_64") or (not webmap_force_install)
+
+  # ansible_archtecture mappings:
+  # x86_64: amd64
+  # ppc64le: ppc64el
+  # s390x: s390x
+  # armv7l: armhf
+  # aarch64: arm64
 
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
-  when: ansible_architecture == "x86_64"
+  when: (ansible_architecture == "x86_64") or (webmap_force_install)
 
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
-  when: ansible_architecture == "x86_64"
+  when: (ansible_architecture == "x86_64") or (webmap_force_install)
 
 - name: "Configure webmap for {{ ansible_distribution }}"
   include_tasks: "configure-{{ ansible_distribution }}.yml"
-  when: ansible_architecture == "x86_64"
+  when: (ansible_architecture == "x86_64") or (webmap_force_install)

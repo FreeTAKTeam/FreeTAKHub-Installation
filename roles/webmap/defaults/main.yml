@@ -1,4 +1,6 @@
 ---
+webmap_force_install: false
+
 webmap_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
 
 webmap_api_url: https://api.github.com/repos/FreeTAKTeam/FreeTAKHub/releases/latest

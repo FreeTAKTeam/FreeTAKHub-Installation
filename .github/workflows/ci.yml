@@ -33,14 +33,14 @@ jobs:
         run: pip3 install ansible molecule[docker,lint] docker
 
       - name: Run Molecule Install Test - Linux Playbook with One Instance
-        run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name default
+        run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name default -- -e "webmap_force_install=true"
         env:
           MOLECULE_DISTRO: "${{ matrix.distros }}"
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
 
       - name: Run Molecule Install Test - Linux Playbook with Separation of Concern
-        run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name multiple_machines
+        run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name multiple_machines -e "webmap_force_install=true"
         env:
           MOLECULE_DISTRO: "${{ matrix.distros }}"
           PY_COLORS: '1'
