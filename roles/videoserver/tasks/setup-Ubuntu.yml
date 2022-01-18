@@ -8,6 +8,12 @@
 - name: Set facts from GitHub API release information
   set_fact:
     videoserver_download_url: "{{ videoserver_response.json.assets[1].browser_download_url }}"
+    when: ansible_architecture == "x86_64"
+
+- name: Set facts from GitHub API release information (arm64)
+  set_fact:
+    videoserver_download_url: "{{ videoserver_response.json.assets[2].browser_download_url }}"
+    when: ansible_architecture == "aarch64"
 
 - name: "Download {{ videoserver_package }} to /tmp"
   get_url:
