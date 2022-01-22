@@ -317,7 +317,11 @@ git pull
 In the top-level directory of the repository:
 
 ```console
-./init.sh
+./scripts/init.sh
+```
+
+```console
+./scripts/install.sh
 ```
 
 Optional: To activate the virtual environment, enter:
