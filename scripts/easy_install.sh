@@ -26,8 +26,8 @@ FILE="/etc/sudoers.d/dont-prompt-${USER}-for-sudo-password"
 grep -qF -- "${LINE}" "${FILE}" || echo "${LINE}" >> "${FILE}"
 
 echo "Creating a public/private key pair for the user if it doesn't exist..."
-if [[ ! -e /home/${USER}/.ssh/id_rsa.pub ]]; then
-    ssh-keygen -t rsa -f "/${HOME}/${USER}/.ssh/id_rsa" -N ""
+if [[ ! -e ${HOME}/.ssh/id_rsa.pub ]]; then
+    ssh-keygen -t rsa -f "${HOME}/.ssh/id_rsa" -N ""
 fi
 
 echo "Running Ansible Playbook..."
