@@ -41,6 +41,10 @@ To install on Windows, you will have to:
 
 # Zero Touch Deployment
 
+```console
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | bash
+```
+
 This approach assumes that you have a empty Ubuntu 20.04.
 
 The script will install and configure all FreeTAKHub components.
@@ -51,11 +55,6 @@ The script will install and configure all FreeTAKHub components.
 * Video Service: streams video. 
 * FTH server: runs other integrations such as the Video Service Checker and SALUTE report. The video Service checker has a strategy to verify if streams are running there and notifies FTS.
 ![image](https://user-images.githubusercontent.com/60719165/149667427-c65877ef-56dc-4a5d-a32a-e2693de7fda5.png)
-
-
-```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | bash
-```
 
 # Advanced Install (Options)
 
