@@ -57,9 +57,14 @@ The script will install and configure all FreeTAKHub components.
 ![image](https://user-images.githubusercontent.com/60719165/149667427-c65877ef-56dc-4a5d-a32a-e2693de7fda5.png)
 
 # Advanced Install (Options)
-
+this installation will give you the ability to select which components you need
 ```console
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/advanced_install.sh | bash
+```
+
+shorter url (under construction)
+```console
+wget -qO rb.gy/ocghax | bash
 ```
 
 
