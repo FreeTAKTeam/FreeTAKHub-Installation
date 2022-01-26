@@ -1,5 +1,5 @@
 ---
-- name: Install FreeTAKServer, UI, and WebMap
+- name: Install Main Server
   hosts: all
   become: true
   become_user: root

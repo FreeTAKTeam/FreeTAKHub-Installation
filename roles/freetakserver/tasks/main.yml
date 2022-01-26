@@ -1,5 +1,5 @@
 ---
-- name: "Include {{ ansible_distribution }}-specific variables for"
+- name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
 - name: Include FTSConfig variables

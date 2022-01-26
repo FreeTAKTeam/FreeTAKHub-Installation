@@ -57,6 +57,13 @@ The script will install and configure all FreeTAKHub components.
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | bash
 ```
 
+# Advanced Install (Options)
+
+```console
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/advanced_install.sh | bash
+```
+
+
 # Install FreeTAKHub to your machine with Ansible
 
 ## Step 1. Clone the FreeTAKHub-Installation Git repository

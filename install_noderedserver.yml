@@ -1,6 +1,11 @@
 ---
-- name: Install Node-RED
+- name: Install Node-RED Server
   hosts: all
+  vars:
+    # Node-RED Server will wait for Video Server
+    nodered_wait_for_videoserver: false
+    # Max seconds Node-RED Server will wait
+    nodered_wait_for_videoserver_timeout: 600
   become: true
   become_user: root
   pre_tasks:
@@ -8,6 +13,9 @@
       import_tasks: roles/common/tasks/cleanup.yml
 
   post_tasks:
+    - name: Reload Node-RED Server flows to ensure Video Server connection
+      import_tasks: roles/nodered/tasks/reload-flows.yml
+
     - name: Cleanup
       import_tasks: roles/common/tasks/cleanup.yml
 
