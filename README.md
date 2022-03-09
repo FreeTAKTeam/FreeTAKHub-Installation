@@ -162,7 +162,7 @@ See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installat
 This script install FreeTAKServer and all of its components to your machine:
 
 ```console
-./install.sh
+./scripts/install.sh
 ```
 
 ## Checking Your Installation
