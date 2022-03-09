@@ -115,7 +115,7 @@ git pull
 In the top-level directory, enter:
 
 ```console
-./init.sh
+./scripts/init.sh
 ```
 
 Optional: To activate the virtual environment, enter:
