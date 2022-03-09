@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 echo "Downloading dependencies..."
-sudo apt-add-repository -y ppa:ansible/ansible
 sudo apt -y update
+sudo apt -y software-properties-common
+sudo apt-add-repository -y ppa:ansible/ansible
 sudo apt -y install ansible git
 
 echo "Going into your home directory..."
