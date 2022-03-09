@@ -2,7 +2,7 @@
 
 echo "Downloading dependencies..."
 sudo apt -y update
-sudo apt -y software-properties-common
+sudo apt -y install software-properties-common python3-distutils
 sudo apt-add-repository -y ppa:ansible/ansible
 sudo apt -y install ansible git
 
