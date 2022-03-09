@@ -42,10 +42,13 @@ To install on Windows, you will have to:
 # Zero Touch Deployment
 
 ```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | bash
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | sudo bash
 ```
 
-This approach assumes that you have a empty Ubuntu 20.04.
+This approach assumes that:
+* You have a empty Ubuntu 20.04.
+* You don't execute the above command as the root user but create a new user and then execute the Zero Touch deploy command: 
+* `sudo adduser USER && sudo usermod -aG sudo USER && su USER && cd ~` (Change all USER occurances to your liking, or not)
 
 The script will install and configure all FreeTAKHub components.
 
