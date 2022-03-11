@@ -115,7 +115,7 @@ git pull
 In the top-level directory, enter:
 
 ```console
-./init.sh
+./scripts/init.sh
 ```
 
 Optional: To activate the virtual environment, enter:
@@ -162,7 +162,7 @@ See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installat
 This script install FreeTAKServer and all of its components to your machine:
 
 ```console
-./install.sh
+./scripts/install.sh
 ```
 
 ## Checking Your Installation
