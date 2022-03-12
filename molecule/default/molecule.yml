@@ -22,24 +22,24 @@ provisioner:
 verifier:
   name: ansible
 
-lint: |
-  set -e
-  yamllint .
+# lint: |
+#   set -e
+#   yamllint .
 
 scenario:
-  create_sequence:
-    - create
-  check_sequence:
-    - destroy
-    - create
-    - converge
-    - check
-    - destroy
-  converge_sequence:
-    - create
-    - converge
-  destroy_sequence:
-    - destroy
+  # create_sequence:
+  #   - create
+  # check_sequence:
+  #   - destroy
+  #   - create
+  #   - converge
+  #   - check
+  #   - destroy
+  # converge_sequence:
+  #   - create
+  #   - converge
+  # destroy_sequence:
+  #   - destroy
   test_sequence:
     # - dependency
     # - lint
