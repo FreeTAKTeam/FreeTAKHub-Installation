@@ -46,8 +46,8 @@ wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation
 ```
 
 This approach assumes that:
-* You have a empty Ubuntu 20.04.
-* You don't execute the above command as the root user but create a new user and then execute the Zero Touch deploy command: 
+* You have a clean, freshly installed Ubuntu 20.04.
+* You don't execute the above command as the root user but create a new user first and then execute the above listed Zero Touch deploy command
 * `sudo adduser USER && sudo usermod -aG sudo USER && su USER` and then `cd ~` (Change all USER occurances to your liking, or not)
 
 The script will install and configure all FreeTAKHub components.
