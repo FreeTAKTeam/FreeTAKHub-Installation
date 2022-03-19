@@ -8,7 +8,7 @@
 
 - name: Install apt dependencies
   apt:
-    name: "{{ fts_apt_dependencies | list}}"
+    name: "{{ fts_apt_dependencies | list }}"
 
 - name: "Install {{ fts_pip_package_name }}"
   pip:
