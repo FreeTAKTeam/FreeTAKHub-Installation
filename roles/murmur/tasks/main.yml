@@ -8,9 +8,11 @@
 - name: Configure
   include_tasks: "configure-{{ ansible_distribution }}.yml"
 
-- name: Notify handlers to print at the end
+- name: Notify handlers
   shell: ":"
   notify:
+    - set superuser password
+    - restart murmur
     - print murmur ip
     - print murmur credentials
     - print reconfigure message
