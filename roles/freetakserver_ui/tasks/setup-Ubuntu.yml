@@ -10,3 +10,7 @@
   pip:
     name: "{{ fts_ui_pip_package_name }}"
     executable: "pip{{ python3_version }}"
+
+- name: Install distutils
+  apt:
+    name: python3-distutils
