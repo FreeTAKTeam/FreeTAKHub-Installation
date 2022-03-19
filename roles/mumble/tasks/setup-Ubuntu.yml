@@ -1,16 +1,4 @@
 ---
-- name: Add mumble release repository from PPA
-  apt_repository:
-    repo: ppa:mumble/release
-
-- name: Update apt
-  shell: sudo apt update
-  register: apt_update
-  retries: 5
-  ignore_errors: true
-  changed_when: false
-  until: apt_update is success
-
 - name: Install Mumble
   apt:
     name: mumble
