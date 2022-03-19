@@ -54,7 +54,7 @@ The script will install and configure all FreeTAKHub components.
 * FTS: hosts the core of FTS
 * FTS Web UI: uses the API service 1935 to interacts with FTS
 * FTH webMap :  this connects to FTS using the TCP COT service and port 8087
-* Video Service: streams video. 
+* Video Service: streams video.
 * FTH server: runs other integrations such as the Video Service Checker and SALUTE report. The video Service checker has a strategy to verify if streams are running there and notifies FTS.
 ![image](https://user-images.githubusercontent.com/60719165/149667427-c65877ef-56dc-4a5d-a32a-e2693de7fda5.png)
 
@@ -278,7 +278,7 @@ you will see a configuration in Json format like this:
 Open a browser to
 
 ```console
-http://[YOURIP]::8081/
+http://[YOURIP]:1880/
 ```
 
 # Install on DigitalOcean with Terraform and Ansible
