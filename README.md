@@ -1,3 +1,5 @@
+![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
+
 # FreeTAKHub Installation
 
 Currently, FreeTAKHub has 5 components:
