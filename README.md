@@ -2,13 +2,14 @@
 
 # FreeTAKHub Installation
 
-Currently, FreeTAKHub has 5 components:
+Currently, FreeTAKHub has 6 components:
 
 1. FreeTAKServer (FTS)
 2. FreeTAKServer-UI
 3. WebMap Server
 4. Video Server (RTSP Server)
 5. Node-RED Server
+6. Mumble server
 
 The installation is a set of Ansible/Terraform scripts that allow you to:
 
@@ -16,9 +17,42 @@ The installation is a set of Ansible/Terraform scripts that allow you to:
 - Install FTS and all the additional modules.
 - Configure FTS.
 
-Currently FreeTAKServer and components have been tested successfully on Ubuntu 20.04.
+Currently FreeTAKServer and FreeTAKHub components have been successfully tested  on Ubuntu 20.04, that is the supported installation.
+Other Linux distributions or OS may work, but they have not been tested.
 
-Other Linux distributions may work, but they have not been tested.
+# Zero Touch Deployment
+
+This approach assumes that you have a clean Ubuntu 20.04 as a OS.
+
+The script will install and configure all FreeTAKHub components.
+
+* FTS: hosts the core of FTS
+* FTS Web UI: uses the API service 1935 to interacts with FTS
+* FTH webMap :  this connects to FTS using the TCP COT service and port 8087
+* Video Service: streams video.
+* FTH server: runs other integrations such as the Video Service Checker and SALUTE report. The video Service checker has a strategy to verify if streams are running there and notifies FTS.
+* FTH Voice: install a murmur server based on [Mumble](https://github.com/mumble-voip/mumble) for ow-latency, high quality voice chat software.
+
+![image](https://user-images.githubusercontent.com/60719165/159137165-59164055-ce6d-4396-9a9b-f7503d20b3f6.png)
+
+simply type
+```console
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | bash
+```
+
+# Zero Touch Deployment Advanced  (Options)
+this installation will give you the ability to select which components you need
+```console
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/advanced_install.sh | bash
+```
+
+shorter url (under construction)
+```console
+wget -qO rb.gy/ocghax | bash
+```
+
+
+# Install FreeTAKHub to your machine with Ansible
 
 ## Windows Prerequisites
 
@@ -39,38 +73,6 @@ To install on Windows, you will have to:
 1. Install the WSL Ubuntu 20.04 distribution.
 
     See: <https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71>
-
-
-# Zero Touch Deployment
-
-```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | bash
-```
-
-This approach assumes that you have a empty Ubuntu 20.04.
-
-The script will install and configure all FreeTAKHub components.
-
-* FTS: hosts the core of FTS
-* FTS Web UI: uses the API service 1935 to interacts with FTS
-* FTH webMap :  this connects to FTS using the TCP COT service and port 8087
-* Video Service: streams video.
-* FTH server: runs other integrations such as the Video Service Checker and SALUTE report. The video Service checker has a strategy to verify if streams are running there and notifies FTS.
-![image](https://user-images.githubusercontent.com/60719165/149667427-c65877ef-56dc-4a5d-a32a-e2693de7fda5.png)
-
-# Advanced Install (Options)
-this installation will give you the ability to select which components you need
-```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/advanced_install.sh | bash
-```
-
-shorter url (under construction)
-```console
-wget -qO rb.gy/ocghax | bash
-```
-
-
-# Install FreeTAKHub to your machine with Ansible
 
 ## Step 1. Clone the FreeTAKHub-Installation Git repository
 
