@@ -27,3 +27,4 @@
     mode: 0600
   notify:
     - set superuser password
+    - restart murmur

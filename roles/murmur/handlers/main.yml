@@ -1,4 +1,9 @@
 ---
+- name: restart murmur
+  service:
+    name: "{{ murmur_service_name }}"
+    state: restarted
+
 - name: set superuser password
   command: murmurd -ini /etc/mumble-server.ini -supw "{{ murmur_superuser_password }}"
   failed_when: false

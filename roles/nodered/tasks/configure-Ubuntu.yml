@@ -34,7 +34,7 @@
 - name: Set service state
   service:
     name: "{{ nodered_service_name }}"
-    state: "restarted"
+    state: restarted
     use: systemd
   register: set_nodered_state
   retries: 5
