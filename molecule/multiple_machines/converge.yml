@@ -35,7 +35,7 @@
 
 - hosts: murmur
   roles:
-    - mumur
+    - murmur
 
 - hosts: noderedserver
   roles:
