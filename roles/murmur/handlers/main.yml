@@ -1,4 +1,4 @@
 ---
 - name: print murmur ip
   debug:
-    msg: "Murmur (Mumble Server) IP: {{ mumbleserver_ipv4 }}:{{ murmurserver_port }}"
+    msg: "Murmur (Mumble Server) IP: {{ mumbleserver_ipv4 }}:{{ mumbleserver_port }}"
