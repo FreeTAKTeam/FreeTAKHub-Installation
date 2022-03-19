@@ -1,4 +1,4 @@
 ---
-- name: Install Murmur (mumble-server)
+- name: Install Mumur (Mumble Server)
   apt:
     name: mumble-server

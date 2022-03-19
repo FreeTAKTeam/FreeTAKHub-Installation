@@ -1,2 +1,3 @@
 ---
-hello: "world"
+murmur_apt_dependencies:
+  - mumble-server

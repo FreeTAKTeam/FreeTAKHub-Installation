@@ -1,15 +1,4 @@
 ---
-- name: enable murmur
-  service:
-    name: mumble-server
-    enabled: yes
-
-- name: set murmur state
-  service:
-    name: mumble-server
-    state: "{{ mumble_service_state }}"
-
-- name: reload freetakserver
-  service:
-    name: mumble-server
-    state: reloaded
+- name: print murmur ip
+  debug:
+    msg: "Murmur (Mumble Server) IP: {{ mumbleserver_ipv4 }}:{{ murmurserver_port }}"

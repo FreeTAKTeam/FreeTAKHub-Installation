@@ -51,3 +51,7 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# ansible
+ansible_log.rb
+ansible.cfg

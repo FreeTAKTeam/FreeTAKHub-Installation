@@ -1,3 +1,7 @@
 ---
-- debug:
-    msg: "placeholder"
+- name: Enable and set service
+  include_tasks: ../../common/tasks/service.yml
+  vars:
+    service_name: "{{ murmur_service_name }}"
+    service_enabled: "{{ murmur_enabled }}"
+    service_state: "{{ murmur_state }}"

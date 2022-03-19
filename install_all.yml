@@ -20,8 +20,9 @@
       import_tasks: roles/common/tasks/cleanup.yml
 
   roles:
-    - freetakserver
-    - freetakserver_ui
-    - webmap
-    - videoserver
-    - nodered
+    # - freetakserver
+    # - freetakserver_ui
+    # - webmap
+    # - videoserver
+    - systemli.mumble
+    # - nodered

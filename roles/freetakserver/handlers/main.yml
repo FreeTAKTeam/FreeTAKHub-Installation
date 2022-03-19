@@ -12,3 +12,4 @@
 - name: reload freetakserver
   service:
     name: "{{ fts_service_name }}"
+    state: reloaded
