@@ -1,0 +1,20 @@
+---
+dependencies:
+  - {role: common}
+
+galaxy_info:
+  role_name: mumble_web
+  author: freetakteam
+  description: Mumble Web Server
+  license: license (EPL-2.0)
+  min_ansible_version: '2.4'
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+  galaxy_tags:
+    - freetakserver
+    - tak
+    - atak
+    - mumble
+    - mumble_web

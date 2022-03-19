@@ -1,0 +1,42 @@
+---
+
+- name: Instantiate mumble-web config
+  template:
+    src: config.local.js.j2
+    dest: "/var/www/mumble-web/config.local.js"
+    owner: www-data
+    group: www-data
+    mode: 0644
+
+- name: Template unit file
+  template:
+    src: mumble-web.service.j2
+    dest: "{{ unit_files_location }}/{{ mumble_web_service_name }}.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Kill any currently running processes
+  include_tasks: ../../common/tasks/kill.yml
+  vars:
+    process: "mumble-web"
+
+- name: Enable service
+  service:
+    name: "{{ mumble_web_service_name }}"
+    enabled: true
+    use: systemd
+  register: enable_mumble_web_state
+  retries: 5
+  until: enable_mumble_web_state is success
+
+- name: Set service state
+  service:
+    name: "{{ nodered_service_name }}"
+    state: restarted
+    use: systemd
+  register: set_mumble_web_state
+  retries: 5
+  until:
+    - set_mumble_web_state is success
+    - set_mumble_web_state.status.ActiveState == "active"

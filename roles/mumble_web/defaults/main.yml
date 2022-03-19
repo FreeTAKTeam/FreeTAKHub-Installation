@@ -1,0 +1,14 @@
+---
+# system information
+mumble_web_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+
+mumble_web_npm_packages:
+  - mumble-web
+
+mumble_web_service_name: mumble-web
+
+# Set initial service state. Recommended values: `started` or `stopped`.
+mumble_web_state: started
+
+# Enable service.
+mumble_web_enabled: true

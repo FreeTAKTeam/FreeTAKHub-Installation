@@ -1,7 +1,7 @@
 ---
 # system information
-mumbleserver_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
-mumbleserver_port: 64738
+murmur_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+murmur_port: 64738
 
 murmur_service_name: mumble-server
 

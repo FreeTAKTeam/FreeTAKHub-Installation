@@ -1,0 +1,19 @@
+---
+- name: wait for lock-frontend release
+  shell: >
+    while fuser /var/lib/dpkg/lock-frontend >
+    /dev/null 2>&1;
+    do sleep 3; done;
+  changed_when: false
+
+- name: Install apt dependencies
+  apt:
+    name: "{{ item }}"
+  loop: "{{ mumble_web_apt_dependencies | list }}"
+
+- name: Install packages with npm
+  npm:
+    name: "{{ item }}"
+    global: true
+    unsafe_perm: true
+  loop: "{{ mumble_web_npm_packages | list }}"

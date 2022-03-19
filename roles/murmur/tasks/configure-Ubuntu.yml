@@ -1,7 +1,29 @@
 ---
+- name: generate the Murmur config file
+  template:
+    src: mumble-server.ini.j2
+    dest: /etc/mumble-server.ini
+    owner: root
+    group: mumble-server
+    mode: 0640
+
 - name: Enable and set service
   include_tasks: ../../common/tasks/service.yml
   vars:
     service_name: "{{ murmur_service_name }}"
     service_enabled: "{{ murmur_enabled }}"
     service_state: "{{ murmur_state }}"
+
+- name: Generate random superuser password
+  set_fact:
+    murmur_superuser_password: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+
+- name: Write superuser password
+  copy:
+    content: "{{ murmur_superuser_password }}"
+    dest: /etc/mumble-superuser
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - set superuser password

@@ -1,0 +1,4 @@
+---
+- name: print mumble_weburl
+  debug:
+    msg: "Mumble Web URL: http://{{ mumble_web_ipv4 }}:8080"
