@@ -11,8 +11,6 @@
 - name: Notify handlers
   shell: ":"
   notify:
-    - set superuser password
-    - restart murmur
     - print murmur ip
     - print murmur credentials
     - print reconfigure message
