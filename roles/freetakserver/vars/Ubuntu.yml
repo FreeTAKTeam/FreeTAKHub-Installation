@@ -9,3 +9,4 @@ fts_apt_dependencies:
   - netbase
   - gcc
   - python3-dev
+  - python3-distutils

@@ -1,0 +1,4 @@
+---
+- name: Install Mumble
+  apt:
+    name: mumble

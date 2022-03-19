@@ -9,7 +9,7 @@
 - name: Install apt dependencies
   apt:
     name: "{{ item }}"
-  loop: "{{ nodered_apt_dependencies | list}}"
+  loop: "{{ nodered_apt_dependencies | list }}"
 
 - name: Install packages with npm
   npm:

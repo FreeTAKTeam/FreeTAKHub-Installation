@@ -1,10 +1,10 @@
 ---
-- name: Ensure group "nodered" exists
+- name: Ensure nodered group exists
   group:
     name: nodered
     state: present
 
-- name: Ensure user "nodered" exists in "nodered" group
+- name: Ensure nodered user is in nodered group
   user:
     name: nodered
     group: nodered
@@ -34,7 +34,7 @@
 - name: Set service state
   service:
     name: "{{ nodered_service_name }}"
-    state: "restarted"
+    state: restarted
     use: systemd
   register: set_nodered_state
   retries: 5

@@ -1,13 +1,10 @@
 ---
 - name: Linux Playbook with One Instance
   hosts: instance
-  vars:
-    # Node-RED Server will wait for Video Server
-    nodered_wait_for_videoserver: false
-    # Max seconds Node-RED Server will wait
-    nodered_wait_for_videoserver_timeout: 600
   become: true
+
   pre_tasks:
+
     - name: Cleanup
       import_tasks: ../../roles/common/tasks/cleanup.yml
 
@@ -15,6 +12,7 @@
       include_vars: ../../ip_addresses.yml
 
   post_tasks:
+
     - name: Cleanup
       import_tasks: ../../roles/common/tasks/cleanup.yml
 
@@ -22,5 +20,14 @@
     - freetakserver
     - freetakserver_ui
     - webmap
+    - murmur
     - videoserver
     - nodered
+
+  vars:
+
+    # Node-RED Server will wait for Video Server
+    nodered_wait_for_videoserver: false
+
+    # Max seconds Node-RED Server will wait
+    nodered_wait_for_videoserver_timeout: 600

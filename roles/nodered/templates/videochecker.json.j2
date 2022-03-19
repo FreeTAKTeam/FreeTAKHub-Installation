@@ -1,540 +1,540 @@
 [
-    {
-        "id": "e81402f5.f8254",
-        "type": "tab",
-        "label": "FTH VideoChecker",
-        "disabled": false,
-        "info": "This flow checks the simple-RTSP video service using the API and parses the active paths.\nWhen a path is present, it creates a video endpoint to FTS.\nFTS sends the video to all the connected TAK devices.\nEndpoints with the same name will be updated."
-    },
-    {
-        "id": "2a7e77e7.a92748",
-        "type": "http request",
-        "z": "e81402f5.f8254",
-        "name": "Post Video to FTS",
-        "method": "POST",
-        "ret": "txt",
-        "paytoqs": "ignore",
-        "url": "http://{{ videoserver_ipv4 }}:9997/ManageVideoStream/postVideoStream",
-        "tls": "",
-        "persist": false,
-        "proxy": "",
-        "authType": "bearer",
-        "x": 970,
-        "y": 240,
-        "wires": [
-            [
-                "25874402.182cec",
-                "f8da2c2e.b2fb3"
-            ]
-        ]
-    },
-    {
-        "id": "25874402.182cec",
-        "type": "switch",
-        "z": "e81402f5.f8254",
-        "name": "check return",
-        "property": "statusCode",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "200",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "500",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "401",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 3,
-        "x": 1310,
-        "y": 240,
-        "wires": [
-            [
-                "791450ee.61b5a"
-            ],
-            [
-                "1b6de090.e2467f"
-            ],
-            [
-                "a48bd58e.401dc8"
-            ]
-        ]
-    },
-    {
-        "id": "791450ee.61b5a",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "Success!",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1520,
-        "y": 200,
-        "wires": []
-    },
-    {
-        "id": "1b6de090.e2467f",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": " INTERNAL SERVER ERROR",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1590,
-        "y": 240,
-        "wires": []
-    },
-    {
-        "id": "a48bd58e.401dc8",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "Non authorized",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1520,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "41b82d8d.8266e4",
-        "type": "function",
-        "z": "e81402f5.f8254",
-        "name": "CreateVideoStream",
-        "func": "\n  msg.addr =  global.get('FTH_FTS_URL');\n  msg.port = global.get('FTH_FTS_API_Port');\n  msg.streamPort = global.get('FTH_FTS_STREAM_Port');\n  msg.streamAddress =  global.get('FTH_FTS_VIDEO_URL');\n  let streamPath =  msg.payload;\n  let  alias =  msg.payload;\n  let streamProtocol= \"rtsp\";\n\n \n\nmsg.payload = [];\n\n msg.payload={\n     alias: alias,\n     streamProtocol: streamProtocol,\n     streamAddress:  msg.streamAddress,\n     streamPort: msg.streamPort ,\n     streamPath: streamPath,\n };\n    \nreturn msg;\n\n",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 730,
-        "y": 280,
-        "wires": [
-            [
-                "2a7e77e7.a92748",
-                "351711f.8aa5aee"
-            ]
-        ]
-    },
-    {
-        "id": "351711f.8aa5aee",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "Rest Payload",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 970,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "f8da2c2e.b2fb3",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1150,
-        "y": 180,
-        "wires": []
-    },
-    {
-        "id": "529fdac2.273054",
-        "type": "http request",
-        "z": "e81402f5.f8254",
-        "name": "Connect to RTSP server",
-        "method": "GET",
-        "ret": "obj",
-        "paytoqs": "ignore",
-        "url": "http://{{ videoserver_ipv4 }}:9997/v1/paths/list",
-        "tls": "",
-        "persist": false,
-        "proxy": "",
-        "authType": "",
-        "x": 490,
-        "y": 160,
-        "wires": [
-            [
-                "801fd65f.5be7d8",
-                "70339513.554ecc"
-            ]
-        ]
-    },
-    {
-        "id": "801fd65f.5be7d8",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "received from JSON",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 540,
-        "y": 80,
-        "wires": []
-    },
-    {
-        "id": "5812cb15.cd4b04",
-        "type": "inject",
-        "z": "e81402f5.f8254",
-        "name": "start",
-        "props": [
-            {
-                "p": "addr",
-                "v": "",
-                "vt": "date"
-            }
-        ],
-        "repeat": "120",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payloadType": "str",
-        "x": 110,
-        "y": 80,
-        "wires": [
-            [
-                "ab5e51e8.e29b5"
-            ]
-        ]
-    },
-    {
-        "id": "e7eb8030.427a4",
-        "type": "switch",
-        "z": "e81402f5.f8254",
-        "name": "check streams",
-        "property": "payload.source",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "nempty"
-            },
-            {
-                "t": "null"
-            },
-            {
-                "t": "eq",
-                "v": "",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 3,
-        "x": 600,
-        "y": 400,
-        "wires": [
-            [],
-            [
-                "7fc68a9f.e82fe4"
-            ],
-            []
-        ]
-    },
-    {
-        "id": "7fc68a9f.e82fe4",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "no stream!",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 830,
-        "y": 440,
-        "wires": []
-    },
-    {
-        "id": "b6661f0d.790e8",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "after split",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 520,
-        "y": 460,
-        "wires": []
-    },
-    {
-        "id": "70339513.554ecc",
-        "type": "split",
-        "z": "e81402f5.f8254",
-        "name": "",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "x": 710,
-        "y": 160,
-        "wires": [
-            [
-                "ce49e6a3.280768",
-                "7714b387.25136c"
-            ]
-        ]
-    },
-    {
-        "id": "90676aac.d49f98",
-        "type": "split",
-        "z": "e81402f5.f8254",
-        "name": "",
-        "splt": "\\n",
-        "spltType": "str",
-        "arraySplt": 1,
-        "arraySpltType": "len",
-        "stream": false,
-        "addname": "",
-        "x": 410,
-        "y": 420,
-        "wires": [
-            [
-                "b6661f0d.790e8",
-                "e7eb8030.427a4"
-            ]
-        ]
-    },
-    {
-        "id": "ab5e51e8.e29b5",
-        "type": "function",
-        "z": "e81402f5.f8254",
-        "name": "getVideoStream",
-        "func": "\n  msg.addr =  global.get('FTH_FTS_VIDEO_URL');\n  msg.port = global.get('FTH_FTS_VIDEO_API_PORT');\n \n    \nreturn msg;\n\n",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 280,
-        "y": 80,
-        "wires": [
-            [
-                "529fdac2.273054"
-            ]
-        ]
-    },
-    {
-        "id": "cb4abca3.6a73d",
-        "type": "config",
-        "z": "e81402f5.f8254",
-        "name": "FTH Global Config",
-        "properties": [
-            {
-                "p": "FTH_FTS_URL",
-                "pt": "{{ fts_ipv4 }}",
-                "to": "204.48.30.216",
-                "tot": "str"
-            },
-            {
-                "p": "FTH_FTS_TCP_Port",
-                "pt": "global",
-                "to": "8087",
-                "tot": "str"
-            },
-            {
-                "p": "FTH_FTS_API_Port",
-                "pt": "global",
-                "to": "19023",
-                "tot": "str"
-            },
-            {
-                "p": "FTH_FTS_API_Auth",
-                "pt": "global",
-                "to": "token",
-                "tot": "str"
-            },
-            {
-                "p": "FTH_FTS_STREAM_Port",
-                "pt": "global",
-                "to": "8554",
-                "tot": "str"
-            },
-            {
-                "p": "FTH_FTS_VIDEO_URL",
-                "pt": "global",
-                "to": "{{ videoserver_ipv4 }}",
-                "tot": "str"
-            },
-            {
-                "p": "FTH_FTS_VIDEO_API_PORT",
-                "pt": "global",
-                "to": "9997",
-                "tot": "str"
-            }
-        ],
-        "active": true,
-        "x": 150,
-        "y": 160,
-        "wires": []
-    },
-    {
-        "id": "ce49e6a3.280768",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "conf name",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 770,
-        "y": 60,
-        "wires": []
-    },
-    {
-        "id": "7714b387.25136c",
-        "type": "function",
-        "z": "e81402f5.f8254",
-        "name": "",
-        "func": "\nnode.warn(Object.keys(msg.payload).length);\nfor (let i = 0; i < Object.keys(msg.payload).length; i++) { \n // node.warn(Object.keys(msg.payload)[i])\n  if (Object.values(msg.payload)[i].source){\n        msg.payload = \"/\"+Object.keys(msg.payload)[i]\n        node.send(msg)\n  }\n}\nreturn;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 860,
-        "y": 160,
-        "wires": [
-            [
-                "41b82d8d.8266e4",
-                "b6146596.a3aeb8"
-            ]
-        ]
-    },
-    {
-        "id": "b6146596.a3aeb8",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "after function",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1010,
-        "y": 80,
-        "wires": []
-    },
-    {
-        "id": "bfadd2cc.7c368",
-        "type": "inject",
-        "z": "e81402f5.f8254",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "x": 390,
-        "y": 520,
-        "wires": [
-            [
-                "a4bc3376.a38dd"
-            ]
-        ]
-    },
-    {
-        "id": "a4bc3376.a38dd",
-        "type": "function",
-        "z": "e81402f5.f8254",
-        "name": "",
-        "func": "var colors=[\"red\",\"blue\",\"green\"];\nfor (let i = 0; i < colors.length; i++) { \n  msg.payload = colors[i]\n  node.send(msg);\n}\nreturn;",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 580,
-        "y": 520,
-        "wires": [
-            [
-                "c290bbb3.401e98"
-            ]
-        ]
-    },
-    {
-        "id": "c290bbb3.401e98",
-        "type": "debug",
-        "z": "e81402f5.f8254",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 790,
-        "y": 520,
-        "wires": []
-    }
+  {
+    "id": "e81402f5.f8254",
+    "type": "tab",
+    "label": "FTH VideoChecker",
+    "disabled": false,
+    "info": "This flow checks the simple-RTSP video service using the API and parses the active paths.\nWhen a path is present, it creates a video endpoint to FTS.\nFTS sends the video to all the connected TAK devices.\nEndpoints with the same name will be updated."
+  },
+  {
+    "id": "2a7e77e7.a92748",
+    "type": "http request",
+    "z": "e81402f5.f8254",
+    "name": "Post Video to FTS",
+    "method": "POST",
+    "ret": "txt",
+    "paytoqs": "ignore",
+    "url": "http://{{ videoserver_ipv4 }}:9997/ManageVideoStream/postVideoStream",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "authType": "bearer",
+    "x": 970,
+    "y": 240,
+    "wires": [
+      [
+        "25874402.182cec",
+        "f8da2c2e.b2fb3"
+      ]
+    ]
+  },
+  {
+    "id": "25874402.182cec",
+    "type": "switch",
+    "z": "e81402f5.f8254",
+    "name": "check return",
+    "property": "statusCode",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "eq",
+        "v": "200",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "500",
+        "vt": "str"
+      },
+      {
+        "t": "eq",
+        "v": "401",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 3,
+    "x": 1310,
+    "y": 240,
+    "wires": [
+      [
+        "791450ee.61b5a"
+      ],
+      [
+        "1b6de090.e2467f"
+      ],
+      [
+        "a48bd58e.401dc8"
+      ]
+    ]
+  },
+  {
+    "id": "791450ee.61b5a",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "Success!",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1520,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "1b6de090.e2467f",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": " INTERNAL SERVER ERROR",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1590,
+    "y": 240,
+    "wires": []
+  },
+  {
+    "id": "a48bd58e.401dc8",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "Non authorized",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1520,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "41b82d8d.8266e4",
+    "type": "function",
+    "z": "e81402f5.f8254",
+    "name": "CreateVideoStream",
+    "func": "\n  msg.addr =  global.get('FTH_FTS_URL');\n  msg.port = global.get('FTH_FTS_API_Port');\n  msg.streamPort = global.get('FTH_FTS_STREAM_Port');\n  msg.streamAddress =  global.get('FTH_FTS_VIDEO_URL');\n  let streamPath =  msg.payload;\n  let  alias =  msg.payload;\n  let streamProtocol= \"rtsp\";\n\n \n\nmsg.payload = [];\n\n msg.payload={\n     alias: alias,\n     streamProtocol: streamProtocol,\n     streamAddress:  msg.streamAddress,\n     streamPort: msg.streamPort ,\n     streamPath: streamPath,\n };\n    \nreturn msg;\n\n",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 730,
+    "y": 280,
+    "wires": [
+      [
+        "2a7e77e7.a92748",
+        "351711f.8aa5aee"
+      ]
+    ]
+  },
+  {
+    "id": "351711f.8aa5aee",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "Rest Payload",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 970,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "f8da2c2e.b2fb3",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1150,
+    "y": 180,
+    "wires": []
+  },
+  {
+    "id": "529fdac2.273054",
+    "type": "http request",
+    "z": "e81402f5.f8254",
+    "name": "Connect to RTSP server",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "http://{{ videoserver_ipv4 }}:9997/v1/paths/list",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "authType": "",
+    "x": 490,
+    "y": 160,
+    "wires": [
+      [
+        "801fd65f.5be7d8",
+        "70339513.554ecc"
+      ]
+    ]
+  },
+  {
+    "id": "801fd65f.5be7d8",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "received from JSON",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 540,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "5812cb15.cd4b04",
+    "type": "inject",
+    "z": "e81402f5.f8254",
+    "name": "start",
+    "props": [
+      {
+        "p": "addr",
+        "v": "",
+        "vt": "date"
+      }
+    ],
+    "repeat": "120",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payloadType": "str",
+    "x": 110,
+    "y": 80,
+    "wires": [
+      [
+        "ab5e51e8.e29b5"
+      ]
+    ]
+  },
+  {
+    "id": "e7eb8030.427a4",
+    "type": "switch",
+    "z": "e81402f5.f8254",
+    "name": "check streams",
+    "property": "payload.source",
+    "propertyType": "msg",
+    "rules": [
+      {
+        "t": "nempty"
+      },
+      {
+        "t": "null"
+      },
+      {
+        "t": "eq",
+        "v": "",
+        "vt": "str"
+      }
+    ],
+    "checkall": "true",
+    "repair": false,
+    "outputs": 3,
+    "x": 600,
+    "y": 400,
+    "wires": [
+      [],
+      [
+        "7fc68a9f.e82fe4"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "7fc68a9f.e82fe4",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "no stream!",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "true",
+    "targetType": "full",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 830,
+    "y": 440,
+    "wires": []
+  },
+  {
+    "id": "b6661f0d.790e8",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "after split",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 520,
+    "y": 460,
+    "wires": []
+  },
+  {
+    "id": "70339513.554ecc",
+    "type": "split",
+    "z": "e81402f5.f8254",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "x": 710,
+    "y": 160,
+    "wires": [
+      [
+        "ce49e6a3.280768",
+        "7714b387.25136c"
+      ]
+    ]
+  },
+  {
+    "id": "90676aac.d49f98",
+    "type": "split",
+    "z": "e81402f5.f8254",
+    "name": "",
+    "splt": "\\n",
+    "spltType": "str",
+    "arraySplt": 1,
+    "arraySpltType": "len",
+    "stream": false,
+    "addname": "",
+    "x": 410,
+    "y": 420,
+    "wires": [
+      [
+        "b6661f0d.790e8",
+        "e7eb8030.427a4"
+      ]
+    ]
+  },
+  {
+    "id": "ab5e51e8.e29b5",
+    "type": "function",
+    "z": "e81402f5.f8254",
+    "name": "getVideoStream",
+    "func": "\n  msg.addr =  global.get('FTH_FTS_VIDEO_URL');\n  msg.port = global.get('FTH_FTS_VIDEO_API_PORT');\n \n    \nreturn msg;\n\n",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 280,
+    "y": 80,
+    "wires": [
+      [
+        "529fdac2.273054"
+      ]
+    ]
+  },
+  {
+    "id": "cb4abca3.6a73d",
+    "type": "config",
+    "z": "e81402f5.f8254",
+    "name": "FTH Global Config",
+    "properties": [
+      {
+        "p": "FTH_FTS_URL",
+        "pt": "{{ fts_ipv4 }}",
+        "to": "204.48.30.216",
+        "tot": "str"
+      },
+      {
+        "p": "FTH_FTS_TCP_Port",
+        "pt": "global",
+        "to": "8087",
+        "tot": "str"
+      },
+      {
+        "p": "FTH_FTS_API_Port",
+        "pt": "global",
+        "to": "19023",
+        "tot": "str"
+      },
+      {
+        "p": "FTH_FTS_API_Auth",
+        "pt": "global",
+        "to": "token",
+        "tot": "str"
+      },
+      {
+        "p": "FTH_FTS_STREAM_Port",
+        "pt": "global",
+        "to": "8554",
+        "tot": "str"
+      },
+      {
+        "p": "FTH_FTS_VIDEO_URL",
+        "pt": "global",
+        "to": "{{ videoserver_ipv4 }}",
+        "tot": "str"
+      },
+      {
+        "p": "FTH_FTS_VIDEO_API_PORT",
+        "pt": "global",
+        "to": "9997",
+        "tot": "str"
+      }
+    ],
+    "active": true,
+    "x": 150,
+    "y": 160,
+    "wires": []
+  },
+  {
+    "id": "ce49e6a3.280768",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "conf name",
+    "active": false,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 770,
+    "y": 60,
+    "wires": []
+  },
+  {
+    "id": "7714b387.25136c",
+    "type": "function",
+    "z": "e81402f5.f8254",
+    "name": "",
+    "func": "\nnode.warn(Object.keys(msg.payload).length);\nfor (let i = 0; i < Object.keys(msg.payload).length; i++) { \n // node.warn(Object.keys(msg.payload)[i])\n  if (Object.values(msg.payload)[i].source){\n        msg.payload = \"/\"+Object.keys(msg.payload)[i]\n        node.send(msg)\n  }\n}\nreturn;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 860,
+    "y": 160,
+    "wires": [
+      [
+        "41b82d8d.8266e4",
+        "b6146596.a3aeb8"
+      ]
+    ]
+  },
+  {
+    "id": "b6146596.a3aeb8",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "after function",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 1010,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "bfadd2cc.7c368",
+    "type": "inject",
+    "z": "e81402f5.f8254",
+    "name": "",
+    "props": [
+      {
+        "p": "payload"
+      },
+      {
+        "p": "topic",
+        "vt": "str"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 390,
+    "y": 520,
+    "wires": [
+      [
+        "a4bc3376.a38dd"
+      ]
+    ]
+  },
+  {
+    "id": "a4bc3376.a38dd",
+    "type": "function",
+    "z": "e81402f5.f8254",
+    "name": "",
+    "func": "var colors=[\"red\",\"blue\",\"green\"];\nfor (let i = 0; i < colors.length; i++) { \n  msg.payload = colors[i]\n  node.send(msg);\n}\nreturn;",
+    "outputs": 1,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 580,
+    "y": 520,
+    "wires": [
+      [
+        "c290bbb3.401e98"
+      ]
+    ]
+  },
+  {
+    "id": "c290bbb3.401e98",
+    "type": "debug",
+    "z": "e81402f5.f8254",
+    "name": "",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "false",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 790,
+    "y": 520,
+    "wires": []
+  }
 ]

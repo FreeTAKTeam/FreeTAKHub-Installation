@@ -1,12 +1,11 @@
 ---
 dependencies:
   - { role: common }
-  - { role: python3 }
 
 galaxy_info:
-  role_name: fretakserver_ui
+  role_name: murmur
   author: freetakteam
-  description: Free TAK Server User Interface
+  description: Murmur (Mumble Server)
   license: license (EPL-2.0)
   min_ansible_version: '2.4'
   platforms:
@@ -17,4 +16,6 @@ galaxy_info:
     - freetakserver
     - tak
     - atak
-    - freetakserver_ui
+    - mumble
+    - murmur
+    - voip

@@ -1,0 +1,14 @@
+[Unit]
+Description=Mumble web interface
+Requires=network.target mumble-server.service
+After=network.target mumble-server.service
+
+[Service]
+Type=simple
+User=www-data
+StandardOutput=append:/var/log/{{ mumble_web_service_name }}/{{ mumble_web_service_name }}-stdout.log
+StandardError=append:/var/log/{{ mumble_web_service_name }}/{{ mumble_web_service_name }}-stderr.log
+ExecStart=/usr/bin/websockify --web=/usr/lib/node_modules/mumble-web/dist --ssl-target localhost:64737 localhost:64738
+
+[Install]
+WantedBy=multi-user.target

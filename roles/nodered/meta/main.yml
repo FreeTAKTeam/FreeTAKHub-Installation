@@ -1,3 +1,19 @@
 ---
 dependencies:
-  - { role: common }
+  - {role: common}
+
+galaxy_info:
+  role_name: nodered
+  author: freetakteam
+  description: NodeRed Server
+  license: license (EPL-2.0)
+  min_ansible_version: '2.4'
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+  galaxy_tags:
+    - freetakserver
+    - tak
+    - atak
+    - nodered

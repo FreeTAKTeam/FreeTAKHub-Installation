@@ -1,0 +1,16 @@
+---
+- name: "Include {{ ansible_distribution }}-specific variables"
+  include_vars: "{{ ansible_distribution }}.yml"
+
+- name: Setup
+  include_tasks: "setup-{{ ansible_distribution }}.yml"
+
+- name: Configure
+  include_tasks: "configure-{{ ansible_distribution }}.yml"
+
+- name: Notify handlers to print at the end
+  shell: ":"
+  notify:
+    - print murmur ip
+    - print murmur credentials
+    - print reconfigure message
