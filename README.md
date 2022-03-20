@@ -74,7 +74,7 @@ For Windows installations:
 
     See: <https://www.microsoft.com/en-us/p/ubuntu-2004-lts/9n6svws3rx71>
 
-## Step 1. Clone the FreeTAKHub-Installation Git repository
+## Step 1. Clone the `FreeTAKHub-Installation` repository
 
 In the console:
 
@@ -94,7 +94,7 @@ Go to the home directory:
 cd ~
 ```
 
-Clone the FreeTAKHub-Installation repository:
+Clone the `FreeTAKHub-Installation` repository:
 
 ```console
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
@@ -116,7 +116,7 @@ git pull
 
 ### Automated Ansible Installation
 
-At the top-level directory of the FreeTAKHub-Installation repository, enter:
+At the top-level directory of the `FreeTAKHub-Installation` repository, enter:
 
 ```console
 ./scripts/init.sh
@@ -172,7 +172,7 @@ At the top-level
 
 ## Checking Your Installation
 
-### Check FreeTAKServer Installation
+### Check FreeTAKServer
 
 Open a web browser to:
 
@@ -188,7 +188,7 @@ http://<YOUR_IP_ADDRESS>:5000/
 - click on the WEBMAP button
 - confirm the client is connected in the WEBMAP
 
-#### Check video server
+#### Check The Video Server
 
 Open a web browser to:
 
@@ -278,7 +278,7 @@ Confirm the configuration (which is in `json` format):
 }
 ```
 
-### FreeTAKHub Server (or Node-RED Server)
+### Check the FreeTAKHub Server (or Node-RED Server)
 
 Open a web browser to:
 
@@ -288,7 +288,7 @@ http://<YOUR_IP_ADDRESS>:1880/
 
 # Install on DigitalOcean with Terraform
 
-This installation has been tested only on Ubuntu 20.04.
+This installation has only been tested on Ubuntu 20.04.
 
 Other operating systems may work, but are untested.
 
