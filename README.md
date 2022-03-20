@@ -28,12 +28,6 @@ This script will install and configure FreeTAKHub components.
 1. FreeTAKHub Server: Handles FTS integrations like SALUTE reports & video checking services (checks if videos are running and notifies FTS).
 1. FreeTAKHub Voice Server: Uses [Murmur](https://github.com/mumble-voip/mumble) or Mumble VOIP Server for voice chatting.
 
-This repository includes Ansible & Terraform scripts to:
-
-- create the target nodes.
-- install FTS and additional modules.
-- configure FTS.
-
 # Zero Touch Deployment Diagram
 
 ![image](https://user-images.githubusercontent.com/60719165/159137165-59164055-ce6d-4396-9a9b-f7503d20b3f6.png)
@@ -53,6 +47,12 @@ wget -qO rb.gy/ocghax | sudo bash
 ```
 
 # Install FreeTAKHub with Ansible
+
+This repository includes Ansible roles to:
+
+- create the target nodes.
+- install FTS and additional modules.
+- configure FTS.
 
 ## Windows Prerequisites
 
@@ -164,10 +164,16 @@ See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installat
 
 ## Step 3. Install FreeTAKServer and Components
 
-At the top-level
+Go to the top-level directory of the `FreeTAKHub-Installation` repository:
 
 ```console
-./scripts/install.sh
+cd ~/FreeTAKHub-Installation
+```
+
+Run the Ansible playbook to install FreeTAKServer and components:
+
+```console
+sudo ansible-playbook install_all.yml
 ```
 
 ## Checking Your Installation
@@ -285,6 +291,8 @@ Open a web browser to:
 ```
 http://<YOUR_IP_ADDRESS>:1880/
 ```
+
+Confirm you see a login prompt.
 
 # Install on DigitalOcean with Terraform
 
