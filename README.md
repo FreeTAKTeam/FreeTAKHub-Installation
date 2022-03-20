@@ -1,7 +1,5 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
 
-This page may contain information not aligned with the current release, consult the [User Docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Ansible/ZeroTouchInstall/).
-
 # FreeTAKHub Installation
 
 ## Zero Touch Deployment
