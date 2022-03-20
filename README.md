@@ -22,7 +22,12 @@ Other Linux distributions or OS may work, but they have not been tested.
 
 # Zero Touch Deployment
 
-This approach assumes that you have a clean Ubuntu 20.04 as a OS.
+Enter into console:
+```console
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | sudo bash
+```
+
+This approach assumes that you have a clean Ubuntu 20.04 as an OS.
 
 The script will install and configure all FreeTAKHub components.
 
@@ -35,22 +40,19 @@ The script will install and configure all FreeTAKHub components.
 
 ![image](https://user-images.githubusercontent.com/60719165/159137165-59164055-ce6d-4396-9a9b-f7503d20b3f6.png)
 
-simply type
-```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | bash
-```
-
 # Zero Touch Deployment Advanced  (Options)
-this installation will give you the ability to select which components you need
+
+This installation will give you the ability to select which components you need
+
 ```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/advanced_install.sh | bash
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/advanced_install.sh | sudo bash
 ```
 
-shorter url (under construction)
-```console
-wget -qO rb.gy/ocghax | bash
-```
+Shorter URL (under construction)
 
+```console
+wget -qO rb.gy/ocghax | sudo bash
+```
 
 # Install FreeTAKHub to your machine with Ansible
 
@@ -176,7 +178,7 @@ This script install FreeTAKServer and all of its components to your machine:
 open a browser to:
 
 ```console
-http://[YOURIP]::5000/
+http://<YOUR_IP_ADDRESS>:5000/
 ```
 
 - login with admin / password
@@ -191,7 +193,9 @@ http://[YOURIP]::5000/
 
 Open a browser to:
 
-http://[YOURIP]:9997/v1/config/get
+```
+http://<YOUR_IP_ADDRESS>:9997/v1/config/get
+```
 
 you will see a configuration in Json format like this:
 
@@ -206,7 +210,7 @@ you will see a configuration in Json format like this:
   "writeTimeout": "10s",
   "readBufferCount": 512,
   "api": true,
-  "apiAddress": "[YOURIP]:9997",
+  "apiAddress": "<YOUR_IP_ADDRESS>:9997",
   "metrics": false,
   "metricsAddress": "127.0.0.1:9998",
   "pprof": false,
@@ -280,7 +284,7 @@ you will see a configuration in Json format like this:
 Open a browser to
 
 ```console
-http://[YOURIP]:1880/
+http://<YOUR_IP_ADDRESS>:1880/
 ```
 
 # Install on DigitalOcean with Terraform and Ansible
