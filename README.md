@@ -3,6 +3,7 @@
 # FreeTAKHub Installation
 
 To install, enter into the console:
+
 ```console
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | sudo bash
 ```
@@ -13,7 +14,8 @@ This approach assumes that:
 * You don't execute the above command as the root user but: 
     * Create a new user first
     * Then execute the above listed Zero Touch deploy command (change \<USER\> to your preference):
- ```
+ 
+ ```console
  sudo adduser <USER> && sudo usermod -aG sudo <USER> && su <USER> && cd ~
  ```
  
