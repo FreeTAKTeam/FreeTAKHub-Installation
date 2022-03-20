@@ -20,7 +20,7 @@ webmap_force_install="false"
 ###############################################################################
 function usage() {
   cat <<USAGE_TEXT
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-f] -p param_value arg1 [arg2...]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v]
 
 Install Free TAK Server and components.
 
@@ -211,20 +211,6 @@ function die() {
 }
 
 ###############################################################################
-# Exit gracefully
-###############################################################################
-function die() {
-  local msg=$1
-
-  # default exit status 1
-  local code=${2-1}
-  msg "$msg"
-
-  echo -e "${RED}Exiting. Installation NOT successful.${NOFORMAT}"
-  exit "$code"
-}
-
-###############################################################################
 # Download dependencies
 ###############################################################################
 function download_dependencies() {
@@ -312,12 +298,12 @@ function run_playbook() {
 
   if [ "${webmap_force_install}" = true ]; then
 
-    # force webmap installation for detected intel architecture
+    # force webmap installation for detected non-intel-based architecture
     ansible-playbook -u root -i localhost, --connection=local -e webmap_force_install=true install_all.yml
 
   else
 
-    # installation may err for detected intel architecture
+    # installation may err for detected non-intel-based architecture
     ansible-playbook -u root -i localhost, --connection=local install_all.yml
 
   fi
