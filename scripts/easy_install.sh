@@ -300,12 +300,12 @@ function run_playbook() {
 
   if [ "${webmap_force_install}" = true ]; then
 
-    # force webmap installation for detected intel architecture
+    # force webmap installation for detected non-intel-based architecture
     ansible-playbook -u root -i localhost, --connection=local -e webmap_force_install=true install_all.yml
 
   else
 
-    # installation may err for detected intel architecture
+    # installation may err for detected non-intel-based architecture
     ansible-playbook -u root -i localhost, --connection=local install_all.yml
 
   fi
