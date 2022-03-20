@@ -1,8 +1,10 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
 
-this page may contains information that is not aligned with the current release, please use the [User docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Ansible/ZeroTouchInstall/)
+This page may contain information not aligned with the current release, consult the [User Docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Ansible/ZeroTouchInstall/).
 
 # FreeTAKHub Installation
+
+## Zero Touch Deployment
 
 To install, enter into the console:
 
@@ -10,50 +12,55 @@ To install, enter into the console:
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | sudo bash
 ```
 
-This approach assumes that:
+The optimal configuration to run the script is:
 
-* You have a clean, freshly installed Ubuntu 20.04. Currently FreeTAKServer and FreeTAKHub components have been successfully tested on Ubuntu 20.04. Other Linux distributions or OS may work, but they have not been tested.
- 
-The script will install and configure all FreeTAKHub components.
+* Ubuntu 20.04
+  * Other operating systems may work, but are untested.
+* Intel-based architecture
+  * The map in the web interface may not work with non-Intel-based architecture.
 
-* FTS: hosts the core of FTS
-* FTS Web UI: uses the API service 1935 to interacts with FTS
-* FTH webMap :  this connects to FTS using the TCP COT service and port 8087
-* Video Service: streams video.
-* FTH server: runs other integrations such as the Video Service Checker and SALUTE report. The video Service checker has a strategy to verify if streams are running there and notifies FTS.
-* FTH Voice: install a murmur server based on [Mumble](https://github.com/mumble-voip/mumble) for ow-latency, high quality voice chat software.
+This script will install and configure FreeTAKHub components.
 
-This repository is a set of Ansible/Terraform scripts that allow you to:
+1. FreeTAKServer (FTS): The core server that interfaces with TAK-enabled clients
+1. FreeTAKServer User Interface (FTS-UI): A web-based user interface.
+1. FreeTAKHub Webmap: A mapping component on the web interface.
+1. Video Server:  Handles video streaming.
+1. FreeTAKHub Server: Handles FTS integrations like SALUTE reports & video checking services (checks if videos are running and notifies FTS).
+1. FreeTAKHub Voice Server: Uses [Murmur](https://github.com/mumble-voip/mumble) or Mumble VOIP Server for voice chatting.
 
-- Create the target nodes.
-- Install FTS and all the additional modules.
-- Configure FTS.
+This repository includes Ansible & Terraform scripts to:
+
+- create the target nodes.
+- install FTS and additional modules.
+- configure FTS.
+
+# Zero Touch Deployment Diagram
 
 ![image](https://user-images.githubusercontent.com/60719165/159137165-59164055-ce6d-4396-9a9b-f7503d20b3f6.png)
 
-# Zero Touch Deployment Advanced  (Options)
+# Custom Deployment (Advanced)
 
-This installation will give you the ability to select which components you need
+This script prompts the user to select specific FreeTAKHub components to install:
 
 ```console
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/advanced_install.sh | sudo bash
 ```
 
-Shorter URL (under construction)
+Shortened URL for Custom Deployment (under construction)
 
 ```console
 wget -qO rb.gy/ocghax | sudo bash
 ```
 
-# Install FreeTAKHub to your machine with Ansible
+# Install FreeTAKHub with Ansible
 
 ## Windows Prerequisites
 
-This is required only if you want to use Windows.
+Below is required for Windows machines.
 
-You must be running Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11.
+The machine must be running: Windows 10 Version 2004 or higher (Build 19041 or higher) or Windows 11.
 
-To install on Windows, you will have to:
+For Windows installations:
 
 1. Install WSL2.
 
@@ -75,31 +82,31 @@ In the console:
 sudo apt update
 ```
 
-Make sure you have Git installed:
+Make sure you have `git` installed:
 
 ```console
 sudo apt install -y git
 ```
 
-Go to your home directory:
+Go to the home directory:
 
 ```console
 cd ~
 ```
 
-Clone the repo:
+Clone the FreeTAKHub-Installation repository:
 
 ```console
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
-Go to the top-level directory of the repository:
+Go to the top-level directory of the FreeTAKHub-Installation repository:
 
 ```console
 cd FreeTAKHub-Installation
 ```
 
-In case you already previously created the repository, pull the latest:
+If you have previously cloned the repository, update the repository:
 
 ```console
 git pull
@@ -109,32 +116,33 @@ git pull
 
 ### Automated Ansible Installation
 
-In the top-level directory, enter:
+At the top-level directory of the FreeTAKHub-Installation repository, enter:
 
 ```console
 ./scripts/init.sh
 ```
 
-Optional: To activate the virtual environment, enter:
+Optional (But Recommended!): Activate the Python virtual environment:
 
 ```console
 activate
 ```
 
-To deactivate:
+To deactivate the Python virtual environment:
 
 ```console
 deactivate
 ```
 
-To know more about Python virtual environments and why they are a good idea, see:
+To learn more about Python virtual environments and why they are a good idea, see:
 
 <https://realpython.com/python-virtual-environments-a-primer/>
 
-### Manual Installation for Ansible
-if you prefer to have more control use this method.
+### Manual Ansible Installation
+ 
+The manual installation allows more control.
 
-In the console:
+In the console, enter:
 
 ```console
 sudo apt update
@@ -156,7 +164,7 @@ See: <https://docs.ansible.com/ansible/latest/installation_guide/intro_installat
 
 ## Step 3. Install FreeTAKServer and Components
 
-This script install FreeTAKServer and all of its components to your machine:
+At the top-level
 
 ```console
 ./scripts/install.sh
@@ -164,9 +172,9 @@ This script install FreeTAKServer and all of its components to your machine:
 
 ## Checking Your Installation
 
-### Check FTS core
+### Check FreeTAKServer Installation
 
-open a browser to:
+Open a web browser to:
 
 ```
 http://<YOUR_IP_ADDRESS>:5000/
@@ -174,21 +182,21 @@ http://<YOUR_IP_ADDRESS>:5000/
 
 - login with admin / password
 - change your password immediately
-- check if the services are on OK (blue)
+- check whether services are OK (blue)
 ![image](https://user-images.githubusercontent.com/60719165/148986287-0c83aa3f-e909-4b38-bc81-d66cddb08f89.png)
 - connect a client to the server
 - click on the Webmap tab
-- you should see the client connected in the webmap
+- confirm the client is connected in the Webmap
 
 #### Check video server
 
-Open a browser to:
+Open a web browser to:
 
 ```
 http://<YOUR_IP_ADDRESS>:9997/v1/config/get
 ```
 
-you will see a configuration in Json format like this:
+Confirm the configuration (which is in `json` format):
 
 ```json
 {
@@ -270,21 +278,15 @@ you will see a configuration in Json format like this:
 }
 ```
 
-### Node-RED
+### FreeTAKHub Server (or Node-RED Server)
 
-Open a browser to
+Open a web browser to:
 
 ```
 http://<YOUR_IP_ADDRESS>:1880/
 ```
 
-# Install on DigitalOcean with Terraform and Ansible
-
-This installation method has been tested with Ubuntu 20.04.
-
-Other Linux distributions may work, but they have not been tested.
-
-## Step 1. Clone the FreeTAKHub-Installation Git repository
+# Install on DigitalOcean with Terraform
 
 In the console:
 
@@ -292,31 +294,31 @@ In the console:
 sudo apt update
 ```
 
-Make sure you have Git installed:
+Make sure you have `git` installed:
 
 ```console
 sudo apt install -y git
 ```
 
-Go to your home directory:
+Go to the home directory:
 
 ```console
 cd ~
 ```
 
-Clone the repo with:
+Clone the FreeTAKHub-Installation repository:
 
 ```console
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
-Go to the top-level directory
+Go to the top-level directory of the FreeTAKHub-Installation repository:
 
 ```console
 cd FreeTAKHub-Installation
 ```
 
-In case you already previously created the repository, pull the latest:
+If you have previously cloned the repository, update the repository:
 
 ```console
 git pull
@@ -334,13 +336,13 @@ In the top-level directory of the repository:
 ./scripts/install.sh
 ```
 
-Optional: To activate the virtual environment, enter:
+Optional (But Recommended!): Activate the Python virtual environment:
 
 ```console
 activate
 ```
 
-To deactivate:
+To deactivate the Python virtual environment:
 
 ```console
 deactivate
