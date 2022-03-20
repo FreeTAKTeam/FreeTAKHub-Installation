@@ -199,20 +199,6 @@ function die() {
 }
 
 ###############################################################################
-# Exit gracefully
-###############################################################################
-function die() {
-  local msg=$1
-
-  # default exit status 1
-  local code=${2-1}
-  msg "$msg"
-
-  echo -e "${RED}Exiting. Installation NOT successful.${NOFORMAT}"
-  exit "$code"
-}
-
-###############################################################################
 # Download dependencies
 ###############################################################################
 function download_dependencies() {
