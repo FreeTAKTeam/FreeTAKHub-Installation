@@ -98,7 +98,7 @@ Clone the `FreeTAKHub-Installation` repository:
 git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 ```
 
-Go to the top-level directory of the FreeTAKHub-Installation repository:
+Go to the top-level directory of the `FreeTAKHub-Installation` repository:
 
 ```console
 cd FreeTAKHub-Installation
