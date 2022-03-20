@@ -171,7 +171,7 @@ This script install FreeTAKServer and all of its components to your machine:
 
 open a browser to:
 
-```console
+```
 http://<YOUR_IP_ADDRESS>:5000/
 ```
 
@@ -277,7 +277,7 @@ you will see a configuration in Json format like this:
 
 Open a browser to
 
-```console
+```
 http://<YOUR_IP_ADDRESS>:1880/
 ```
 
