@@ -37,7 +37,7 @@ USAGE_TEXT
 ###############################################################################
 # Cleanup here
 ###############################################################################
-cleanup() {
+function cleanup() {
 
   trap - SIGINT SIGTERM ERR EXIT
 
@@ -46,10 +46,75 @@ cleanup() {
 }
 
 ###############################################################################
+# Echo a message
+###############################################################################
+function msg() {
+
+  echo >&2 -e "${1-}"
+
+}
+
+###############################################################################
+# Exit gracefully
+###############################################################################
+function die() {
+
+  local msg=$1
+  msg "$msg"
+
+  echo -e "Exiting. Installation NOT successful."
+
+  # default exit status 1
+  local code=${2-1}
+  exit "$code"
+
+}
+
+###############################################################################
+# Parse parameters
+###############################################################################
+function parse_params() {
+
+  while true; do
+    case "${1-}" in
+
+    --help | -h)
+      usage
+      exit 0
+      shift
+      ;;
+
+    --verbose | -v)
+      set -x
+      NO_COLOR=1
+      shift
+      ;;
+
+    --no-color)
+      NO_COLOR=1
+      shift
+      ;;
+
+    -?*)
+      die "ERROR: unknown option $1"
+      ;;
+
+    *)
+      break
+      ;;
+
+    esac
+  done
+
+}
+
+###############################################################################
 # Add coloration to output for highlighting or emphasizing words
 ###############################################################################
 function setup_colors() {
+
   if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
+
     NOFORMAT='\033[0m'
     RED='\033[0;31m'
     GREEN='\033[0;32m'
@@ -58,7 +123,9 @@ function setup_colors() {
     # PURPLE='\033[0;35m' # unused
     # CYAN='\033[0;36m' # unused
     YELLOW='\033[1;33m'
+
   else
+
     NOFORMAT=''
     RED=''
     GREEN=''
@@ -67,7 +134,9 @@ function setup_colors() {
     # PURPLE='' # unused
     # CYAN='' # unused
     YELLOW=''
+
   fi
+
 }
 
 ###############################################################################
@@ -79,10 +148,14 @@ function check_root() {
 
   # check Effective User ID (EUID) for root user, which has an EUID of 0.
   if [ "$EUID" -ne 0 ]; then
+
     echo -e "${RED}ERROR${NOFORMAT}"
     die "This script requires running as root. Use sudo before the command."
+
   else
+
     echo -e "${GREEN}Success!${NOFORMAT}"
+
   fi
 }
 
@@ -136,6 +209,7 @@ function check_os() {
     echo "FreeTAKServer has only been tested on ${GREEN}Ubuntu 20.04${NOFORMAT}."
     echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}"
     echo "Errors may arise during installation or execution."
+
     read -r -e -p "Do you want to continue? [y/n]: " PROCEED
 
     # Default answer is "n" for NO.
@@ -152,8 +226,12 @@ function check_os() {
     fi
 
   else
+
     echo -e "${GREEN}Success!${NOFORMAT}"
+    echo -e "This machine is currently running: ${GREEN}${OS} ${VER}${NOFORMAT}"
+
   fi
+
 }
 
 ###############################################################################
@@ -163,6 +241,7 @@ function check_architecture() {
 
   echo -e -n "${BLUE}Checking for supported architecture...${NOFORMAT}"
 
+  # extract architecture string
   arch=$(cat /proc/cpuinfo | grep 'model name' | head -1)
   name=$(sed 's/.*CPU\s\(.*\)\s\(@\).*/\1/' <<<"${arch}")
 
@@ -170,9 +249,7 @@ function check_architecture() {
   if ! grep Intel <<<"${arch}" >/dev/null; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
-
     echo "Possible non-Intel architecture detected, ${name}"
-
     echo "Non-intel architectures may cause problems. The web map might not install."
 
     read -r -e -p "Do you want to force web map installation? [y/n]: " FORCE_WEBMAP_INSTALL
@@ -196,37 +273,12 @@ function check_architecture() {
 
     fi
 
-  else
+  else # good architecture to install webmap
 
     echo -e "${GREEN}Success!${NOFORMAT}"
     echo "Intel architecture detected, ${name}"
 
   fi
-
-}
-
-###############################################################################
-# Echo a message
-###############################################################################
-function msg() {
-
-  echo >&2 -e "${1-}"
-
-}
-
-###############################################################################
-# Exit gracefully
-###############################################################################
-function die() {
-
-  local msg=$1
-  msg "$msg"
-
-  echo -e "Exiting. Installation NOT successful."
-
-  # default exit status 1
-  local code=${2-1}
-  exit "$code"
 
 }
 
@@ -337,43 +389,6 @@ function run_playbook() {
 
   fi
 
-}
-
-###############################################################################
-# Parse parameters
-###############################################################################
-function parse_params() {
-
-  while true; do
-    case "${1-}" in
-
-    --help | -h)
-      usage
-      exit 0
-      shift
-      ;;
-
-    --verbose | -v)
-      set -x
-      NO_COLOR=1
-      shift
-      ;;
-
-    --no-color)
-      NO_COLOR=1
-      shift
-      ;;
-
-    -?*)
-      die "ERROR: unknown option $1"
-      ;;
-
-    *)
-      break
-      ;;
-
-    esac
-  done
 }
 
 ###############################################################################
