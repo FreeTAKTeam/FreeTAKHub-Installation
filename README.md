@@ -2,26 +2,6 @@
 
 # FreeTAKHub Installation
 
-Currently, FreeTAKHub has 6 components:
-
-1. FreeTAKServer (FTS)
-2. FreeTAKServer-UI
-3. WebMap Server
-4. Video Server (RTSP Server)
-5. Node-RED Server
-6. Mumble server
-
-The installation is a set of Ansible/Terraform scripts that allow you to:
-
-- Create the target nodes.
-- Install FTS and all the additional modules.
-- Configure FTS.
-
-Currently FreeTAKServer and FreeTAKHub components have been successfully tested  on Ubuntu 20.04, that is the supported installation.
-Other Linux distributions or OS may work, but they have not been tested.
-
-# Zero Touch Deployment
-
 Enter into console:
 ```console
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | sudo bash
@@ -29,7 +9,7 @@ wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation
 
 This approach assumes that:
 
-* You have a clean, freshly installed Ubuntu 20.04.
+* You have a clean, freshly installed Ubuntu 20.04. Currently FreeTAKServer and FreeTAKHub components have been successfully tested on Ubuntu 20.04. Other Linux distributions or OS may work, but they have not been tested.
 * You don't execute the above command as the root user but: 
     * create a new user first
     * then execute the above listed Zero Touch deploy command:
@@ -37,7 +17,7 @@ This approach assumes that:
     # Change <USER> to your preference
     sudo adduser <USER> && sudo usermod -aG sudo <USER> && su <USER> && cd ~
     ```
-
+ 
 The script will install and configure all FreeTAKHub components.
 
 * FTS: hosts the core of FTS
@@ -46,6 +26,12 @@ The script will install and configure all FreeTAKHub components.
 * Video Service: streams video.
 * FTH server: runs other integrations such as the Video Service Checker and SALUTE report. The video Service checker has a strategy to verify if streams are running there and notifies FTS.
 * FTH Voice: install a murmur server based on [Mumble](https://github.com/mumble-voip/mumble) for ow-latency, high quality voice chat software.
+
+This repository is a set of Ansible/Terraform scripts that allow you to:
+
+- Create the target nodes.
+- Install FTS and all the additional modules.
+- Configure FTS.
 
 ![image](https://user-images.githubusercontent.com/60719165/159137165-59164055-ce6d-4396-9a9b-f7503d20b3f6.png)
 
