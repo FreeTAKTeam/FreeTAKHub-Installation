@@ -1,5 +1,7 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
 
+this page may contains information that is not aligned with the current release, please use the [User docs](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Ansible/ZeroTouchInstall/)
+
 # FreeTAKHub Installation
 
 To install, enter into the console:
