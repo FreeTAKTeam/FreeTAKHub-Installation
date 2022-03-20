@@ -10,7 +10,9 @@ set -o pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 # get current working directory
-script_dir=$(dirname "$(readlink --canonicalize-existing "${0}" 2>/dev/null)")
+# script_dir=$(dirname "$(readlink --canonicalize-existing "${0}" 2>/dev/null)")
+
+# for non-intel-based architectures, may need to force install
 webmap_force_install="false"
 
 ###############################################################################
@@ -82,8 +84,8 @@ function check_os() {
 
     . /etc/os-release
 
-    OS=$NAME
-    VER=$VERSION_ID
+    OS=${NAME}
+    VER=${VERSION_ID}
 
   # linuxbase.org
   elif type lsb_release >/dev/null 2>&1; then
@@ -96,8 +98,8 @@ function check_os() {
 
     . /etc/lsb-release
 
-    OS=$DISTRIB_ID
-    VER=$DISTRIB_RELEASE
+    OS=${DISTRIB_ID}
+    VER=${DISTRIB_RELEASE}
 
   # older Debian-based distros
   elif [ -f /etc/debian_version ]; then
@@ -193,21 +195,25 @@ function check_architecture() {
 # Echo a message
 ###############################################################################
 function msg() {
+
   echo >&2 -e "${1-}"
+
 }
 
 ###############################################################################
 # Exit gracefully
 ###############################################################################
 function die() {
+
   local msg=$1
+  msg "$msg"
+
+  echo -e "Exiting. Installation NOT successful."
 
   # default exit status 1
   local code=${2-1}
-  msg "$msg"
-
-  echo -e "${RED}Exiting. Installation NOT successful.${NOFORMAT}"
   exit "$code"
+
 }
 
 ###############################################################################
@@ -238,18 +244,27 @@ function handle_git_repository() {
 
   echo -e -n "${BLUE}Checking for FreeTAKHub-Installation in home directory..."
 
-  cd ~
+  cd ~ || die "${RED}ERROR${NOFORMAT}: Could not access home directory"
 
+  # check for FreeTAKHub-Installation repository
   if [ ! -d ~/FreeTAKHub-Installation ]; then
+
     echo -e "NOT FOUND"
+
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
     git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
-    cd ~/FreeTAKHub-Installation
+
+    cd ~/FreeTAKHub-Installation || die "${RED}ERROR${NOFORMAT}: Could not access repo"
+
   else
+
     echo -e "FOUND"
+
+    cd ~/FreeTAKHub-Installation || die "${RED}ERROR${NOFORMAT}: Could not access repo"
+
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    cd ~/FreeTAKHub-Installation
     git pull
+
   fi
 
 }
@@ -336,7 +351,7 @@ function parse_params() {
       ;;
 
     -?*)
-      die "Unknown option: $1"
+      die "ERROR: unknown option $1"
       ;;
 
     *)

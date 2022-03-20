@@ -1,0 +1,15 @@
+---
+- name: Install Murmur (Mumble Server)
+  hosts: all
+  become: true
+  become_user: root
+  pre_tasks:
+    - name: Cleanup
+      import_tasks: roles/common/tasks/cleanup.yml
+
+  post_tasks:
+    - name: Cleanup
+      import_tasks: roles/common/tasks/cleanup.yml
+
+  roles:
+    - murmur
