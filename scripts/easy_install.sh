@@ -398,7 +398,7 @@ parse_params "${@}"
 setup_colors
 check_root
 check_os
-check_architecture
+# check_architecture
 download_dependencies
 handle_git_repository
 add_passwordless_ansible_execution
