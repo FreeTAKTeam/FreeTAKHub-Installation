@@ -310,7 +310,7 @@ function handle_git_repository() {
 
   echo -e -n "${BLUE}Checking for FreeTAKHub-Installation in home directory..."
 
-  cd ~ || die "${RED}ERROR${NOFORMAT}: Could not access home directory"
+  cd ~
 
   # check for FreeTAKHub-Installation repository
   if [ ! -d ~/FreeTAKHub-Installation ]; then
@@ -320,13 +320,13 @@ function handle_git_repository() {
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
     git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
 
-    cd ~/FreeTAKHub-Installation || die "${RED}ERROR${NOFORMAT}: Could not access repo"
+    cd ~/FreeTAKHub-Installation
 
   else
 
     echo -e "FOUND"
 
-    cd ~/FreeTAKHub-Installation || die "${RED}ERROR${NOFORMAT}: Could not access repo"
+    cd ~/FreeTAKHub-Installation
 
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
     git pull
