@@ -20,7 +20,7 @@ webmap_force_install="false"
 ###############################################################################
 function usage() {
   cat <<USAGE_TEXT
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-f] -p param_value arg1 [arg2...]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v]
 
 Install Free TAK Server and components.
 
