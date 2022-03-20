@@ -161,11 +161,23 @@ function check_architecture() {
 
     read -r -e -p "Do you want to force web map installation? [y/n]: " FORCE_WEBMAP_INSTALL
 
+    # Default answer is "n" for NO.
+    DEFAULT="n"
+
+    # Set user-inputted value and apply default if user input is null.
+    FORCE_WEBMAP_INSTALL="${FORCE_WEBMAP_INSTALL:-${DEFAULT}}"
+
     # Check user input to force install web map or not
-    if [ "${FORCE_WEBMAP_INSTALL}" == "y" ]; then
-      webmap_force_install="true"
-    else
+    if [ "${FORCE_WEBMAP_INSTALL}" != "y" ]; then
+
       webmap_force_install="false"
+      echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
+
+    else
+
+      webmap_force_install="true"
+      echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
+
     fi
 
   else
