@@ -2,28 +2,9 @@
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Install
+- name: Install Python3.8 packages
   apt:
     name: "{{ python3_apt_packages }}"
-
-- name: "Check if {{ pip3 }} is installed"
-  stat:
-    path: "/usr/local/bin/{{ pip3 }}"
-  register: pip3_executable
-
-- name: Download get-pip.py.
-  get_url:
-    url: "{{ pip_installer_url }}"
-    dest: /tmp
-    mode: 0644
-
-- name: "Install {{ pip3 }}"
-  command: "{{ python3 }} /tmp/get-pip.py"
-  changed_when: false
-
-- name: "Upgrade {{ pip3 }}"
-  command: pip3 install --upgrade pip
-  changed_when: false
 
 - name: "Install {{ pip3 }} packages"
   pip:
