@@ -5,8 +5,3 @@
 - name: Install Python3.8 packages
   apt:
     name: "{{ python3_apt_packages }}"
-
-- name: "Install {{ pip3 }} packages"
-  pip:
-    name: "{{ pip3_packages }}"
-    executable: "{{ pip3 }}"
