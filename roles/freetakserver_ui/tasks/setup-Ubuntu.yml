@@ -10,6 +10,11 @@
   apt:
     name: "{{ fts_ui_apt_packages }}"
 
+- name: "Install pip packages"
+  pip:
+    name: "{{ fts_ui_pip_packages }}"
+    executable: "pip3"
+
 - name: "Install {{ fts_ui_pip_package_name }}"
   pip:
     name: "{{ fts_ui_pip_package_name }}"

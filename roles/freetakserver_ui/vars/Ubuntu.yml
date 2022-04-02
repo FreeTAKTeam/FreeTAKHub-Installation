@@ -6,5 +6,7 @@ fts_ui_python_packages: "/usr/local/lib/python{{ python3_version }}"
 fts_ui_install_path: "{{ fts_ui_python_packages }}/dist-packages/FreeTAKServer-UI"
 
 fts_ui_apt_packages:
-  - pyyaml
   - python3-distutils
+
+fts_ui_pip_packages:
+  - pyyaml
