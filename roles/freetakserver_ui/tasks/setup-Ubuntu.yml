@@ -6,11 +6,11 @@
     - "rm -rf /usr/lib/python3/dist-packages/PyYAML-*"
     - "rm -rf /usr/lib/python{{ python3_version }}/site-packages/PyYAML-*"
 
+- name: Install apt packages
+  apt:
+    name: "{{ fts_ui_apt_packages }}"
+
 - name: "Install {{ fts_ui_pip_package_name }}"
   pip:
     name: "{{ fts_ui_pip_package_name }}"
     executable: "pip3"
-
-- name: Install distutils
-  apt:
-    name: python3-distutils
