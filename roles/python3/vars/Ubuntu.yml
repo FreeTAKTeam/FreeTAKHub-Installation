@@ -1,6 +1,6 @@
 ---
 pip3_packages:
-  - virtualenv
+  - pyyaml
 
 python3_apt_packages:
   - python3-pip
