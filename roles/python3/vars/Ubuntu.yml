@@ -1,3 +1,7 @@
 ---
 pip3_packages:
   - virtualenv
+
+python3_apt_packages:
+  - python3-distutils
+  - "python{{ python3_version }}"

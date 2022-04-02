@@ -4,7 +4,7 @@
 
 - name: Install
   apt:
-    name: "python{{ python3_version }}"
+    name: "{{ python3_apt_packages }}"
 
 - name: "Check if {{ pip3 }} is installed"
   stat:
