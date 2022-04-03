@@ -40,5 +40,5 @@ jobs:
         env:
           IMAGE_DISTRO: ${{ matrix.distros }}
 
-      - name: Test Zero Touch Install
+      - name: Test Advanced Install
         run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --non-interactive --dev-test -v"
