@@ -6,7 +6,7 @@ driver:
   name: docker
 
 platforms:
-  - name: instance
+  - name: murmur
     image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
     privileged: true
     pre_build_image: true

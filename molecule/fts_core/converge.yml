@@ -1,8 +1,7 @@
 ---
-- name: Install All On One Docker Image
-  hosts: instance
+- name: FTS CORE INSTALL
+  hosts: all
   become: true
-
   pre_tasks:
 
     - name: Cleanup
@@ -16,18 +15,8 @@
     - name: Cleanup
       import_tasks: ../../roles/common/tasks/cleanup.yml
 
+- hosts: freetakserver
   roles:
     - freetakserver
     - freetakserver_ui
     - webmap
-    - murmur
-    - videoserver
-    - nodered
-
-  vars:
-
-    # Node-RED Server will wait for Video Server
-    nodered_wait_for_videoserver: false
-
-    # Max seconds Node-RED Server will wait
-    nodered_wait_for_videoserver_timeout: 600
