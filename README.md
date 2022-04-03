@@ -64,7 +64,7 @@ Available options:
 Install core and nodered non-interactively (do not prompt for user input).
 
 ```console
-wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --core --nodered --non-interactive
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --non-interactive
 ```
 
 Do compatibility checks, print more output, and prompt for installing other components.
