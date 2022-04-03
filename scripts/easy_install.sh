@@ -406,19 +406,19 @@ function generate_key_pair() {
 function run_playbook() {
 
   if [[ -n ${CORE-} ]]; then
-    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
+    ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_mainserver.yml ${ANSIBLE_VERBOSITY-}
   else
-    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
+    ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_all.yml ${ANSIBLE_VERBOSITY-}
   fi
 
-  echo -e ${BLUE}Running Ansible Playbook...${NOFORMAT}
+  echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
 
 }
 
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
-parse_params ${@}
+parse_params "${@}"
 setup_colors
 do_checks
 download_dependencies
