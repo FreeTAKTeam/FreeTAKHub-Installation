@@ -18,7 +18,7 @@ REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
 ###############################################################################
 function usage() {
   cat <<USAGE_TEXT
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v]
+Usage: $(basename "${BASH_SOURCE[0]}") [<optional-arguments>]
 
 Install Free TAK Server and components.
 
