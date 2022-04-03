@@ -1,31 +1,32 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
 
-# FreeTAKHub Installation
+# Quick Install (Use **Ubuntu 20.04**)
 
-## Zero Touch Deployment
+## Zero Touch Deployment 
 
-To install, enter into the console:
+```console
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- --non-interactive
+```
+
+## Deployment With Compatibility Checks
 
 ```console
 wget -qO - bit.ly/ftszerotouch | sudo bash
 ```
 
-# Pick Which Components To Install (Advanced)
-
-Use this script to select specific components to install:
+## Customized Deployment (Advanced)
 
 ```console
-wget -qO - bit.ly/ftsadvancedinstall | sudo bash
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash 
 ```
 
-The optimal configuration to run the script is:
+# FreeTAKHub Installation
 
-* Ubuntu 20.04
-  * Other operating systems may work, but are untested.
-* Intel-based architecture
-  * The map in the web interface may not work with non-Intel-based architecture.
+Use Ubuntu **20.04** when installing.
 
-This script will install and configure FreeTAKHub components.
+FreeTAKTeam is currently testing on other Operating Systems and distributions.
+
+This script will install and configure these components:
 
 1. FreeTAKServer (FTS): The core server that interfaces with TAK-enabled clients
 1. FreeTAKServer User Interface (FTS-UI): A web-based user interface.
