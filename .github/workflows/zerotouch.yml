@@ -6,9 +6,6 @@ name: ZERO TOUCH
   push:
     branches:
       - "*"
-  schedule:
-    # run every sunday
-    - cron: "0 0 * * 0"
 
 jobs:
   vagrant:

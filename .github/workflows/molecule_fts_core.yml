@@ -6,9 +6,6 @@ name: FTS CORE (DOCKER)
   push:
     branches:
       - "*"
-  schedule:
-    # run every sunday
-    - cron: "0 0 * * 0"
 
 jobs:
   check:

@@ -6,9 +6,6 @@ name: ALL-ON-ONE (DOCKER)
   push:
     branches:
       - "*"
-  schedule:
-    # run every sunday
-    - cron: "0 0 * * 0"
 
 jobs:
   molecule_one_instance:
