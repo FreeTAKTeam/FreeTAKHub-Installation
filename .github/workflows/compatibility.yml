@@ -92,6 +92,8 @@ jobs:
 
       - name: Test Zero Touch Install
         run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouchtest | sudo bash -s -- --non-interactive --dev-test -v"
+        env:
+          IMAGE_DISTRO: ${{ matrix.distros }}
 
   vagrant_advanced:
     name: Advanced Install on Ubuntu VMs
@@ -137,3 +139,5 @@ jobs:
 
       - name: Test Zero Touch Advanced Install
         run: vagrant ssh -c "wget -qO - bit.ly/zerotouchadvancedtest | sudo bash -s -- --non-interactive --dev-test -v"
+        env:
+          IMAGE_DISTRO: ${{ matrix.distros }}
