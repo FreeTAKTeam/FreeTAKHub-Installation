@@ -3,12 +3,13 @@ name: ZERO TOUCH
 
 "on":
   pull_request:
+    types: [opened, reopened]
   push:
     branches:
       - "*"
 
 jobs:
-  vagrant:
+  vagrant_zero_touch:
     name: Zero Touch Installer Test with Vagrant
     runs-on: macos-10.15
     strategy:
@@ -17,6 +18,17 @@ jobs:
         distros:
           - ubuntu/focal64
     steps:
+      - name: Check PR title to prevent script injection
+        run: |
+          title="${{ github.event.pull_request.title }}"
+          if [[ $title =~ ^octocat ]]; then
+          echo "PR title starts with 'octocat'"
+          exit 0
+          else
+          echo "PR title did not start with 'octocat'"
+          exit 1
+          fi
+
       - name: Check out the codebase
         uses: actions/checkout@v2
 

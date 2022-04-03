@@ -191,14 +191,14 @@ function do_checks() {
 
   check_root
 
-  if [[ "${CHECK}" ]]; then
+  if [[ -n "${CHECK-}" ]]; then
     check_os
     # check_architecture
   else
     WEBMAP_FORCE_INSTALL="y"
   fi
 
-  if [[ "${TEST}" ]]; then
+  if [[ -n "${TEST-}" ]]; then
       REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
   fi
 
