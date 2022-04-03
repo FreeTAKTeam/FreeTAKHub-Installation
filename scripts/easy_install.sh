@@ -350,7 +350,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone "${GIT_VERBOSITY--q}" "${REPO}""
+    git clone "${GIT_VERBOSITY--q}" "${REPO}"
 
     cd ~/FreeTAKHub-Installation
 
