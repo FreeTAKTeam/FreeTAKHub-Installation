@@ -3,6 +3,7 @@ name: SPLIT INSTALL (DOCKER)
 
 "on":
   pull_request:
+    types: [opened, reopened]
   push:
     branches:
       - "*"
