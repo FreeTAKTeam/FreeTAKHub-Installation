@@ -4,8 +4,8 @@ set -x
 echo "Installing Virtual Environment"
 sudo apt-get update
 sudo apt-get install -y python3-pip python3.8-venv python-setuptools
-python3.8 -m venv "$HOME"/.env
-source "$HOME"/.env/bin/activate
+python3.8 -m venv $HOME/.env
+source $HOME/.env/bin/activate
 python3 -m pip install --upgrade pip
 
 echo "Adding 'activate' command for executing the virtual environment"
