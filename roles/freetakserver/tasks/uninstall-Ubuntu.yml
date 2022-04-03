@@ -14,7 +14,7 @@
   pip:
     name: "{{ fts_pip_package_name }}"
     state: absent
-    executable: "pip{{ python3_version }}"
+    executable: "pip3"
 
 - name: Remove files
   file:

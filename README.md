@@ -7,7 +7,7 @@
 To install, enter into the console:
 
 ```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/easy_install.sh | sudo bash
+wget -qO - bit.ly/ftszerotouch | sudo bash
 ```
 
 The optimal configuration to run the script is:
