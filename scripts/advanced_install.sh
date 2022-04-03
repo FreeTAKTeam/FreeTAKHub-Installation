@@ -467,7 +467,7 @@ function run_playbooks() {
 
   IP_VARS="-e videoserver_ipv4=localhost -e fts_ipv4=localhost"
 
-  if [[ -z "${NON_INTERACTIVE}" ]]; then
+  if [[ -n "${NON_INTERACTIVE}" ]]; then
       run_defaults
   else
     prompt_user_selection

@@ -10,14 +10,13 @@ name: COMPATIBILITY
     paths-ignore:
       - '**.md'
 
-# Ensures that only one deploy task per branch/environment will run at a time.
 concurrency:
-  group: environment-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   molecule_compatibility_test:
-    name: Install on Ubuntu Docker Images
+    name: Molecule
     runs-on: ubuntu-latest
     continue-on-error: true
     if: ${{ contains(github.event.head_commit.message, '#compat') }}
@@ -50,7 +49,7 @@ jobs:
           ANSIBLE_FORCE_COLOR: "1"
 
   vagrant_zero_touch:
-    name: Zero Touch Install on Ubuntu VMs
+    name: Zero Touch VM
     continue-on-error: true
     if: ${{ contains(github.event.head_commit.message, '#compat') }}
     runs-on: macos-10.15
@@ -92,10 +91,12 @@ jobs:
           IMAGE_DISTRO: ${{ matrix.distros }}
 
       - name: Test Zero Touch Install
-        run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouchtest | sudo bash -s -- --non-interactive --dev-test -v"
+        run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouchinstalltest | sudo bash -s -- --dev-test -v"
+        env:
+          IMAGE_DISTRO: ${{ matrix.distros }}
 
   vagrant_advanced:
-    name: Advanced Install on Ubuntu VMs
+    name: Advanced VM
     runs-on: macos-10.15
     continue-on-error: true
     if: ${{ contains(github.event.head_commit.message, '#compat') }}
@@ -137,4 +138,6 @@ jobs:
           IMAGE_DISTRO: ${{ matrix.distros }}
 
       - name: Test Zero Touch Advanced Install
-        run: vagrant ssh -c "wget -qO - bit.ly/zerotouchadvancedtest | sudo bash -s -- --non-interactive --dev-test -v"
+        run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --non-interactive --dev-test -v"
+        env:
+          IMAGE_DISTRO: ${{ matrix.distros }}

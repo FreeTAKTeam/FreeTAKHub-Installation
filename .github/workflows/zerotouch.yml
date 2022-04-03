@@ -10,9 +10,8 @@ name: ZERO TOUCH
     paths-ignore:
       - '**.md'
 
-# Ensures that only one deploy task per branch/environment will run at a time.
 concurrency:
-  group: environment-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -50,5 +49,5 @@ jobs:
           IMAGE_DISTRO: ${{ matrix.distros }}
 
       - name: Test Zero Touch Install
-        run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouchtest | sudo bash -s -- --non-interactive --dev-test -v"
-        # run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouch | sudo bash -s -- --non-interactive"
+        run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouchinstalltest | sudo bash -s -- --dev-test -v"
+        # run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouch | sudo bash"
