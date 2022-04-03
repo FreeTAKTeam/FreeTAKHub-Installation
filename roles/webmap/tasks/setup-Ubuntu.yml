@@ -4,24 +4,35 @@
     name: unzip
   register: install_unzip
 
-- name: Get webmap release information with GitHub API
-  uri:
-    url: "{{ webmap_api_url }}"
-    return_content: true
-  register: webmap_response
+- name: Catch errors
+  block:
+    - name: Get webmap release information with GitHub API
+      uri:
+        url: "{{ webmap_api_url }}"
+        return_content: true
+      register: webmap_response
 
-- name: Set facts from GitHub API release information
-  set_fact:
-    webmap_download_url: "{{ webmap_response.json.assets[0].browser_download_url }}"
-    webmap_raw_executable_name: "{{ webmap_response.json.name }}"
+    - name: Set facts from GitHub API release information
+      set_fact:
+        webmap_download_url: "{{ webmap_response.json.assets[0].browser_download_url }}"
+        webmap_raw_executable_name: "{{ webmap_response.json.name }}"
 
-- name: Download webmap
-  get_url:
-    url: "{{ webmap_download_url }}"
-    dest: "{{ webmap_package_location }}"
-    owner: root
-    group: root
-    mode: 0755
+    - name: Download webmap
+      get_url:
+        url: "{{ webmap_download_url }}"
+        dest: "{{ webmap_package_location }}"
+        owner: root
+        group: root
+        mode: 0755
+
+  rescue:
+    - name: Fail safe upload from repo (not necessarily latest)
+      copy:
+        content: "{{ webmap_package }}"
+        dest: "{{ webmap_package_location }}"
+        owner: root
+        group: root
+        mode: 0755
 
 - name: "Unarchive {{ webmap_package }} to /tmp"
   unarchive:
