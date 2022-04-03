@@ -22,5 +22,5 @@ jobs:
     - name: Run vagrant up
       run: vagrant up
 
-    - name: test ssh into box after boot
-      run: vagrant ssh -c "echo 'hello world!'"
+    - name: Run Zero Touch installer
+      run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouch | sudo bash"
