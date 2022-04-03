@@ -31,8 +31,8 @@ resource "digitalocean_droplet" "mainserver" {
     }
 
     inline = [
-      "sudo apt -qqq update",
-      "sudo apt -qqqqy install python3",
+      "sudo apt-get -qqq update",
+      "sudo apt-get -qqqqy install python3",
     ]
 
   }
@@ -70,8 +70,8 @@ resource "digitalocean_droplet" "noderedserver" {
     }
 
     inline = [
-      "sudo apt -qqq update",
-      "sudo apt -qqqqy install python3",
+      "sudo apt-get -qqq update",
+      "sudo apt-get -qqqqy install python3",
     ]
 
   }
@@ -110,8 +110,8 @@ resource "digitalocean_droplet" "videoserver" {
     }
 
     inline = [
-      "sudo apt -qqq update",
-      "sudo apt -qqqqy install python3",
+      "sudo apt-get -qqq update",
+      "sudo apt-get -qqqqy install python3",
     ]
 
   }

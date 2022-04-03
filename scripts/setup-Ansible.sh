@@ -2,10 +2,10 @@
 set -x
 
 echo "Installing Ansible..."
-sudo apt update
+sudo apt-get update
 sudo apt-add-repository -y ppa:ansible/ansible
-sudo apt -y update
-sudo apt -y install ansible
+sudo apt-get -y update
+sudo apt-get -y install ansible
 
 echo "Add passwordless Terraform and Ansible execution for the current user"
 # only add if non-existent

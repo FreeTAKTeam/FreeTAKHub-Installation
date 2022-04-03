@@ -1,0 +1,46 @@
+---
+name: ALL-ON-ONE (DOCKER)
+
+"on":
+  pull_request:
+  push:
+    branches:
+      - "*"
+  schedule:
+    # run every sunday
+    - cron: "0 0 * * 0"
+
+jobs:
+  molecule_one_instance:
+    name: Molecule - Single Instance Test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distros:
+          - ubuntu2004
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install test dependencies
+        run: pip3 install ansible molecule[docker,lint] docker
+
+      - name: Run Molecule Install Test - Linux Playbook with One Instance
+        run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name default -- -e "webmap_force_install=true"
+        env:
+          MOLECULE_DISTRO: ${{ matrix.distros }}
+          PY_COLORS: "1"
+          ANSIBLE_FORCE_COLOR: "1"
