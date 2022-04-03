@@ -472,10 +472,10 @@ function run_playbooks() {
   fi
 
     echo -e "${BLUE}Running Ansible Playbooks...${NOFORMAT}"
-    [[ ${CORE-} = "y" ]] && ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_mainserver.yml ${ANSIBLE_VERBOSITY-}
-    [[ ${MUMBLE-} = "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
-    [[ ${VIDEO-} = "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
-    [[ ${NODERED-} = "y" ]] && ansible-playbook -u root -i localhost, --connection=local "${IP_VARS}" install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
+    [ "${CORE-}" == "y" ] && ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_mainserver.yml ${ANSIBLE_VERBOSITY-}
+    [ "${MUMBLE-}" == "y" ] && ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
+    [ "${VIDEO-}" == "y" ] && ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
+    [ "${NODERED-}" == "y" ] && ansible-playbook -u root -i localhost, --connection=local "${IP_VARS}" install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
 
 }
 
