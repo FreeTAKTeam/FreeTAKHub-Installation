@@ -33,7 +33,7 @@ jobs:
           while IFS= read -r file
           do
             echo $file
-            if [[ $file != roles/freetakserver/* ]] || [[ $file != roles/freetakserver_ui/* ]] || [[ $file != roles/webmap/* ]]; then
+            if [[ $file != roles/freetakserver/* ]] && [[ $file != roles/freetakserver_ui/* ]] && [[ $file != roles/webmap/* ]]; then
               echo "This modified file is not under the a fts core related folder."
               echo "::set-output name=run_job::false"
               break

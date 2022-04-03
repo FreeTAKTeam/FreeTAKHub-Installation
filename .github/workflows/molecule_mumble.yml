@@ -30,7 +30,7 @@ jobs:
           while IFS= read -r file
           do
             echo $file
-            if [[ $file != roles/murmur/* ]] || [[ $file != roles/mumble_web/* ]] || [[ $file != roles/mumble/* ]]; then
+            if [[ $file != roles/murmur/* ]] && [[ $file != roles/mumble_web/* ]] && [[ $file != roles/mumble/* ]]; then
               echo "This modified file is not under the a mumble/murmur related folder."
               echo "::set-output name=run_job::false"
               break
