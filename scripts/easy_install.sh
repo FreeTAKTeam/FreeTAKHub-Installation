@@ -86,6 +86,8 @@ function parse_params() {
       set -x
 
       NO_COLOR=1
+      GIT_VERBOSITY=""
+      APT_VERBOSITY=""
       ANSIBLE_VERBOSITY="-vv"
 
       shift
