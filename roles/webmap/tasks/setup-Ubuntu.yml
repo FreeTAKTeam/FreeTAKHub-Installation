@@ -8,33 +8,20 @@
   uri:
     url: "{{ webmap_api_url }}"
     return_content: true
-  ignore_errors: true
   register: webmap_response
 
-- name: Extract output from JSON release information
-  block:
-    - name: Set facts from GitHub API release information
-      set_fact:
-        webmap_download_url: "{{ webmap_response.json.assets[0].browser_download_url }}"
-        webmap_raw_executable_name: "{{ webmap_response.json.name }}"
+- name: Set facts from GitHub API release information
+  set_fact:
+    webmap_download_url: "{{ webmap_response.json.assets[0].browser_download_url }}"
+    webmap_raw_executable_name: "{{ webmap_response.json.name }}"
 
-    - name: Download webmap
-      get_url:
-        url: "{{ webmap_download_url }}"
-        dest: "{{ webmap_package_location }}"
-        owner: root
-        group: root
-        mode: 0755
-  when: "'FAILED' not in webmap_response.stderr"
-
-- name: Fail safe upload from repo (not necessarily latest)
-  copy:
-    content: "{{ webmap_package }}"
+- name: Download webmap
+  get_url:
+    url: "{{ webmap_download_url }}"
     dest: "{{ webmap_package_location }}"
     owner: root
     group: root
     mode: 0755
-  when: "'FAILED' in webmap_response.stderr"
 
 - name: "Unarchive {{ webmap_package }} to /tmp"
   unarchive:
