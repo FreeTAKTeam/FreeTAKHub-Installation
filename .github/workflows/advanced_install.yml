@@ -1,0 +1,44 @@
+---
+name: ADVANCED INSTALL
+
+"on":
+  pull_request:
+  push:
+    branches:
+      - "*"
+
+jobs:
+  vagrant:
+    name: Advanced Installer Test with Vagrant
+    runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        distros:
+          - ubuntu/focal64
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v2
+
+      - name: Cache Vagrant boxes
+        uses: actions/cache@v2
+        with:
+          path: ~/.vagrant.d/boxes
+          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+          restore-keys: |
+            ${{ runner.os }}-vagrant-
+
+      - name: Run vagrant up
+        run: |
+          echo "IMAGE_DISTRO=${IMAGE_DISTRO}"
+          IFS="/" read VAGRANTUSER VAGRANTBOX <<< "${IMAGE_DISTRO}"
+          echo "VAGRANTUSER=${VAGRANTUSER}"
+          echo "VAGRANTBOX=${VAGRANTBOX}"
+          echo "VAGRANTUSER=${VAGRANTUSER}" >> $GITHUB_ENV
+          echo "VAGRANTBOX=${VAGRANTBOX}" >> $GITHUB_ENV
+          VAGRANTUSER=$VAGRANTUSER VAGRANTBOX=$VAGRANTBOX vagrant up --color
+        env:
+          IMAGE_DISTRO: ${{ matrix.distros }}
+
+      - name: Test Zero Touch Install
+        run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --non-interactive --dev-test -v"

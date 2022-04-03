@@ -10,6 +10,14 @@ To install, enter into the console:
 wget -qO - bit.ly/ftszerotouch | sudo bash
 ```
 
+# Pick Which Components To Install (Advanced)
+
+Use this script to select specific components to install:
+
+```console
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash
+```
+
 The optimal configuration to run the script is:
 
 * Ubuntu 20.04
@@ -30,19 +38,7 @@ This script will install and configure FreeTAKHub components.
 
 ![image](https://user-images.githubusercontent.com/60719165/159137165-59164055-ce6d-4396-9a9b-f7503d20b3f6.png)
 
-# Custom Deployment (Advanced)
 
-This script prompts the user to select specific FreeTAKHub components to install:
-
-```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/advanced_install.sh | sudo bash
-```
-
-Shortened URL for Custom Deployment (under construction)
-
-```console
-wget -qO rb.gy/ocghax | sudo bash
-```
 
 # Install FreeTAKHub with Ansible
 
