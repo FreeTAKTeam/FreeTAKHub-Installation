@@ -32,7 +32,6 @@ Available options:
       --nodered            Install Node-RED Server
       --video              Install Video Server
       --mumble             Install Murmur VOIP Server and Mumble Client
-
 USAGE_TEXT
   exit
 }
