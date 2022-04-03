@@ -5,19 +5,59 @@
 ## Zero Touch Deployment 
 
 ```console
-wget -qO - bit.ly/ftszerotouch | sudo bash -s -- --non-interactive
+wget -qO - bit.ly/ftszerotouch | sudo bash 
 ```
 
-## Deployment With Compatibility Checks
-
 ```console
-wget -qO - bit.ly/ftszerotouch | sudo bash
+Available options:
+
+-h, --help       Print help
+-v, --verbose    Print script debug info
+-c, --check      Check for compatibility issues while installing
+    --core       Install FreeTAKServer, UI, and Web Map
+
+example:
+
+# install core fts components only
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- --core
+
+# display help screen
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- -h
+
+# do compatibility checks and print more output
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- -c -v
+
 ```
 
 ## Customized Deployment (Advanced)
 
 ```console
 wget -qO - bit.ly/ftsadvancedinstall | sudo bash 
+```
+
+```console
+Available options:
+
+-h,   --help               Print help
+-v,   --verbose            Print script debug info
+-c,   --check              Check for compatibility issues while installing
+      --non-interactive    Assume defaults (non-interactive)
+      --core               Install FreeTAKServer, UI, and Web Map
+      --nodered            Install Node-RED Server
+      --video              Install Video Server
+      --mumble             Install Murmur VOIP Server and Mumble Client
+
+example:
+
+# install core and nodered non-interactively (do not prompt for user input)
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --core --nodered --non-interactive
+
+# do compatibility checks, print more output, and prompt to install other components
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- -c -v
+
+# install video and mumble, but prompt to install for other components
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --video --mumble
+
 ```
 
 # FreeTAKHub Installation

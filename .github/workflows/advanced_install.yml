@@ -8,8 +8,9 @@ name: ADVANCED INSTALL
       - "*"
 
 jobs:
-  vagrant:
-    name: Advanced Installer Test with Vagrant
+
+  vagrant_test1:
+    name: Install all components
     runs-on: macos-10.15
     strategy:
       fail-fast: false
@@ -40,6 +41,78 @@ jobs:
         env:
           IMAGE_DISTRO: ${{ matrix.distros }}
 
-      - name: Test Advanced Install
+      - name: Test Command
         # run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --non-interactive --dev-test -v"
         run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --non-interactive"
+
+  vagrant_test2:
+    name: Install only Video Server, Murmur VOIP Server and Mumble Client
+    runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        distros:
+          - ubuntu/focal64
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v2
+
+      - name: Cache Vagrant boxes
+        uses: actions/cache@v2
+        with:
+          path: ~/.vagrant.d/boxes
+          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+          restore-keys: |
+            ${{ runner.os }}-vagrant-
+
+      - name: Run vagrant up
+        run: |
+          echo "IMAGE_DISTRO=${IMAGE_DISTRO}"
+          IFS="/" read VAGRANTUSER VAGRANTBOX <<< "${IMAGE_DISTRO}"
+          echo "VAGRANTUSER=${VAGRANTUSER}"
+          echo "VAGRANTBOX=${VAGRANTBOX}"
+          echo "VAGRANTUSER=${VAGRANTUSER}" >> $GITHUB_ENV
+          echo "VAGRANTBOX=${VAGRANTBOX}" >> $GITHUB_ENV
+          VAGRANTUSER=$VAGRANTUSER VAGRANTBOX=$VAGRANTBOX vagrant up --color
+        env:
+          IMAGE_DISTRO: ${{ matrix.distros }}
+
+      - name: Test Command
+        # run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --video --mumble --non-interactive"
+        run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --video --mumble --non-interactive"
+
+  vagrant_test3:
+    name: Install FTS Core and Node-RED only
+    runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        distros:
+          - ubuntu/focal64
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v2
+
+      - name: Cache Vagrant boxes
+        uses: actions/cache@v2
+        with:
+          path: ~/.vagrant.d/boxes
+          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+          restore-keys: |
+            ${{ runner.os }}-vagrant-
+
+      - name: Run vagrant up
+        run: |
+          echo "IMAGE_DISTRO=${IMAGE_DISTRO}"
+          IFS="/" read VAGRANTUSER VAGRANTBOX <<< "${IMAGE_DISTRO}"
+          echo "VAGRANTUSER=${VAGRANTUSER}"
+          echo "VAGRANTBOX=${VAGRANTBOX}"
+          echo "VAGRANTUSER=${VAGRANTUSER}" >> $GITHUB_ENV
+          echo "VAGRANTBOX=${VAGRANTBOX}" >> $GITHUB_ENV
+          VAGRANTUSER=$VAGRANTUSER VAGRANTBOX=$VAGRANTBOX vagrant up --color
+        env:
+          IMAGE_DISTRO: ${{ matrix.distros }}
+
+      - name: Test Command
+        # run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --core --nodered --non-interactive"
+        run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --core --nodered --non-interactive"
