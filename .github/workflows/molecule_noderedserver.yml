@@ -65,7 +65,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install test dependencies
-        run: pip3 install ansible molecule[docker,lint] docker
+        run: pip3 install ansible molecule[docker] docker
 
       - name: Run install playbook
         run: ANSIBLE_VERBOSITY=1 molecule test --scenario-name noderedserver
