@@ -18,7 +18,7 @@ REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
 ###############################################################################
 function usage() {
   cat <<USAGE_TEXT
-Usage: $(basename "${BASH_SOURCE[0]}") [<optional-arguments>]
+Usage: $(basename ${BASH_SOURCE[0]}) [<optional-arguments>]
 
 Install Free TAK Server and components.
 
@@ -52,7 +52,7 @@ function cleanup() {
 ###############################################################################
 function msg() {
 
-  echo >&2 -e "${1-}"
+  echo >&2 -e ${1-}
 
 }
 
@@ -78,7 +78,7 @@ function die() {
 function parse_params() {
 
   while true; do
-    case "${1-}" in
+    case ${1-} in
 
     --help | -h)
       usage
@@ -90,10 +90,8 @@ function parse_params() {
       set -x
 
       NO_COLOR=1
-
-      # empty string means command is not silent by default
+      GIT_VERBOSITY=""
       APT_VERBOSITY=""
-      GIT_VERBOSITY="-v"
       ANSIBLE_VERBOSITY="-vv"
 
       shift
@@ -157,7 +155,7 @@ function parse_params() {
 ###############################################################################
 function setup_colors() {
 
-  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
+  if [[ -t 2 ]] && [[ -z ${NO_COLOR-} ]] && [[ ${TERM-} != "dumb" ]]; then
 
     NOFORMAT='\033[0m'
     RED='\033[0;31m'
@@ -190,14 +188,14 @@ function do_checks() {
 
   check_root
 
-  if [[ -n "${CHECK-}" ]]; then
+  if [[ -n ${CHECK-} ]]; then
     check_os
     # check_architecture
   else
-    WEBMAP_FORCE_INSTALL="y"
+    WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
   fi
 
-  if [[ -n "${TEST-}" ]]; then
+  if [[ -n ${TEST-} ]]; then
       REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
   fi
 
@@ -208,17 +206,17 @@ function do_checks() {
 ###############################################################################
 function check_root() {
 
-  echo -e -n "${BLUE}Checking if this script is running as root...${NOFORMAT}"
+  echo -e -n ${BLUE}Checking if this script is running as root...${NOFORMAT}
 
   # check Effective User ID (EUID) for root user, which has an EUID of 0.
   if [[ "$EUID" -ne 0 ]]; then
 
-    echo -e "${RED}ERROR${NOFORMAT}"
+    echo -e ${RED}ERROR${NOFORMAT}
     die "This script requires running as root. Use sudo before the command."
 
   else
 
-    echo -e "${GREEN}Success!${NOFORMAT}"
+    echo -e ${GREEN}Success!${NOFORMAT}
 
   fi
 }
@@ -228,7 +226,7 @@ function check_root() {
 ###############################################################################
 function check_os() {
 
-  echo -e -n "${BLUE}Checking for supported OS...${NOFORMAT}"
+  echo -e -n ${BLUE}Checking for supported OS...${NOFORMAT}
 
   # freedesktop.org and systemd
   if [[ -f /etc/os-release ]]; then
@@ -267,7 +265,7 @@ function check_os() {
   fi
 
   # check for supported OS and version and warn if not supported
-  if [[ "${OS}" != "Ubuntu" ]] || [[ "${VER}" != "20.04" ]]; then
+  if [[ ${OS} != "Ubuntu" ]] || [[ ${VER} != "20.04" ]]; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
     echo "FreeTAKServer has only been tested on ${GREEN}Ubuntu 20.04${NOFORMAT}."
@@ -280,17 +278,17 @@ function check_os() {
     DEFAULT="n"
 
     # Set user-inputted value and apply default if user input is null.
-    PROCEED="${PROCEED:-${DEFAULT}}"
+    PROCEED=${PROCEED:-${DEFAULT}}
 
     # Check user input to proceed or not.
-    if [[ "${PROCEED}" != "y" ]]; then
+    if [[ ${PROCEED} != "y" ]]; then
       die "Answer was not y. Not proceeding."
     else
-      echo -e "${GREEN}Proceeding...${NOFORMAT}"
+      echo -e ${GREEN}Proceeding...${NOFORMAT}
     fi
 
     # Check user input to proceed or not.
-    if [[ "${PROCEED}" != "y" ]]; then
+    if [[ ${PROCEED} != "y" ]]; then
       die "Answer was not y. Not proceeding."
     else
       echo -e "${GREEN}Proceeding...${NOFORMAT}"
@@ -314,10 +312,10 @@ function check_architecture() {
 
   # extract architecture string
   arch=$(cat /proc/cpuinfo | grep 'model name' | head -1)
-  name=$(sed 's/.*CPU\s\(.*\)\s\(@\).*/\1/' <<<"${arch}")
+  name=$(sed 's/.*CPU\s\(.*\)\s\(@\).*/\1/' <<<${arch})
 
   # check for non-Intel-based architecture here
-  if ! grep Intel <<<"${arch}" >/dev/null; then
+  if ! grep Intel <<<${arch} >/dev/null; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
     echo "Possible non-Intel architecture detected, ${name}"
@@ -329,10 +327,10 @@ function check_architecture() {
     DEFAULT="n"
 
     # Set user-inputted value and apply default if user input is null.
-    FORCE_WEBMAP_INSTALL_INPUT="${USER_INPUT:-${DEFAULT}}"
+    FORCE_WEBMAP_INSTALL_INPUT=${USER_INPUT:-${DEFAULT}}
 
     # Check user input to force install web map or not
-    if [[ "${FORCE_WEBMAP_INSTALL_INPUT}" != "y" ]]; then
+    if [[ ${FORCE_WEBMAP_INSTALL_INPUT} != "y" ]]; then
       echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
     else
       WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
@@ -359,13 +357,13 @@ function download_dependencies() {
   sudo apt-add-repository -y ppa:ansible/ansible
 
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY-"-qq"} update
+  sudo apt-get -y ${APT_VERBOSITY-'-qq'} update
 
   echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY-"-qq"} install ansible
+  sudo apt-get -y ${APT_VERBOSITY-'-qq'} install ansible
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY-"-qq"} install git
+  sudo apt-get -y ${APT_VERBOSITY-'-qq'} install git
 
 }
 
@@ -383,7 +381,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone ${GIT_VERBOSITY-"-q"} ${REPO}
+    git clone ${GIT_VERBOSITY--q} ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -394,7 +392,7 @@ function handle_git_repository() {
     cd ~/FreeTAKHub-Installation
 
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull ${GIT_VERBOSITY-"-q"}
+    git pull ${GIT_VERBOSITY--q}
 
   fi
 
@@ -429,7 +427,7 @@ function generate_key_pair() {
   if [[ ! -e ${HOME}/.ssh/id_rsa.pub ]]; then
 
     # generate keys
-    ssh-keygen -t rsa -f "${HOME}/.ssh/id_rsa" -N ""
+    ssh-keygen -t rsa -f "${HOME}"/.ssh/id_rsa -N ""
 
   fi
 
@@ -449,15 +447,15 @@ function run_defaults() {
 # Prompt The User To Select
 ###############################################################################
 function prompt_user_selection() {
-  [[ -z "${CORE-}" ]] && read -r -e -p "Install FreeTAKServer? [y/n] (default: y): " MAINSERVER_REPONSE
-  [[ -z "${MUMBLE-}" ]] && read -r -e -p "Install Murmur VOIP Server and Mumble Client? [y/n] (default: y): " MURMUR_REPONSE
-  [[ -z "${VIDEO-}" ]] && read -r -e -p "Install Video Server? [y/n] (default: y): " VIDEOSERVER_REPONSE
-  [[ -z "${NODERED-}" ]] && read -r -e -p "Install Node-RED Server? [y/n] (default: y): " NODEREDSERVER_REPONSE
+  [[ -z ${CORE-} ]] && read -r -e -p "Install FreeTAKServer? [y/n] (default: y): " MAINSERVER_REPONSE
+  [[ -z ${MUMBLE-} ]] && read -r -e -p "Install Murmur VOIP Server and Mumble Client? [y/n] (default: y): " MURMUR_REPONSE
+  [[ -z ${VIDEO-} ]] && read -r -e -p "Install Video Server? [y/n] (default: y): " VIDEOSERVER_REPONSE
+  [[ -z ${NODERED-} ]] && read -r -e -p "Install Node-RED Server? [y/n] (default: y): " NODEREDSERVER_REPONSE
 
-  [[ -n "${MAINSERVER_REPONSE-}" ]] && CORE=${MAINSERVER_REPONSE:-y}
-  [[ -n "${MURMUR_REPONSE-}" ]] && MUMBLE=${MURMUR_REPONSE:-y}
-  [[ -n "${VIDEOSERVER_REPONSE-}" ]] && VIDEO=${VIDEOSERVER_REPONSE:-y}
-  [[ -n "${NODEREDSERVER_REPONSE-}" ]] && NODERED=${NODEREDSERVER_REPONSE:-y}
+  [[ -n ${MAINSERVER_REPONSE-} ]] && CORE=${MAINSERVER_REPONSE:-y}
+  [[ -n ${MURMUR_REPONSE-} ]] && MUMBLE=${MURMUR_REPONSE:-y}
+  [[ -n ${VIDEOSERVER_REPONSE-} ]] && VIDEO=${VIDEOSERVER_REPONSE:-y}
+  [[ -n ${NODEREDSERVER_REPONSE-} ]] && NODERED=${NODEREDSERVER_REPONSE:-y}
 }
 
 ###############################################################################
@@ -467,17 +465,17 @@ function run_playbooks() {
 
   IP_VARS="-e videoserver_ipv4=localhost -e fts_ipv4=localhost"
 
-  if [[ -n "${NON_INTERACTIVE}" ]]; then
+  if [[ -n ${NON_INTERACTIVE} ]]; then
       run_defaults
   else
     prompt_user_selection
   fi
 
     echo -e "${BLUE}Running Ansible Playbooks...${NOFORMAT}"
-    [[ "${CORE-}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_mainserver.yml ${ANSIBLE_VERBOSITY-}
-    [[ "${MUMBLE-}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
-    [[ "${VIDEO-}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
-    [[ "${NODERED-}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local "${IP_VARS}" install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
+    [[ ${CORE-} == "y" ]] && ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
+    [[ ${MUMBLE-} == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
+    [[ ${VIDEO-} == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
+    [[ ${NODERED-} == "y" ]] && ansible-playbook -u root -i localhost, --connection=local ${IP_VARS} install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
 
 }
 
