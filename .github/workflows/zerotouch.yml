@@ -3,12 +3,20 @@ name: ZERO TOUCH
 
 "on":
   pull_request:
+    types: [opened, reopened]
   push:
     branches:
       - "*"
+    paths-ignore:
+      - '**.md'
+
+# Ensures that only one deploy task per branch/environment will run at a time.
+concurrency:
+  group: environment-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  vagrant:
+  vagrant_zero_touch:
     name: Zero Touch Installer Test with Vagrant
     runs-on: macos-10.15
     strategy:
@@ -17,6 +25,7 @@ jobs:
         distros:
           - ubuntu/focal64
     steps:
+
       - name: Check out the codebase
         uses: actions/checkout@v2
 
@@ -42,3 +51,4 @@ jobs:
 
       - name: Test Zero Touch Install
         run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouchtest | sudo bash -s -- --non-interactive --dev-test -v"
+        # run: vagrant ssh -c "wget -qO - bit.ly/ftszerotouch | sudo bash -s -- --non-interactive"

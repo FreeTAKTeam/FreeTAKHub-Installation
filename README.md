@@ -1,23 +1,87 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
 
-# FreeTAKHub Installation
+# Quick Install (Run On New **Ubuntu 20.04** Image)
 
-## Zero Touch Deployment
+Use a clean Ubuntu **20.04** image when installing.
 
-To install, enter into the console:
+Download Ubuntu 20.04 here: <https://ubuntu.com/download/desktop>
+
+FreeTAKTeam is currently testing on other Operating Systems and distributions.
+
+## Zero Touch Deployment 
 
 ```console
-wget -qO - bit.ly/ftszerotouch | sudo bash
+wget -qO - bit.ly/ftszerotouch | sudo bash 
 ```
 
-The optimal configuration to run the script is:
+```console
+Available options:
 
-* Ubuntu 20.04
-  * Other operating systems may work, but are untested.
-* Intel-based architecture
-  * The map in the web interface may not work with non-Intel-based architecture.
+-h, --help       Print help
+-v, --verbose    Print script debug info
+-c, --check      Check for compatibility issues while installing
+    --core       Install FreeTAKServer, UI, and Web Map
+```
 
-This script will install and configure FreeTAKHub components.
+### Examples
+
+Install core fts components only
+```console
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- --core
+```
+
+Display help screen
+```console
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- -h
+```
+
+Do compatibility checks and print more output
+```console
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- -c -v
+```
+
+## Install Specific Components (Advanced)
+
+```console
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash 
+```
+
+```console
+Available options:
+
+-h,   --help               Print help
+-v,   --verbose            Print script debug info
+-c,   --check              Check for compatibility issues while installing
+      --non-interactive    Assume defaults (non-interactive)
+      --core               Install FreeTAKServer, UI, and Web Map
+      --nodered            Install Node-RED Server
+      --video              Install Video Server
+      --mumble             Install Murmur VOIP Server and Mumble Client
+```
+
+### Examples
+
+Install core and nodered non-interactively (do not prompt for user input).
+
+```console
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --non-interactive
+```
+
+Do compatibility checks, print more output, and prompt for installing other components.
+
+```console
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- -c -v
+```
+
+Install video and mumble, but prompt to install for other components.
+
+```console
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --video --mumble
+```
+
+# FreeTAKHub Installation
+
+This script will install and configure these components:
 
 1. FreeTAKServer (FTS): The core server that interfaces with TAK-enabled clients
 1. FreeTAKServer User Interface (FTS-UI): A web-based user interface.
@@ -30,19 +94,7 @@ This script will install and configure FreeTAKHub components.
 
 ![image](https://user-images.githubusercontent.com/60719165/159137165-59164055-ce6d-4396-9a9b-f7503d20b3f6.png)
 
-# Custom Deployment (Advanced)
 
-This script prompts the user to select specific FreeTAKHub components to install:
-
-```console
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/scripts/advanced_install.sh | sudo bash
-```
-
-Shortened URL for Custom Deployment (under construction)
-
-```console
-wget -qO rb.gy/ocghax | sudo bash
-```
 
 # Install FreeTAKHub with Ansible
 

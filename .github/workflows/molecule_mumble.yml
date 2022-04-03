@@ -3,9 +3,17 @@ name: MUMBLE (DOCKER)
 
 "on":
   pull_request:
+    types: [opened, reopened]
   push:
     branches:
       - "*"
+    paths-ignore:
+      - '**.md'
+
+# Ensures that only one deploy task per branch/environment will run at a time.
+concurrency:
+  group: environment-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
@@ -14,6 +22,7 @@ jobs:
       run_job: ${{ steps.check_files.outputs.run_job }}
     runs-on: ubuntu-latest
     steps:
+
       - name: Checkout code
         uses: actions/checkout@v2
         with:

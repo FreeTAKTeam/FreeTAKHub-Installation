@@ -9,8 +9,7 @@ set -o pipefail
 # trap or catch signals and direct execution to cleanup
 trap cleanup SIGINT SIGTERM ERR EXIT
 
-# put test repo here
-DEV_TEST_REPO="https://github.com/janseptaugust/FreeTAKHub-Installation.git"
+REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
 
 ###############################################################################
 # Print out helpful message.
@@ -19,15 +18,16 @@ DEV_TEST_REPO="https://github.com/janseptaugust/FreeTAKHub-Installation.git"
 ###############################################################################
 function usage() {
   cat <<USAGE_TEXT
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v]
+Usage: $(basename "${BASH_SOURCE[0]}") [<optional-arguments>]
 
 Install Free TAK Server and components.
 
 Available options:
 
--h, --help              Print help
--v, --verbose           Print script debug info
-    --non-interactive   Auto install with no warning prompts
+-h, --help       Print help
+-v, --verbose    Print script debug info
+-c, --check      Check for compatibility issues while installing
+    --core       Install FreeTAKServer, UI, and Web Map
 USAGE_TEXT
   exit
 }
@@ -91,11 +91,17 @@ function parse_params() {
       APT_VERBOSITY=""
       GIT_VERBOSITY=""
       ANSIBLE_VERBOSITY="-vv"
+
       shift
       ;;
 
-    --non-interactive)
-      SKIP=1
+    --check | -c)
+      CHECK=1
+      shift
+      ;;
+
+    --core)
+      CORE=1
       shift
       ;;
 
@@ -160,11 +166,15 @@ function do_checks() {
 
   check_root
 
-  if [[ ! "${SKIP}" ]]; then
+  if [[ -n "${CHECK-}" ]]; then
     check_os
     # check_architecture
   else
-    FORCE_WEBMAP_INSTALL="y"
+    WEBMAP_FORCE_INSTALL="y"
+  fi
+
+  if [[ -n "${TEST-}" ]]; then
+      REPO="https://github.com/janseptaugust/FreeTAKHub-Installation.git"
   fi
 
 }
@@ -177,7 +187,7 @@ function check_root() {
   echo -e -n "${BLUE}Checking if this script is running as root...${NOFORMAT}"
 
   # check Effective User ID (EUID) for root user, which has an EUID of 0.
-  if [ "$EUID" -ne 0 ]; then
+  if [[ "$EUID" -ne 0 ]]; then
 
     echo -e "${RED}ERROR${NOFORMAT}"
     die "This script requires running as root. Use sudo before the command."
@@ -197,7 +207,7 @@ function check_os() {
   echo -e -n "${BLUE}Checking for supported OS...${NOFORMAT}"
 
   # freedesktop.org and systemd
-  if [ -f /etc/os-release ]; then
+  if [[ -f /etc/os-release ]]; then
 
     . /etc/os-release
 
@@ -211,7 +221,7 @@ function check_os() {
     VER=$(lsb_release -sr)
 
   # for some Debian-based distros
-  elif [ -f /etc/lsb-release ]; then
+  elif [[ -f /etc/lsb-release ]]; then
 
     . /etc/lsb-release
 
@@ -219,7 +229,7 @@ function check_os() {
     VER=${DISTRIB_RELEASE}
 
   # older Debian-based distros
-  elif [ -f /etc/debian_version ]; then
+  elif [[ -f /etc/debian_version ]]; then
 
     OS=Debian
     VER=$(cat /etc/debian_version)
@@ -233,7 +243,7 @@ function check_os() {
   fi
 
   # check for supported OS and version and warn if not supported
-  if [ "${OS}" != "Ubuntu" ] || [ "${VER}" != "20.04" ]; then
+  if [[ "${OS}" != "Ubuntu" ]] || [[ "${VER}" != "20.04" ]]; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
     echo "FreeTAKServer has only been tested on ${GREEN}Ubuntu 20.04${NOFORMAT}."
@@ -249,7 +259,7 @@ function check_os() {
     PROCEED="${PROCEED:-${DEFAULT}}"
 
     # Check user input to proceed or not.
-    if [ "${PROCEED}" != "y" ]; then
+    if [[ "${PROCEED}" != "y" ]]; then
       die "Answer was not y. Not proceeding."
     else
       echo -e "${GREEN}Proceeding...${NOFORMAT}"
@@ -282,23 +292,20 @@ function check_architecture() {
     echo "Possible non-Intel architecture detected, ${name}"
     echo "Non-intel architectures may cause problems. The web map might not install."
 
-    read -r -e -p "Do you want to force web map installation? [y/n]: " FORCE_WEBMAP_INSTALL
+    read -r -e -p "Do you want to force web map installation? [y/n]: " USER_INPUT
 
     # Default answer is "n" for NO.
     DEFAULT="n"
 
     # Set user-inputted value and apply default if user input is null.
-    FORCE_WEBMAP_INSTALL="${FORCE_WEBMAP_INSTALL:-${DEFAULT}}"
+    FORCE_WEBMAP_INSTALL_INPUT="${USER_INPUT:-${DEFAULT}}"
 
     # Check user input to force install web map or not
-    if [ "${FORCE_WEBMAP_INSTALL}" == "y" ]; then
-
-      FORCE_INSTALL="-e webmap_force_install=true"
-      echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
-
-    else
+    if [[ "${FORCE_WEBMAP_INSTALL_INPUT}" != "y" ]]; then
       echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
-
+    else
+      WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
+      echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
     fi
 
   else # good architecture to install webmap
@@ -321,13 +328,13 @@ function download_dependencies() {
   sudo apt-add-repository -y ppa:ansible/ansible
 
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY-"-qq"} update
+  sudo apt-get -y "${APT_VERBOSITY-"-qq"}" update
 
   echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY-"-qq"} install ansible
+  sudo apt-get -y "${APT_VERBOSITY-"-qq"}" install ansible
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY-"-qq"} install git
+  sudo apt-get -y "${APT_VERBOSITY-"-qq"}" install git
 
 }
 
@@ -341,17 +348,11 @@ function handle_git_repository() {
   cd ~
 
   # check for FreeTAKHub-Installation repository
-  if [ ! -d ~/FreeTAKHub-Installation ]; then
+  if [[ ! -d ~/FreeTAKHub-Installation ]]; then
 
     echo -e "NOT FOUND"
-
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-
-    if [[ "${TEST-}" ]]; then
-      git clone ${GIT_VERBOSITY--q} ${DEV_TEST_REPO}
-    else
-      git clone ${GIT_VERBOSITY--q} https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
-    fi
+    git clone "${GIT_VERBOSITY-"-q"}" ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -362,7 +363,7 @@ function handle_git_repository() {
     cd ~/FreeTAKHub-Installation
 
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull ${GIT_VERBOSITY--q}
+    git pull "${GIT_VERBOSITY--q}"
 
   fi
 
@@ -408,8 +409,13 @@ function generate_key_pair() {
 ###############################################################################
 function run_playbook() {
 
+  if [[ -n "${CORE}" ]]; then
+    ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_mainserver.yml "${ANSIBLE_VERBOSITY-}"
+  else
+    ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_all.yml "${ANSIBLE_VERBOSITY-}"
+  fi
+
   echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
-  ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
 
 }
 

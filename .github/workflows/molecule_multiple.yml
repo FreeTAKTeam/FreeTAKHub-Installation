@@ -3,9 +3,17 @@ name: SPLIT INSTALL (DOCKER)
 
 "on":
   pull_request:
+    types: [opened, reopened]
   push:
     branches:
       - "*"
+    paths-ignore:
+      - '**.md'
+
+# Ensures that only one deploy task per branch/environment will run at a time.
+concurrency:
+  group: environment-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   molecule_multiple_instances:
@@ -17,6 +25,7 @@ jobs:
         distros:
           - ubuntu2004
     steps:
+
       - name: Check out the codebase
         uses: actions/checkout@v2
 
