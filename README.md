@@ -1,6 +1,12 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
 
-# Quick Install (Use New **Ubuntu 20.04** Image)
+# Quick Install (Run On New **Ubuntu 20.04** Image)
+
+Use a clean Ubuntu **20.04** image when installing.
+
+Download Ubuntu 20.04 here: <https://ubuntu.com/download/desktop>
+
+FreeTAKTeam is currently testing on other Operating Systems and distributions.
 
 ## Zero Touch Deployment 
 
@@ -15,21 +21,26 @@ Available options:
 -v, --verbose    Print script debug info
 -c, --check      Check for compatibility issues while installing
     --core       Install FreeTAKServer, UI, and Web Map
-
-example:
-
-# install core fts components only
-wget -qO - bit.ly/ftszerotouch | sudo bash -s -- --core
-
-# display help screen
-wget -qO - bit.ly/ftszerotouch | sudo bash -s -- -h
-
-# do compatibility checks and print more output
-wget -qO - bit.ly/ftszerotouch | sudo bash -s -- -c -v
-
 ```
 
-## Customized Deployment (Advanced)
+### Examples
+
+Install core fts components only
+```console
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- --core
+```
+
+Display help screen
+```console
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- -h
+```
+
+Do compatibility checks and print more output
+```console
+wget -qO - bit.ly/ftszerotouch | sudo bash -s -- -c -v
+```
+
+## Install Specific Components (Advanced)
 
 ```console
 wget -qO - bit.ly/ftsadvancedinstall | sudo bash 
@@ -46,27 +57,29 @@ Available options:
       --nodered            Install Node-RED Server
       --video              Install Video Server
       --mumble             Install Murmur VOIP Server and Mumble Client
+```
 
-example:
+### Examples
 
-# install core and nodered non-interactively (do not prompt for user input)
+Install core and nodered non-interactively (do not prompt for user input).
+
+```console
 wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --core --nodered --non-interactive
+```
 
-# do compatibility checks, print more output, and prompt to install other components
+Do compatibility checks, print more output, and prompt for installing other components.
+
+```console
 wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- -c -v
+```
 
-# install video and mumble, but prompt to install for other components
+Install video and mumble, but prompt to install for other components.
+
+```console
 wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --video --mumble
-
 ```
 
 # FreeTAKHub Installation
-
-Use a clean Ubuntu **20.04** image when installing.
-
-Download Ubuntu 20.04 here: <https://ubuntu.com/download/desktop>
-
-FreeTAKTeam is currently testing on other Operating Systems and distributions.
 
 This script will install and configure these components:
 
