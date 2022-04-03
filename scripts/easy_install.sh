@@ -166,7 +166,7 @@ function do_checks() {
     check_os
     # check_architecture
   else
-    WEBMAP_FORCE_INSTALL="y"
+    WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
   fi
 
   if [[ -n ${TEST-} ]]; then

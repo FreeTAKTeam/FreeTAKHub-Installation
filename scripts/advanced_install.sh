@@ -190,7 +190,7 @@ function do_checks() {
     check_os
     # check_architecture
   else
-    WEBMAP_FORCE_INSTALL="y"
+    WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
   fi
 
   if [[ -n ${TEST-} ]]; then
@@ -438,7 +438,7 @@ function run_defaults() {
   ansible-playbook -u root -i localhost, --connection=local -e webmap_force_install=true install_mainserver.yml ${ANSIBLE_VERBOSITY-}
   ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
   ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
-  ansible-playbook -u root -i localhost, --connection=local ${IP_VARS} install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
+  ansible-playbook -u root -i localhost, --connection=local "${IP_VARS}" install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
 }
 
 ###############################################################################
