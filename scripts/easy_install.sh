@@ -326,13 +326,13 @@ function download_dependencies() {
   sudo apt-add-repository -y ppa:ansible/ansible
 
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY-'-qq'} update
+  sudo apt-get -y "${APT_VERBOSITY-'-qq'}" update
 
   echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY-'-qq'} install ansible
+  sudo apt-get -y "${APT_VERBOSITY-'-qq'}" install ansible
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY-'-qq'} install git
+  sudo apt-get -y "${APT_VERBOSITY-'-qq'}" install git
 
 }
 
@@ -350,7 +350,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone ${GIT_VERBOSITY--q} ${REPO}
+    git clone "${GIT_VERBOSITY--q}" "${REPO}""
 
     cd ~/FreeTAKHub-Installation
 
@@ -361,7 +361,7 @@ function handle_git_repository() {
     cd ~/FreeTAKHub-Installation
 
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull ${GIT_VERBOSITY--q}
+    git pull "${GIT_VERBOSITY--q}"
 
   fi
 
