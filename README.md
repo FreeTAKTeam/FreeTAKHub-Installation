@@ -1,6 +1,6 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
 
-# Quick Install (Use **Ubuntu 20.04**)
+# Quick Install (Use New **Ubuntu 20.04** Image)
 
 ## Zero Touch Deployment 
 
@@ -22,7 +22,9 @@ wget -qO - bit.ly/ftsadvancedinstall | sudo bash
 
 # FreeTAKHub Installation
 
-Use Ubuntu **20.04** when installing.
+Use a clean Ubuntu **20.04** image when installing.
+
+Download Ubuntu 20.04 here: <https://ubuntu.com/download/desktop>
 
 FreeTAKTeam is currently testing on other Operating Systems and distributions.
 

@@ -416,7 +416,7 @@ function run_playbooks() {
 
   # Check for non-interactive mode
   if [[ "${SKIP}" ]]; then
-      IP_VARS="-e videoserver_ipv4=localhost -e videoserver_ipv4=localhost"
+      IP_VARS="-e videoserver_ipv4=localhost -e fts_ipv4=localhost"
       ansible-playbook -u root -i localhost, --connection=local -e webmap_force_install=true install_mainserver.yml ${ANSIBLE_VERBOSITY-}
       ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
       ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
