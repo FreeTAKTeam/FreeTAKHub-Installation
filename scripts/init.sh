@@ -21,6 +21,6 @@ if [[ ! -e /home/${USER}/.ssh/id_rsa.pub ]]; then
 fi
 
 # print key to console
-cat /home/"${USER}"/.ssh/id_rsa.pub
+cat /home/${USER}/.ssh/id_rsa.pub
 
 set +x
