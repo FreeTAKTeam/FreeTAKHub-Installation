@@ -449,15 +449,15 @@ function run_defaults() {
 # Prompt The User To Select
 ###############################################################################
 function prompt_user_selection() {
-  [[ -z "${CORE}" ]] && read -r -e -p "Install FreeTAKServer? [y/n] (default: y): " MAINSERVER_REPONSE
-  [[ -z "${MUMBLE}" ]] && read -r -e -p "Install Murmur VOIP Server and Mumble Client? [y/n] (default: y): " MURMUR_REPONSE
-  [[ -z "${VIDEO}" ]] && read -r -e -p "Install Video Server? [y/n] (default: y): " VIDEOSERVER_REPONSE
-  [[ -z "${NODERED}" ]] && read -r -e -p "Install Node-RED Server? [y/n] (default: y): " NODEREDSERVER_REPONSE
+  [[ -z "${CORE-}" ]] && read -r -e -p "Install FreeTAKServer? [y/n] (default: y): " MAINSERVER_REPONSE
+  [[ -z "${MUMBLE-}" ]] && read -r -e -p "Install Murmur VOIP Server and Mumble Client? [y/n] (default: y): " MURMUR_REPONSE
+  [[ -z "${VIDEO-}" ]] && read -r -e -p "Install Video Server? [y/n] (default: y): " VIDEOSERVER_REPONSE
+  [[ -z "${NODERED-}" ]] && read -r -e -p "Install Node-RED Server? [y/n] (default: y): " NODEREDSERVER_REPONSE
 
-  [[ -n "${MAINSERVER_REPONSE}" ]] && CORE=${MAINSERVER_REPONSE:-y}
-  [[ -n "${MURMUR_REPONSE}" ]] && MUMBLE=${MURMUR_REPONSE:-y}
-  [[ -n "${VIDEOSERVER_REPONSE}" ]] && VIDEO=${VIDEOSERVER_REPONSE:-y}
-  [[ -n "${NODEREDSERVER_REPONSE}" ]] && NODERED=${NODEREDSERVER_REPONSE:-y}
+  [[ -n "${MAINSERVER_REPONSE-}" ]] && CORE=${MAINSERVER_REPONSE:-y}
+  [[ -n "${MURMUR_REPONSE-}" ]] && MUMBLE=${MURMUR_REPONSE:-y}
+  [[ -n "${VIDEOSERVER_REPONSE-}" ]] && VIDEO=${VIDEOSERVER_REPONSE:-y}
+  [[ -n "${NODEREDSERVER_REPONSE-}" ]] && NODERED=${NODEREDSERVER_REPONSE:-y}
 }
 
 ###############################################################################
@@ -474,10 +474,10 @@ function run_playbooks() {
   fi
 
     echo -e "${BLUE}Running Ansible Playbooks...${NOFORMAT}"
-    [[ "${CORE}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_mainserver.yml ${ANSIBLE_VERBOSITY-}
-    [[ "${MUMBLE}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
-    [[ "${VIDEO}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
-    [[ "${NODERED}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local "${IP_VARS}" install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
+    [[ "${CORE-}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_mainserver.yml ${ANSIBLE_VERBOSITY-}
+    [[ "${MUMBLE-}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
+    [[ "${VIDEO-}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
+    [[ "${NODERED-}" == "y" ]] && ansible-playbook -u root -i localhost, --connection=local "${IP_VARS}" install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
 
 }
 
