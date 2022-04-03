@@ -84,8 +84,8 @@ jobs:
           IMAGE_DISTRO: ${{ matrix.distros }}
 
       - name: Test Command
-        run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --video --mumble --non-interactive --dev-test -v"
-        # run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --video --mumble --non-interactive"
+        # run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --video --mumble --non-interactive --dev-test -v"
+        run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --video --mumble --non-interactive"
 
   vagrant_test3:
     name: Install FTS Core and Node-RED only
@@ -120,5 +120,5 @@ jobs:
           IMAGE_DISTRO: ${{ matrix.distros }}
 
       - name: Test Command
-        run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --core --nodered --non-interactive --dev-test -v"
-        # run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --core --nodered --non-interactive"
+        # run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstalltest | sudo bash -s -- --core --nodered --non-interactive --dev-test -v"
+        run: vagrant ssh -c "wget -qO - bit.ly/ftsadvancedinstall | sudo bash -s -- --core --nodered --non-interactive"
