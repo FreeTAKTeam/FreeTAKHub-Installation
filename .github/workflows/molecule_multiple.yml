@@ -7,6 +7,13 @@ name: SPLIT INSTALL (DOCKER)
   push:
     branches:
       - "*"
+    paths-ignore:
+      - '**.md'
+
+# Ensures that only one deploy task per branch/environment will run at a time.
+concurrency:
+  group: environment-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   molecule_multiple_instances:
