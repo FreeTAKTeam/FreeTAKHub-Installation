@@ -10,7 +10,7 @@ set -o pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 # put test repo here
-DEV_TEST_REPO="https://github.com/juneseptaugust/FreeTAKHub-Installation.git"
+DEV_TEST_REPO="https://github.com/janseptaugust/FreeTAKHub-Installation.git"
 
 ###############################################################################
 # Print out helpful message.
