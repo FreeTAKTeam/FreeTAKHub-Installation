@@ -8,8 +8,12 @@
   uri:
     url: "{{ webmap_api_url }}"
     return_content: true
-  ignore_errors: true
   register: webmap_response
+  ignore_errors: true
+
+- name: Print webmap output
+  debug:
+    msg: "{{ webmap_response }}"
 
 - name: Extract output from JSON release information
   block:
@@ -25,8 +29,7 @@
         owner: root
         group: root
         mode: 0755
-  when:
-    - webmap_response.status == 200
+  when: webmap_response.status == 200
 
 - name: Fail safe upload from repo (not necessarily latest)
   copy:
@@ -35,8 +38,7 @@
     owner: root
     group: root
     mode: 0755
-  when:
-    - webmap_response.status != 200
+  when: webmap_response.status != 200
 
 - name: "Unarchive {{ webmap_package }} to /tmp"
   unarchive:
