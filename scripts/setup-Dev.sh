@@ -2,8 +2,8 @@
 set -x
 
 echo "Installing development packages"
-sudo apt update
-sudo apt install -y git vim
+sudo apt-get update
+sudo apt-get install -y git vim
 
 echo "Installing development environment"
 source setup-Virtual-Env.sh

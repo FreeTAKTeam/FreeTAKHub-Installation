@@ -9,11 +9,8 @@ set -o pipefail
 # trap or catch signals and direct execution to cleanup
 trap cleanup SIGINT SIGTERM ERR EXIT
 
-# get current working directory
-# script_dir=$(dirname "$(readlink --canonicalize-existing "${0}" 2>/dev/null)")
-
-# for non-intel-based architectures, may need to force install
-webmap_force_install="false"
+# put test repo here
+DEV_TEST_REPO="https://github.com/juneseptaugust/FreeTAKHub-Installation.git"
 
 ###############################################################################
 # Print out helpful message.
@@ -28,8 +25,9 @@ Install Free TAK Server and components.
 
 Available options:
 
--h, --help      Print help
--v, --verbose   Print script debug info
+-h, --help              Print help
+-v, --verbose           Print script debug info
+    --non-interactive   Auto install with no warning prompts
 USAGE_TEXT
   exit
 }
@@ -86,7 +84,23 @@ function parse_params() {
 
     --verbose | -v)
       set -x
+
       NO_COLOR=1
+
+      # empty string means command is not silent by default
+      APT_VERBOSITY=""
+      GIT_VERBOSITY=""
+      ANSIBLE_VERBOSITY="-vv"
+      shift
+      ;;
+
+    --non-interactive)
+      SKIP=1
+      shift
+      ;;
+
+    --dev-test)
+      TEST=1
       shift
       ;;
 
@@ -135,6 +149,22 @@ function setup_colors() {
     # CYAN='' # unused
     YELLOW=''
 
+  fi
+
+}
+
+###############################################################################
+# Do checks or skip unnecessary ones if non-interactive
+###############################################################################
+function do_checks() {
+
+  check_root
+
+  if [[ ! "${SKIP}" ]]; then
+    check_os
+    # check_architecture
+  else
+    FORCE_WEBMAP_INSTALL="y"
   fi
 
 }
@@ -261,15 +291,13 @@ function check_architecture() {
     FORCE_WEBMAP_INSTALL="${FORCE_WEBMAP_INSTALL:-${DEFAULT}}"
 
     # Check user input to force install web map or not
-    if [ "${FORCE_WEBMAP_INSTALL}" != "y" ]; then
+    if [ "${FORCE_WEBMAP_INSTALL}" == "y" ]; then
 
-      webmap_force_install="false"
-      echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
+      FORCE_INSTALL="-e webmap_force_install=true"
+      echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
 
     else
-
-      webmap_force_install="true"
-      echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
+      echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
 
     fi
 
@@ -293,13 +321,13 @@ function download_dependencies() {
   sudo apt-add-repository -y ppa:ansible/ansible
 
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
-  sudo apt -y update
+  sudo apt-get -y ${APT_VERBOSITY-"-qq"} update
 
   echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
-  sudo apt -y install ansible
+  sudo apt-get -y ${APT_VERBOSITY-"-qq"} install ansible
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
-  sudo apt -y install git
+  sudo apt-get -y ${APT_VERBOSITY-"-qq"} install git
 
 }
 
@@ -318,7 +346,12 @@ function handle_git_repository() {
     echo -e "NOT FOUND"
 
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
+
+    if [[ "${TEST-}" ]]; then
+      git clone ${GIT_VERBOSITY--q} ${DEV_TEST_REPO}
+    else
+      git clone ${GIT_VERBOSITY--q} https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
+    fi
 
     cd ~/FreeTAKHub-Installation
 
@@ -329,7 +362,7 @@ function handle_git_repository() {
     cd ~/FreeTAKHub-Installation
 
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull
+    git pull ${GIT_VERBOSITY--q}
 
   fi
 
@@ -376,18 +409,7 @@ function generate_key_pair() {
 function run_playbook() {
 
   echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
-
-  if [ "${webmap_force_install}" = true ]; then
-
-    # force webmap installation for detected non-intel-based architecture
-    ansible-playbook -u root -i localhost, --connection=local -e webmap_force_install=true install_all.yml
-
-  else
-
-    # installation may err for detected non-intel-based architecture
-    ansible-playbook -u root -i localhost, --connection=local install_all.yml
-
-  fi
+  ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
 
 }
 
@@ -396,9 +418,7 @@ function run_playbook() {
 ###############################################################################
 parse_params "${@}"
 setup_colors
-check_root
-check_os
-# check_architecture
+do_checks
 download_dependencies
 handle_git_repository
 add_passwordless_ansible_execution

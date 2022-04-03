@@ -2,8 +2,8 @@
 set -x
 
 echo "Install Molecule"
-sudo apt update
-sudo apt install python3-pip
+sudo apt-get update
+sudo apt-get install python3-pip
 pip install wheel --upgrade
 pip install molecule[lint]
 

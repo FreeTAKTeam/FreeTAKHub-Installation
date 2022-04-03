@@ -1,14 +1,11 @@
 ---
-- name: DIFFERENT SERVICES ON DIFFERENT HOSTS
+- name: Linux Playbook with Separation of Concern
   hosts: all
   become: true
   vars:
 
     # Node-RED Server will wait for Video Server
-    nodered_wait_for_videoserver: true
-
-    # Max seconds Node-RED Server will wait
-    nodered_wait_for_videoserver_timeout: 600
+    nodered_wait_for_videoserver: false
 
   pre_tasks:
 
@@ -22,20 +19,6 @@
 
     - name: Cleanup
       import_tasks: ../../roles/common/tasks/cleanup.yml
-
-- hosts: freetakserver
-  roles:
-    - freetakserver
-    - freetakserver_ui
-    - webmap
-
-- hosts: videoserver
-  roles:
-    - videoserver
-
-- hosts: murmur
-  roles:
-    - murmur
 
 - hosts: noderedserver
   roles:
