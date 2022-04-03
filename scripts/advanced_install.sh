@@ -416,10 +416,11 @@ function run_playbooks() {
 
   # Check for non-interactive mode
   if [[ "${SKIP}" ]]; then
+      IP_VARS="-e videoserver_ipv4=localhost -e videoserver_ipv4=localhost"
       ansible-playbook -u root -i localhost, --connection=local -e webmap_force_install=true install_mainserver.yml ${ANSIBLE_VERBOSITY-}
       ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
       ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
-      ansible-playbook -u root -i localhost, --connection=local -e videoserver_ipv4=localhost install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
+      ansible-playbook -u root -i localhost, --connection=local ${IP_VARS} install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
   else
       read -r -p "Install FreeTAKServer? [y/n] (default: y): " response </dev/tty
       INSTALL_MAINSERVER=${response:-y}
@@ -434,7 +435,7 @@ function run_playbooks() {
       [ "${INSTALL_MAINSERVER}" == "y" ] && ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
       [ "${INSTALL_MURMUR}" == "y" ] && ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
       [ "${INSTALL_VIDEOSERVER}" == "y" ] && ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
-      [ "${INSTALL_NODEREDSERVER}" == "y" ] && ansible-playbook -u root -i localhost, --connection=local -e videoserver_ipv4=localhost install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
+      [ "${INSTALL_NODEREDSERVER}" == "y" ] && ansible-playbook -u root -i localhost, --connection=local ${IP_VARS} install_noderedserver.yml ${ANSIBLE_VERBOSITY-}
   fi
 
 }
