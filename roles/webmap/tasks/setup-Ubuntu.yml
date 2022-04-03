@@ -33,7 +33,6 @@
         owner: root
         group: root
         mode: 0755
-      when: webmap_response.status != 200
 
 - name: "Unarchive {{ webmap_package }} to /tmp"
   unarchive:
