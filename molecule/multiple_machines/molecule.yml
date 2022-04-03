@@ -10,25 +10,25 @@ platforms:
     image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
     privileged: true
     pre_build_image: true
-    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+    volumes: [/sys/fs/cgroup:/sys/fs/cgroup:ro]
 
   - name: videoserver
     image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
     privileged: true
     pre_build_image: true
-    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+    volumes: [/sys/fs/cgroup:/sys/fs/cgroup:ro]
 
   - name: murmur
     image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
     privileged: true
     pre_build_image: true
-    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+    volumes: [/sys/fs/cgroup:/sys/fs/cgroup:ro]
 
   - name: noderedserver
     image: geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest
     privileged: true
     pre_build_image: true
-    volumes: /sys/fs/cgroup:/sys/fs/cgroup:ro
+    volumes: [/sys/fs/cgroup:/sys/fs/cgroup:ro]
 
 provisioner:
   name: ansible
@@ -39,10 +39,6 @@ provisioner:
 
 verifier:
   name: ansible
-
-lint: |
-  set -e
-  yamllint .
 
 scenario:
   test_sequence:
