@@ -265,9 +265,9 @@ function check_os() {
   # check for supported OS and version and warn if not supported
   if [[ ${OS} != "Ubuntu" ]] || [[ ${VER} != "20.04" ]]; then
 
-    echo -e ${YELLOW}WARNING${NOFORMAT}
+    echo -e "${YELLOW}WARNING${NOFORMAT}"
     echo "FreeTAKServer has only been tested on ${GREEN}Ubuntu 20.04${NOFORMAT}."
-    echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}
+    echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}"
     echo "Errors may arise during installation or execution."
 
     read -r -e -p "Do you want to continue? [y/n]: " PROCEED
@@ -289,13 +289,13 @@ function check_os() {
     if [[ ${PROCEED} != "y" ]]; then
       die "Answer was not y. Not proceeding."
     else
-      echo -e ${GREEN}Proceeding...${NOFORMAT}
+      echo -e "${GREEN}Proceeding...${NOFORMAT}"
     fi
 
   else
 
-    echo -e ${GREEN}Success!${NOFORMAT}
-    echo -e "This machine is currently running: ${GREEN}${OS} ${VER}${NOFORMAT}
+    echo -e "${GREEN}Success!${NOFORMAT}"
+    echo -e "This machine is currently running: ${GREEN}${OS} ${VER}${NOFORMAT}"
 
   fi
 
@@ -306,7 +306,7 @@ function check_os() {
 ###############################################################################
 function check_architecture() {
 
-  echo -e -n ${BLUE}Checking for supported architecture...${NOFORMAT}
+  echo -e -n "${BLUE}Checking for supported architecture...${NOFORMAT}"
 
   # extract architecture string
   arch=$(cat /proc/cpuinfo | grep 'model name' | head -1)
@@ -315,8 +315,8 @@ function check_architecture() {
   # check for non-Intel-based architecture here
   if ! grep Intel <<<${arch} >/dev/null; then
 
-    echo -e ${YELLOW}WARNING${NOFORMAT}
-    echo "Possible non-Intel architecture detected, ${name}
+    echo -e "${YELLOW}WARNING${NOFORMAT}"
+    echo "Possible non-Intel architecture detected, ${name}"
     echo "Non-intel architectures may cause problems. The web map might not install."
 
     read -r -e -p "Do you want to force web map installation? [y/n]: " USER_INPUT
@@ -329,16 +329,16 @@ function check_architecture() {
 
     # Check user input to force install web map or not
     if [[ ${FORCE_WEBMAP_INSTALL_INPUT} != "y" ]]; then
-      echo -e ${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
+      echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
     else
       WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
-      echo -e ${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
+      echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
     fi
 
   else # good architecture to install webmap
 
-    echo -e ${GREEN}Success!${NOFORMAT}
-    echo "Intel architecture detected, ${name}
+    echo -e "${GREEN}Success!${NOFORMAT}"
+    echo "Intel architecture detected, ${name}"
 
   fi
 
@@ -349,18 +349,18 @@ function check_architecture() {
 ###############################################################################
 function download_dependencies() {
 
-  echo -e ${BLUE}Downloading dependencies...${NOFORMAT}
+  echo -e "${BLUE}Downloading dependencies...${NOFORMAT}"
 
-  echo -e ${BLUE}Adding the Ansible Personal Package Archive (PPA)...${NOFORMAT}
+  echo -e "${BLUE}Adding the Ansible Personal Package Archive (PPA)...${NOFORMAT}"
   sudo apt-add-repository -y ppa:ansible/ansible
 
-  echo -e ${BLUE}Downloading package information from configured sources...${NOFORMAT}
+  echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
   sudo apt-get -y ${APT_VERBOSITY-'-qq'} update
 
-  echo -e ${BLUE}Installing Ansible...${NOFORMAT}
+  echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
   sudo apt-get -y ${APT_VERBOSITY-'-qq'} install ansible
 
-  echo -e ${BLUE}Installing Git...${NOFORMAT}
+  echo -e "${BLUE}Installing Git...${NOFORMAT}"
   sudo apt-get -y ${APT_VERBOSITY-'-qq'} install git
 
 }
@@ -370,7 +370,7 @@ function download_dependencies() {
 ###############################################################################
 function handle_git_repository() {
 
-  echo -e -n ${BLUE}Checking for FreeTAKHub-Installation in home directory..."
+  echo -e -n "${BLUE}Checking for FreeTAKHub-Installation in home directory..."
 
   cd ~
 
@@ -378,8 +378,8 @@ function handle_git_repository() {
   if [[ ! -d ~/FreeTAKHub-Installation ]]; then
 
     echo -e "NOT FOUND"
-    echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}
-    git clone ${GIT_VERBOSITY-'-q'} ${REPO}
+    echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
+    git clone ${GIT_VERBOSITY--q} ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -389,7 +389,7 @@ function handle_git_repository() {
 
     cd ~/FreeTAKHub-Installation
 
-    echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}
+    echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
     git pull ${GIT_VERBOSITY--q}
 
   fi
@@ -401,16 +401,16 @@ function handle_git_repository() {
 ###############################################################################
 function add_passwordless_ansible_execution() {
 
-  echo -e ${BLUE}Adding passwordless Ansible execution for the current user...${NOFORMAT}
+  echo -e "${BLUE}Adding passwordless Ansible execution for the current user...${NOFORMAT}"
 
   # line to add
-  LINE=${USER} ALL=(ALL) NOPASSWD:/usr/bin/ansible-playbook"
+  LINE="${USER} ALL=(ALL) NOPASSWD:/usr/bin/ansible-playbook"
 
   # file to create for passwordless
   FILE="/etc/sudoers.d/dont-prompt-${USER}-for-sudo-password"
 
   # only add if non-existent
-  grep -qF -- ${LINE} ${FILE} || echo ${LINE} >>${FILE}
+  grep -qF -- "${LINE}" "${FILE}" || echo "${LINE}" >>"${FILE}"
 
 }
 
@@ -419,13 +419,13 @@ function add_passwordless_ansible_execution() {
 ###############################################################################
 function generate_key_pair() {
 
-  echo -e ${BLUE}Creating a public and private keys if non-existent...${NOFORMAT}
+  echo -e "${BLUE}Creating a public and private keys if non-existent...${NOFORMAT}"
 
   # check for public and private keys
   if [[ ! -e ${HOME}/.ssh/id_rsa.pub ]]; then
 
     # generate keys
-    ssh-keygen -t rsa -f ${HOME}/.ssh/id_rsa" -N ""
+    ssh-keygen -t rsa -f "${HOME}"/.ssh/id_rsa -N ""
 
   fi
 
@@ -469,7 +469,7 @@ function run_playbooks() {
     prompt_user_selection
   fi
 
-    echo -e ${BLUE}Running Ansible Playbooks...${NOFORMAT}
+    echo -e "${BLUE}Running Ansible Playbooks...${NOFORMAT}"
     [[ ${CORE-} == "y" ]] && ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
     [[ ${MUMBLE-} == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_murmur.yml ${ANSIBLE_VERBOSITY-}
     [[ ${VIDEO-} == "y" ]] && ansible-playbook -u root -i localhost, --connection=local install_videoserver.yml ${ANSIBLE_VERBOSITY-}
@@ -480,7 +480,7 @@ function run_playbooks() {
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
-parse_params ${@}
+parse_params "${@}"
 setup_colors
 do_checks
 download_dependencies
