@@ -1,4 +1,4 @@
-![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/zerotouch.yml/badge.svg)
 
 # Quick Install (Run On New **Ubuntu 20.04** Image)
 
