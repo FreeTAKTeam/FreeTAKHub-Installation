@@ -366,7 +366,7 @@ function handle_git_repository() {
     cd ~/FreeTAKHub-Installation
   
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull
+    git pull 
 
   fi
 
