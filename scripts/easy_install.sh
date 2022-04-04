@@ -174,7 +174,7 @@ function do_checks() {
     check_os
     # check_architecture
   else
-    WEBMAP_FORCE_INSTALL="y"
+    WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
   fi
 
   if [[ -n "${TEST-}" ]]; then
@@ -416,9 +416,9 @@ function generate_key_pair() {
 function run_playbook() {
 
   if [[ -n "${CORE-}" ]]; then
-    ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_mainserver.yml "${ANSIBLE_VERBOSITY-}"
+    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml "${ANSIBLE_VERBOSITY-}"
   else
-    ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_all.yml "${ANSIBLE_VERBOSITY-}"
+    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml "${ANSIBLE_VERBOSITY-}"
   fi
 
   echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
