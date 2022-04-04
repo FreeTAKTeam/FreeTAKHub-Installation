@@ -34,15 +34,6 @@
         mode: 0755
         remote_src: true
 
-    - name: "Unarchive {{ webmap_package }} to /tmp"
-      unarchive:
-        src: "/tmp/{{ webmap_package }}"
-        dest: /tmp
-        owner: root
-        group: root
-        mode: 0755
-        remote_src: true
-
   rescue:
     # Used for when GitHub API rate limiting issues happen
     - name: Fail safe upload from repo (not necessarily latest)
