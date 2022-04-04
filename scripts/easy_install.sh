@@ -73,6 +73,10 @@ function die() {
 ###############################################################################
 function parse_params() {
 
+  # The default 'apt verbosity' is verbose. Set it to quiet, since that's what our script assumes
+  # unset this later if we want verbosity
+  APT_VERBOSITY="-qq"
+
   while true; do
     case "${1-}" in
 
@@ -86,9 +90,10 @@ function parse_params() {
       set -x
 
       NO_COLOR=1
-      GIT_VERBOSITY=''
-      APT_VERBOSITY=''
-
+      GIT_TRACE=true
+      GIT_CURL_VERBOSE=true
+      GIT_SSH_COMMAND="ssh -vvv"
+      unset APT_VERBOSITY # verbose is the default
       ANSIBLE_VERBOSITY="-vv"
 
       shift
@@ -169,7 +174,7 @@ function do_checks() {
     check_os
     # check_architecture
   else
-    WEBMAP_FORCE_INSTALL="y"
+    WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
   fi
 
   if [[ -n "${TEST-}" ]]; then
@@ -279,13 +284,10 @@ function check_os() {
 function check_architecture() {
 
   echo -e -n "${BLUE}Checking for supported architecture...${NOFORMAT}"
-
-  # extract architecture string
-  arch=$(cat /proc/cpuinfo | grep 'model name' | head -1)
-  name=$(sed 's/.*CPU\s\(.*\)\s\(@\).*/\1/' <<<"${arch}")
-
+  
   # check for non-Intel-based architecture here
-  if ! grep Intel <<<"${arch}" >/dev/null; then
+  arch=$(uname --hardware-platform) # uname is non-portable, but we only target Ubuntu 20.04
+  if ! grep --ignore-case x86 <<<"${arch}" >/dev/null; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
     echo "Possible non-Intel architecture detected, ${name}"
@@ -353,7 +355,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone "${GIT_VERBOSITY-"-q"}" ${REPO}
+    git clone ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -362,9 +364,9 @@ function handle_git_repository() {
     echo -e "FOUND"
 
     cd ~/FreeTAKHub-Installation
-
+  
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull "${GIT_VERBOSITY--q}"
+    git pull 
 
   fi
 
@@ -411,9 +413,9 @@ function generate_key_pair() {
 function run_playbook() {
 
   if [[ -n "${CORE-}" ]]; then
-    ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_mainserver.yml "${ANSIBLE_VERBOSITY-}"
+    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml "${ANSIBLE_VERBOSITY-}"
   else
-    ansible-playbook -u root -i localhost, --connection=local "${WEBMAP_FORCE_INSTALL-}" install_all.yml "${ANSIBLE_VERBOSITY-}"
+    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml "${ANSIBLE_VERBOSITY-}"
   fi
 
   echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
