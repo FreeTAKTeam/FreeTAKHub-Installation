@@ -25,6 +25,15 @@
         group: root
         mode: 0755
 
+    - name: "Unarchive {{ webmap_package }} to /tmp"
+      unarchive:
+        src: "/tmp/{{ webmap_package }}"
+        dest: /tmp
+        owner: root
+        group: root
+        mode: 0755
+        remote_src: true
+
   rescue:
     - name: Fail safe upload from repo (not necessarily latest)
       copy:
@@ -34,14 +43,15 @@
         group: root
         mode: 0755
 
-- name: "Unarchive {{ webmap_package }} to /tmp"
-  unarchive:
-    src: "/tmp/{{ webmap_package }}"
-    dest: /tmp
-    owner: root
-    group: root
-    mode: 0755
-    remote_src: true
+    - name: "Unarchive {{ webmap_package }} to /tmp"
+      unarchive:
+        src: "/tmp/{{ webmap_package }}"
+        dest: /tmp
+        owner: root
+        group: root
+        mode: 0755
+        remote_src: true
+        extra_opts: '-z'
 
 - name: "Rename {{ webmap_raw_executable_name }} to {{ webmap_executable }}"
   copy:
