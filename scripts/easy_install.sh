@@ -284,13 +284,10 @@ function check_os() {
 function check_architecture() {
 
   echo -e -n "${BLUE}Checking for supported architecture...${NOFORMAT}"
-
-  # extract architecture string
-  arch=$(cat /proc/cpuinfo | grep 'model name' | head -1)
-  name=$(sed 's/.*CPU\s\(.*\)\s\(@\).*/\1/' <<<"${arch}")
-
+  
   # check for non-Intel-based architecture here
-  if ! grep Intel <<<"${arch}" >/dev/null; then
+  arch=$(uname --hardware-platform) # uname is non-portable, but we only target Ubuntu 20.04
+  if ! grep --ignore-case x86 <<<"${arch}" >/dev/null; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
     echo "Possible non-Intel architecture detected, ${name}"
