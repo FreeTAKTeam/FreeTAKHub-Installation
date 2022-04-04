@@ -43,9 +43,7 @@
         mode: 0755
         remote_src: true
 
-
   rescue:
-
     # Used for when GitHub API rate limiting issues happen
     - name: Fail safe upload from repo (not necessarily latest)
       copy:
