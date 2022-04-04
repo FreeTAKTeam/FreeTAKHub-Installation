@@ -6,6 +6,7 @@ webmap_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_address
 webmap_api_url: https://api.github.com/repos/FreeTAKTeam/FreeTAKHub/releases/latest
 webmap_package: webmap.zip
 webmap_executable: FTH-webmap-linux
+webmap_raw_executable_name: FTH-webmap-linux-0.2.5
 webmap_config_file: webMAP_config.json
 
 webmap_service_name: webmap
