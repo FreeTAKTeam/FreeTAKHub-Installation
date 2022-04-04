@@ -73,6 +73,10 @@ function die() {
 ###############################################################################
 function parse_params() {
 
+  # The default 'apt verbosity' is verbose. Set it to quiet, since that's what our script assumes
+  # unset this later if we want verbosity
+  APT_VERBOSITY="-qq"
+
   while true; do
     case "${1-}" in
 
@@ -86,9 +90,10 @@ function parse_params() {
       set -x
 
       NO_COLOR=1
-      GIT_VERBOSITY=''
-      APT_VERBOSITY=''
-
+      GIT_TRACE=true
+      GIT_CURL_VERBOSE=true
+      GIT_SSH_COMMAND="ssh -vvv"
+      unset APT_VERBOSITY # verbose is the default
       ANSIBLE_VERBOSITY="-vv"
 
       shift
@@ -353,7 +358,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone "${GIT_VERBOSITY-"-q"}" ${REPO}
+    git clone ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -362,9 +367,9 @@ function handle_git_repository() {
     echo -e "FOUND"
 
     cd ~/FreeTAKHub-Installation
-
+  
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull "${GIT_VERBOSITY--q}"
+    git pull
 
   fi
 

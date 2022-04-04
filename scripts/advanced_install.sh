@@ -91,8 +91,10 @@ function parse_params() {
 
       NO_COLOR=1
 
-      GIT_VERBOSITY=''
-      APT_VERBOSITY=''
+      GIT_TRACE=true
+      GIT_CURL_VERBOSE=true
+      GIT_SSH_COMMAND="ssh -vvv"
+      APT_VERBOSITY='--verbose'
       ANSIBLE_VERBOSITY="-vv"
 
       shift
