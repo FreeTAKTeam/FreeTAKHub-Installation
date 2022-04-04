@@ -412,13 +412,13 @@ function generate_key_pair() {
 ###############################################################################
 function run_playbook() {
 
+  echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
+
   if [[ -n "${CORE-}" ]]; then
     ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml "${ANSIBLE_VERBOSITY-}"
   else
     ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml "${ANSIBLE_VERBOSITY-}"
   fi
-
-  echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
 
 }
 
@@ -433,5 +433,3 @@ handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair
 run_playbook
-
-exit 0
