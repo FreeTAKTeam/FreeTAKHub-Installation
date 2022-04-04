@@ -39,7 +39,7 @@
     - name: Fail safe upload from repo (not necessarily latest)
       copy:
         content: "{{ webmap_raw_executable_name }}"
-        dest: /tmp
+        dest: "/tmp/{{ webmap_raw_executable_name }}"
         owner: root
         group: root
         mode: 0755
