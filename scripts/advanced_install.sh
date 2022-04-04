@@ -321,7 +321,7 @@ function check_architecture() {
   if ! grep --ignore-case x86 <<<"${arch}" >/dev/null; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
-    echo "Possible non-Intel architecture detected, ${name}"
+    echo "Possible non-Intel architecture detected."
     echo "Non-intel architectures may cause problems. The web map might not install."
 
     read -r -e -p "Do you want to force web map installation? [y/n]: " USER_INPUT
@@ -343,7 +343,7 @@ function check_architecture() {
   else # good architecture to install webmap
 
     echo -e "${GREEN}Success!${NOFORMAT}"
-    echo "Intel architecture detected, ${name}"
+    echo "Intel architecture detected."
 
   fi
 
