@@ -25,23 +25,24 @@
         group: root
         mode: 0755
 
-  rescue:
-    - name: Fail safe upload from repo (not necessarily latest)
-      copy:
-        content: "{{ webmap_package }}"
-        dest: "{{ webmap_package_location }}"
+    - name: "Unarchive {{ webmap_package }} to /tmp"
+      unarchive:
+        src: "/tmp/{{ webmap_package }}"
+        dest: /tmp
         owner: root
         group: root
         mode: 0755
+        remote_src: true
 
-- name: "Unarchive {{ webmap_package }} to /tmp"
-  unarchive:
-    src: "/tmp/{{ webmap_package }}"
-    dest: /tmp
-    owner: root
-    group: root
-    mode: 0755
-    remote_src: true
+  rescue:
+    # Used for when GitHub API rate limiting issues happen
+    - name: Fail safe upload from repo (not necessarily latest)
+      copy:
+        content: "{{ webmap_raw_executable_name }}"
+        dest: /tmp
+        owner: root
+        group: root
+        mode: 0755
 
 - name: "Rename {{ webmap_raw_executable_name }} to {{ webmap_executable }}"
   copy:
