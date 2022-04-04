@@ -417,7 +417,7 @@ function run_playbook() {
   if [[ -n "${CORE-}" ]]; then
     ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml "${ANSIBLE_VERBOSITY-}"
   else
-    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml "${ANSIBLE_VERBOSITY-}"
+    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml "${ANSIBLE_VERBOSITY-}"  
   fi
 
 }
