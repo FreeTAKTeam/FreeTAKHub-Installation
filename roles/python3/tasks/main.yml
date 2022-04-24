@@ -1,4 +1,7 @@
 ---
+- name: Setup
+  include_tasks: "setup-{{ ansible_distribution }}.yml"
+
 - name: Get sitepackages directory
   command: python -c 'import site; print(site.getsitepackages()[0])'
   register: my_sitepackages
@@ -46,6 +49,3 @@
 - name: Print python directory
   debug:
     msg: "{{ my_python }}"
-
-- name: Setup
-  include_tasks: "setup-{{ ansible_distribution }}.yml"
