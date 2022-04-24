@@ -2,12 +2,12 @@
 #: Free TAK Server Installation Script
 
 # enforce failfast
-set -o errexit
-set -o nounset
-set -o pipefail
+# set -o errexit
+# set -o nounset
+# set -o pipefail
 
 # trap or catch signals and direct execution to cleanup
-trap cleanup SIGINT SIGTERM ERR EXIT
+#trap cleanup SIGINT SIGTERM ERR EXIT
 trap ctrl_c INT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
@@ -20,7 +20,11 @@ CONDA_SHA256SUM="4bb91089ecc5cc2538dece680bfe2e8192de1901e5e420f63d4e78eb26b0ac1
 CONDA_INSTALLER=$(mktemp)
 CONDA_INSTALL_DIR="${HOME}/conda"
 CONDA_BIN="${CONDA_INSTALL_DIR}/bin"
-CONDA_EXEC=$CONDA_BIN/conda
+CONDA_EXEC="${CONDA_BIN}/conda"
+CONDA_SH="${CONDA_INSTALL_DIR}/etc/profile.d/conda.sh"
+
+VENV_NAME="freetakserver"
+PYTHON_VERSION=3.8
 
 ###############################################################################
 # STATUS VARIABLES
@@ -273,8 +277,6 @@ function parse_params() {
 # Add coloration to output for highlighting or emphasizing words
 ###############################################################################
 function setup_colors() {
-  inform_status BUSY "setting up console colors"
-
   if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
 
     NOFORMAT='\033[0m'
@@ -298,8 +300,6 @@ function setup_colors() {
     YELLOW=''
 
   fi
-
-  inform_status_clear DONE "setting up console colors"
 }
 
 ###############################################################################
@@ -520,7 +520,6 @@ function check_architecture() {
     fi
 
   else # good architecture to install webmap
-
     echo -e "${GREEN}Success!${NOFORMAT}"
     echo "Intel architecture detected, ${name}"
 
@@ -533,14 +532,12 @@ function check_architecture() {
 # Download dependencies
 ###############################################################################
 function download_dependencies() {
-
   inform_status BUSY "downloading miniconda"
   wget ${CONDA_INSTALLER_URL} -qO "${CONDA_INSTALLER}"
   inform_status_clear DONE "downloading miniconda"
 
   inform_status BUSY "checking sha256sum of ${CONDA_FILENAME}"
   SHA256SUM_RESULT=$(printf "${CONDA_SHA256SUM} ${CONDA_INSTALLER}" | sha256sum -c)
-
   if [ "${SHA256SUM_RESULT}" = "${CONDA_INSTALLER}: OK" ]; then
     inform_status_clear DONE "checking miniconda sha256sum"
   else
@@ -548,53 +545,39 @@ function download_dependencies() {
     exit ${EXIT_FAILURE}
   fi
 
-  inform_status BUSY "make ${CONDA_INSTALL_DIR} directory"
-  mkdir -p "${CONDA_INSTALL_DIR}"
-  inform_status_clear DONE "make ${CONDA_INSTALL_DIR} directory"
+  inform_status BUSY "installing miniconda"
+  mkdir -p "${CONDA_INSTALL_DIR}" >/dev/null 2>&1
+  bash "${CONDA_INSTALLER}" -u -b -p "${CONDA_INSTALL_DIR}" >/dev/null 2>&1
+  $HOME/conda/bin/conda update -y -n base conda >/dev/null 2>&1
+  ln -s $HOME/conda/bin/conda /bin/conda >/dev/null 2>&1
+  inform_status_clear DONE "installing miniconda"
 
-  inform_status BUSY "installing conda"
-  bash "${CONDA_INSTALLER}" -b -u -f -p "${CONDA_INSTALL_DIR}" #>/dev/null 2>&1 &
-  inform_status_clear DONE "installing conda"
+  inform_status BUSY "creating virtual environment: ${VENV_NAME}"
+  conda create --name ${VENV_NAME} python=${PYTHON_VERSION} >/dev/null 2>&1
+  inform_status_clear DONE "creating conda virtual environment: ${VENV_NAME}"
 
-  inform_status BUSY "adding conda to path"
-  grep -qxF 'export PATH=$PATH:$HOME/conda/bin' $BASHRC ||
-    echo 'export PATH=$PATH:$HOME/conda/bin' >>$BASHRC &&
-    set +eu && # allow unbound variable for source ~/.bashrc
-    source $BASHRC &&
-    set -eu # turn failfast back on for unbound variables
-  inform_status_clear DONE "adding conda to path"
+  inform_status BUSY "initializing virtual environment: ${VENV_NAME}"
+  conda init bash >/dev/null 2>&1
+  inform_status_clear DONE "initializing virtual environment: ${VENV_NAME}"
 
-  inform_status BUSY "configuring conda"
-  $CONDA_EXEC config --set auto_activate_base true --set always_yes yes --set changeps1 yes #>/dev/null 2>&1 &
-  inform_status_clear DONE "configuring conda"
+  inform_status BUSY "activating virtual environment: ${VENV_NAME}"
+  eval "$(conda shell.bash hook)" >/dev/null 2>&1
+  conda activate ${VENV_NAME} >/dev/null 2>&1
+  inform_status_clear DONE "activating virtual environment: ${VENV_NAME}"
 
-  inform_status BUSY "activating conda shell"
-  eval "$($CONDA_EXEC shell.bash hook)" #>/dev/null 2>&1 &
-  inform_status_clear DONE "activating conda shell"
+  inform_status BUSY "configuring virtual environment: ${VENV_NAME}"
+  conda config --set auto_activate_base true --set always_yes yes --set changeps1 yes >/dev/null 2>&1
+  inform_status_clear DONE "configuring virtual environment: ${VENV_NAME}"
 
-  inform_status BUSY "initializing conda shell functions"
-  $CONDA_EXEC init #>/dev/null 2>&1 &
-  inform_status_clear DONE "initializing conda shell functions"
+  inform_status BUSY "downloading virtual environment dependencies"
+  conda install conda >/dev/null 2>&1
+  conda install git >/dev/null 2>&1
+  conda install -c conda-forge ansible >/dev/null 2>&1
+  conda install pip >/dev/null 2>&1
+  inform_status_clear DONE "downloading virtual environment dependencies"
 
-  inform_status BUSY "updating conda"
-  $CONDA_EXEC update conda #>/dev/null 2>&1 &
-  inform_status_clear DONE "updating conda"
-
-  inform_status BUSY "installing conda base"
-  $CONDA_EXEC install conda #>/dev/null 2>&1 &
-  inform_status_clear DONE "installing conda base"
-
-  inform_status BUSY "installing git"
-  $CONDA_EXEC install git #>/dev/null 2>&1 &
-  inform_status_clear DONE "installing git"
-
-  inform_status BUSY "installing ansible"
-  $CONDA_EXEC install -c conda-forge ansible #>/dev/null 2>&1 &
-  inform_status_clear DONE "installing ansible"
-
-  inform_status BUSY "installing pip"
-  $CONDA_EXEC install pip #>/dev/null 2>&1 &
-  inform_status_clear DONE "installing pip"
+  CONDA_DEFAULT_ENV=$(echo "$CONDA_DEFAULT_ENV")
+  CONDA_PREFIX=$(echo "$CONDA_PREFIX")
 
 }
 
