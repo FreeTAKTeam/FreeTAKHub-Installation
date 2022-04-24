@@ -1,4 +1,7 @@
 ---
+- debug:
+    msg: "{{ my_sitepackages }}/FreeTAKServer-UI/config.py"
+
 - name: Template config file
   template:
     src: config.py.j2
