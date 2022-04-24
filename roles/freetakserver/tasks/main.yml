@@ -4,22 +4,37 @@
 
 - name: Include FTSConfig variables
   include_vars: "FTSConfig.yml"
-
 - name: Get sitepackages directory
-  script: getsitepackages.py
-  register: sitepackage_dir
+  command: python -c 'import site; print(site.getsitepackages()[0])'
+  register: my_sitepackages
 
 - name: Print sitepackages directory
   debug:
-    msg: "{{ sitepackage_dir.stdout_lines }}"
+    msg: "{{ my_sitepackages.stdout_lines }}"
 
-- name: Setting sitepackages
+- name: Set sitepackages
   set_fact:
-    fts_python_sitepackages: "{{ sitepackage_dir.stdout_lines[0] }}"
+    fts_python_sitepackages: "{{ my_sitepackages.stdout_lines[0] }}"
 
-- name: Print fts_python_sitepackages
+- name: Print fts_ui_sitepackages
   debug:
-    msg: "{{ fts_python_sitepackages }}"
+    msg: "{{ fts_ui_sitepackages }}"
+
+- name: Get sitepackages directory
+  command: which pip
+  register: my_pip
+
+- name: Print pip directory
+  debug:
+    msg: "{{ my_pip }}"
+
+- name: Setting my_pip
+  set_fact:
+    my_pip: "{{ my_pip }}"
+
+- name: Print pip directory
+  debug:
+    msg: "{{ my_pip }}"
 
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"

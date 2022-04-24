@@ -1,3 +1,51 @@
 ---
+- name: Get sitepackages directory
+  command: python -c 'import site; print(site.getsitepackages()[0])'
+  register: my_sitepackages
+
+- name: Print sitepackages directory
+  debug:
+    msg: "{{ my_sitepackages.stdout_lines }}"
+
+- name: Set sitepackages
+  set_fact:
+    my_sitepackages: "{{ my_sitepackages.stdout_lines[0] }}"
+
+- name: Print fts_ui_sitepackages
+  debug:
+    msg: "{{ fts_ui_sitepackages }}"
+
+- name: Get pip directory
+  command: which pip
+  register: my_pip
+
+- name: Print pip directory
+  debug:
+    msg: "{{ my_pip }}"
+
+- name: Setting my_pip
+  set_fact:
+    my_pip: "{{ my_pip }}"
+
+- name: Print pip directory
+  debug:
+    msg: "{{ my_pip }}"
+
+- name: Get python directory
+  command: which python
+  register: my_python
+
+- name: Print python directory
+  debug:
+    msg: "{{ my_python }}"
+
+- name: Setting python3
+  set_fact:
+    python3: "{{ my_python }}"
+
+- name: Print python directory
+  debug:
+    msg: "{{ my_python }}"
+
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"

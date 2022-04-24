@@ -6,4 +6,4 @@
 - name: "Install {{ fts_pip_package_name }}"
   pip:
     name: "{{ fts_pip_package_name }}"
-    executable: "pip3"
+    executable: "{{ my_pip }}"

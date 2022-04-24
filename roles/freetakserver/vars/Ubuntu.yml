@@ -5,7 +5,6 @@ fts_db_path: /opt/FreeTAKServer.db
 fts_python_sitepackages: "/usr/local/lib/python{{ python3_version }}/dist-packages"
 fts_install_path: "{{ fts_python_sitepackages }}/FreeTAKServer"
 
-
 fts_apt_dependencies:
   - netbase
   - gcc
