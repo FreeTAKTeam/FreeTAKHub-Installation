@@ -5,6 +5,14 @@
 - name: Include FTSConfig variables
   include_vars: "FTSConfig.yml"
 
+- name: Get sitepackages directory
+  script: python_script.py
+  register: sitepackage_dir
+
+- name: Print sitepackages directory
+  debug:
+    msg: sitepackage_dir.stdout_lines
+
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 

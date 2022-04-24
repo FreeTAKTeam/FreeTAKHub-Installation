@@ -2,62 +2,23 @@
 #: Free TAK Server Installation Script
 
 # enforce failfast
-# set -o errexit
-# set -o nounset
-# set -o pipefail
+set -o errexit
+set -o pipefail
 
 # trap or catch signals and direct execution to cleanup
-#trap cleanup SIGINT SIGTERM ERR EXIT
+trap cleanup SIGINT SIGTERM ERR EXIT
 trap ctrl_c INT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
 
-BASHRC=$HOME/.bashrc
-
 CONDA_FILENAME="Miniconda3-py38_4.11.0-Linux-x86_64.sh"
 CONDA_INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-py38_4.11.0-Linux-x86_64.sh"
 CONDA_SHA256SUM="4bb91089ecc5cc2538dece680bfe2e8192de1901e5e420f63d4e78eb26b0ac1a"
-CONDA_INSTALLER=$(mktemp)
+CONDA_INSTALLER=$(mktemp --suffix ".$CONDA_FILENAME")
 CONDA_INSTALL_DIR="${HOME}/conda"
-CONDA_BIN="${CONDA_INSTALL_DIR}/bin"
-CONDA_EXEC="${CONDA_BIN}/conda"
-CONDA_SH="${CONDA_INSTALL_DIR}/etc/profile.d/conda.sh"
 
-VENV_NAME="freetakserver"
+VENV_NAME="fts"
 PYTHON_VERSION=3.8
-
-###############################################################################
-# STATUS VARIABLES
-###############################################################################
-declare -i EXIT_SUCCESS=0
-declare -i EXIT_FAILURE=1
-ON_BUSY=" BUSY "
-ON_EXIT=" EXIT "
-ON_DONE=" DONE "
-ON_FAIL=" FAIL "
-ON_WARN=" WARN "
-ON_DEBUG=" DEBUG "
-ON_UNKNOWN="      "
-
-STATUS_NOFORMAT="\033[0m"
-STATUS_RED="\033[1;31m"
-STATUS_GREEN="\033[1;32m"
-STATUS_ORANGE='\033[0;33m'
-STATUS_YELLOW='\033[1;33m'
-STATUS_BLUE='\033[0;34m'
-
-PROGRESS_BAR=""
-PROGRESS_MSG=""
-
-declare -A STATUS_ENUM=(
-  [DONE]=0
-  [FAIL]=1
-  [WARN]=2
-  [BUSY]=3
-  [EXIT]=4
-  [UNKNOWN]=999
-)
-###############################################################################
 
 ###############################################################################
 # SUPPORTED OS VARIABLES
@@ -65,7 +26,6 @@ declare -A STATUS_ENUM=(
 declare SUPPORTED_OS=(
   "ubuntu 20.04"
 )
-###############################################################################
 
 ###############################################################################
 # SYSTEM VARIABLES
@@ -80,7 +40,8 @@ SYSTEM_ARCH_NAME="Unknown" # {i386, amd64, arm64}
 SYSTEM_KERNEL=$(uname -r)
 SYSTEM_CONTAINER="false"
 CLOUD_PROVIVDER="false"
-###############################################################################
+
+newline() { printf "\n"; }
 
 go_up() { echo -en "\033[${1}A"; }
 
@@ -91,9 +52,9 @@ clear() {
   _clear
 }
 
-inform_status_clear() {
+progress_clear() {
   clear
-  inform_status "${1}" "${2}"
+  progress "${1}" "${2}"
 }
 
 path_add() {
@@ -129,9 +90,9 @@ USAGE_TEXT
 function cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
 
-  inform_status BUSY "removing temporary files"
+  progress BUSY "cleaning up"
   _cleanup
-  inform_status_clear DONE "removing temporary files"
+  progress_clear DONE "cleaning up"
 
   die
 }
@@ -144,7 +105,6 @@ function _cleanup() {
 # Interrupt Cleanup
 ###############################################################################
 function ctrl_c() {
-
   trap - INT
 
   _cleanup
@@ -152,7 +112,7 @@ function ctrl_c() {
   printf "\b\b"
 
   # clear line
-  inform_status WARN "interrupted installation"
+  progress WARN "interrupted installation"
 
   die "" 1
 }
@@ -170,52 +130,61 @@ function msg() {
 function die() {
 
   # default exit status 0
-  local code=${2:-0}
+  local -i code=${2:-0}
   local msg=${1:-"exiting"}
 
   if [ $code -ne 0 ]; then
-    inform_status FAIL "$msg"
+    progress FAIL "$msg"
   fi
 
   exit 0
 }
 
-function inform_status() {
-  # inform the user uppon success or failure
-  local default="UNKNOWN"
-  local STATUS_OUTCOME="${1:-$default}"
-  local outcome=${STATUS_ENUM[${STATUS_OUTCOME}]:-999}
+###############################################################################
+# STATUS VARIABLES
+###############################################################################
+declare -i EXIT_SUCCESS=0
+declare -i EXIT_FAILURE=1
+FOREGROUND="\033[39m"
+NOFORMAT="\033[0m"
+RED="\033[1;31m"
+GREEN="\033[1;32m"
+YELLOW='\033[1;33m'
+BLUE='\033[1;34m'
 
-  status_msg="[  "
+declare -A STATUS_COLOR=(
+  [DONE]=$GREEN
+  [FAIL]=$RED
+  [INFO]=$FOREGROUND
+  [WARN]=$YELLOW
+  [BUSY]=$YELLOW
+  [EXIT]=$FOREGROUND
+)
 
-  if [[ outcome -eq 0 ]]; then
-    status_msg+="${STATUS_GREEN}${ON_DONE}${STATUS_NOFORMAT}"
-  elif [[ outcome -eq 1 ]]; then
-    status_msg+="${STATUS_RED}${ON_FAIL}${STATUS_NOFORMAT}"
-  elif [[ outcome -eq 2 ]]; then
-    status_msg+="${STATUS_YELLOW}${ON_WARN}${STATUS_NOFORMAT}"
-  elif [[ outcome -eq 3 ]]; then
-    status_msg+="${STATUS_ORANGE}${ON_BUSY}${STATUS_NOFORMAT}"
-  elif [[ outcome -eq 4 ]]; then
-    status_msg+="${STATUS_BLUE}${ON_EXIT}${STATUS_NOFORMAT}"
-  else
-    status_msg+="${ON_UNKNOWN}"
-  fi
+declare -A STATUS_TEXT=(
+  [DONE]=" DONE "
+  [FAIL]=" FAIL "
+  [INFO]=" INFO "
+  [WARN]=" WARN "
+  [BUSY]=" BUSY "
+  [EXIT]=" EXIT "
+)
 
-  status_msg+="  ] ${2}"
-  echo -e "${status_msg}"
+function progress() {
+
+  echo -e "[  ${STATUS_COLOR[$1]}${STATUS_TEXT[$1]}${NOFORMAT}  ] ${2}"
 
 }
 
 ###############################################################################
 # Parse parameters
 ###############################################################################
-function parse_params() {
-  inform_status BUSY "parsing input parameters"
 
-  # The default 'apt verbosity' is verbose. Set it to quiet, since that's what our script assumes
-  # unset this later if we want verbosity
-  APT_VERBOSITY="-qq"
+# verbose by default
+# v_apt="-qq"
+# v_bash=/dev/null
+function parse_params() {
+  progress BUSY "parsing input parameters"
 
   while true; do
     case "${1-}" in
@@ -230,11 +199,12 @@ function parse_params() {
       set -x
 
       NO_COLOR=1
-      GIT_TRACE=true
-      GIT_CURL_VERBOSE=true
-      GIT_SSH_COMMAND="ssh -vvv"
-      unset APT_VERBOSITY # verbose is the default
-      ANSIBLE_VERBOSITY="-vv"
+      # GIT_TRACE=true
+      # GIT_CURL_VERBOSE=true
+      # GIT_SSH_COMMAND="ssh -vvv"
+      # v_ansible="-vv"
+      # unset v_apt
+      # unset v_bash
 
       shift
       ;;
@@ -270,51 +240,21 @@ function parse_params() {
     esac
   done
 
-  inform_status_clear DONE "parsing input parameters"
-}
-
-###############################################################################
-# Add coloration to output for highlighting or emphasizing words
-###############################################################################
-function setup_colors() {
-  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-
-    NOFORMAT='\033[0m'
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    ORANGE='\033[0;33m'
-    BLUE='\033[0;34m'
-    # PURPLE='\033[0;35m' # unused
-    # CYAN='\033[0;36m' # unused
-    YELLOW='\033[1;33m'
-
-  else
-
-    NOFORMAT=''
-    RED=''
-    GREEN=''
-    ORANGE=''
-    BLUE=''
-    # PURPLE='' # unused
-    # CYAN='' # unused
-    YELLOW=''
-
-  fi
+  progress_clear DONE "parsing input parameters"
 }
 
 ###############################################################################
 # Check if script was ran as root. This script requires root execution.
 ###############################################################################
 function check_root() {
-  inform_status BUSY "checking if user is root"
+  progress BUSY "checking if user is root"
 
   # check Effective User ID (EUID) for root user, which has an EUID of 0.
   if [[ "$EUID" -ne 0 ]]; then
-    inform_status_clear FAIL "This script requires running as root. Use sudo before the command."
+    progress_clear FAIL "This script requires running as root. Use sudo before the command."
     exit ${EXIT_FAILURE}
   fi
-
-  inform_status_clear DONE "checking if user is root"
+  progress_clear DONE "checking if user is root"
 }
 
 function identify_cloud() {
@@ -331,8 +271,6 @@ function identify_cloud() {
     CLOUD_PROVIDER="oracle"
   fi
 
-  # echo "CLOUD_PROVIVDER=$(echo "$CLOUD_PROVIVDER" | tr "[:upper:]" "[:lower:]" | tr " " "_")"
-
 }
 
 function identify_docker() {
@@ -342,8 +280,6 @@ function identify_docker() {
     SYSTEM_CONTAINER="true"
   fi
 
-  # echo "SYSTEM_CONTAINER=$(echo "$SYSTEM_CONTAINER" | tr "[:upper:]" "[:lower:]" | tr " " "_")"
-
 }
 
 ###############################################################################
@@ -351,7 +287,7 @@ function identify_docker() {
 ###############################################################################
 function identify_system() {
 
-  inform_status BUSY "identifying system attributes"
+  progress BUSY "identifying system attributes"
 
   if uname -s | grep -iq "darwin"; then # Detect macOS
     SYSTEM_NAME="unix"
@@ -437,6 +373,7 @@ function identify_system() {
   SYSTEM_ARCH=$(echo "$SYSTEM_ARCH" | tr "[:upper:]" "[:lower:]" | tr " " "_")
   SYSTEM_ARCH_NAME=$(echo "$SYSTEM_ARCH_NAME" | tr "[:upper:]" "[:lower:]" | tr " " "_")
   SYSTEM_KERNEL=$(echo "$SYSTEM_KERNEL" | tr "[:upper:]" "[:lower:]" | tr " " "_")
+  # echo "SYSTEM_CONTAINER=$(echo "$SYSTEM_CONTAINER" | tr "[:upper:]" "[:lower:]" | tr " " "_")"
 
   # echo "SYSTEM_NAME=$SYSTEM_NAME"
   # echo "SYSTEM_DIST=$SYSTEM_DIST"
@@ -446,11 +383,13 @@ function identify_system() {
   # echo "SYSTEM_ARCH=$SYSTEM_ARCH"
   # echo "SYSTEM_ARCH_NAME=$SYSTEM_ARCH_NAME"
   # echo "SYSTEM_KERNEL=$SYSTEM_KERNEL"
+  # echo "CLOUD_PROVIVDER=$(echo "$CLOUD_PROVIVDER" | tr "[:upper:]" "[:lower:]" | tr " " "_")"
 
   # iterate through supported operating systems
   local is_supported=false
-  for os in "${SUPPORTED_OS[@]}"; do
-    if [[ "${SYSTEM_DIST} ${SYSTEM_VERSION}" = $os ]]; then
+
+  for candidate_os in "${SUPPORTED_OS[@]}"; do
+    if [[ "$SYSTEM_DIST $SYSTEM_VERSION" = "$candidate_os" ]]; then
       is_supported=true
     fi
   done
@@ -487,14 +426,15 @@ function identify_system() {
 
   # fi
 
-  inform_status_clear DONE "identifying system attributes"
+  progress_clear DONE "identifying system attributes"
 }
 
 ###############################################################################
 # Check for supported architecture
 ###############################################################################
 function check_architecture() {
-  inform_status BUSY "checking for supported architecture"
+
+  progress BUSY "checking for supported architecture"
 
   # check for non-Intel-based architecture here
   arch=$(uname --hardware-platform) # uname is non-portable, but we only target Ubuntu 20.04
@@ -525,59 +465,68 @@ function check_architecture() {
 
   fi
 
-  inform_status_clear DONE "checking for supported architecture"
+  progress_clear DONE "checking for supported architecture"
 }
 
 ###############################################################################
-# Download dependencies
+# check sha256sum
 ###############################################################################
-function download_dependencies() {
-  inform_status BUSY "downloading miniconda"
-  wget ${CONDA_INSTALLER_URL} -qO "${CONDA_INSTALLER}"
-  inform_status_clear DONE "downloading miniconda"
+function check_file_integrity() {
 
-  inform_status BUSY "checking sha256sum of ${CONDA_FILENAME}"
-  SHA256SUM_RESULT=$(printf "${CONDA_SHA256SUM} ${CONDA_INSTALLER}" | sha256sum -c)
-  if [ "${SHA256SUM_RESULT}" = "${CONDA_INSTALLER}: OK" ]; then
-    inform_status_clear DONE "checking miniconda sha256sum"
+  local checksum=$1
+  local file=$2
+
+  progress BUSY "checking sha256sum of ${file}"
+  SHA256SUM_RESULT=$(printf "%s %s" "$checksum" "$file" | sha256sum -c)
+
+  if [ "${SHA256SUM_RESULT}" = "${file}: OK" ]; then
+    progress_clear DONE "checking miniconda sha256sum"
   else
-    inform_status_clear FAIL "sha256sum check failed: ${CONDA_FILENAME}"
-    exit ${EXIT_FAILURE}
+    progress_clear FAIL "sha256sum check failed: ${file}"
+    exit $EXIT_FAILURE
   fi
 
-  inform_status BUSY "installing miniconda"
-  mkdir -p "${CONDA_INSTALL_DIR}" >/dev/null 2>&1
-  bash "${CONDA_INSTALLER}" -u -b -p "${CONDA_INSTALL_DIR}" >/dev/null 2>&1
-  $HOME/conda/bin/conda update -y -n base conda >/dev/null 2>&1
-  ln -s $HOME/conda/bin/conda /bin/conda >/dev/null 2>&1
-  inform_status_clear DONE "installing miniconda"
+}
 
-  inform_status BUSY "creating virtual environment: ${VENV_NAME}"
-  conda create --name ${VENV_NAME} python=${PYTHON_VERSION} >/dev/null 2>&1
-  inform_status_clear DONE "creating conda virtual environment: ${VENV_NAME}"
+###############################################################################
+# setup miniconda virtual environment
+###############################################################################
+function setup_virtual_environment() {
 
-  inform_status BUSY "initializing virtual environment: ${VENV_NAME}"
-  conda init bash >/dev/null 2>&1
-  inform_status_clear DONE "initializing virtual environment: ${VENV_NAME}"
+  progress BUSY "downloading miniconda"
+  wget ${CONDA_INSTALLER_URL} -qO "${CONDA_INSTALLER}"
+  progress_clear DONE "downloading miniconda"
 
-  inform_status BUSY "activating virtual environment: ${VENV_NAME}"
-  eval "$(conda shell.bash hook)" >/dev/null 2>&1
-  conda activate ${VENV_NAME} >/dev/null 2>&1
-  inform_status_clear DONE "activating virtual environment: ${VENV_NAME}"
+  check_file_integrity "$CONDA_SHA256SUM" "$CONDA_INSTALLER"
 
-  inform_status BUSY "configuring virtual environment: ${VENV_NAME}"
-  conda config --set auto_activate_base true --set always_yes yes --set changeps1 yes >/dev/null 2>&1
-  inform_status_clear DONE "configuring virtual environment: ${VENV_NAME}"
+  progress BUSY "setting up virtual environment"
 
-  inform_status BUSY "downloading virtual environment dependencies"
-  conda install conda >/dev/null 2>&1
-  conda install git >/dev/null 2>&1
-  conda install -c conda-forge ansible >/dev/null 2>&1
-  conda install pip >/dev/null 2>&1
-  inform_status_clear DONE "downloading virtual environment dependencies"
+  mkdir -p "$CONDA_INSTALL_DIR"
+  bash "$CONDA_INSTALLER" -u -b -p "$CONDA_INSTALL_DIR"
+  "$CONDA_INSTALL_DIR/bin/conda" update --yes --quiet --name base conda
+  ln -sf "$CONDA_INSTALL_DIR/bin/conda" /bin/conda
 
-  CONDA_DEFAULT_ENV=$(echo "$CONDA_DEFAULT_ENV")
-  CONDA_PREFIX=$(echo "$CONDA_PREFIX")
+  conda create --quiet --name "$VENV_NAME" python="$PYTHON_VERSION"
+  conda init --quiet bash
+
+  # activate virtual environment
+  eval "$(conda shell.bash hook)"
+  conda activate "$VENV_NAME"
+
+  # configure conda
+  conda config --set auto_activate_base true --set always_yes yes --set changeps1 yes
+
+  progress_clear DONE "setting up virtual environment"
+
+  progress BUSY "downloading virtual environment dependencies"
+  conda install --quiet conda
+  conda install --quiet git
+  conda install --quiet -c conda-forge ansible
+  conda install --quiet pip
+  progress_clear DONE "downloading virtual environment dependencies"
+
+  VIRTUAL_ENVIRONMENT=$CONDA_DEFAULT_ENV
+  VIRTUAL_ENVIRONMENT_FOLDER=$CONDA_PREFIX
 
 }
 
@@ -586,14 +535,12 @@ function download_dependencies() {
 ###############################################################################
 function handle_git_repository() {
 
-  echo -e -n "${BLUE}Checking for FreeTAKHub-Installation in home directory..."
-
   cd ~
 
   # check for FreeTAKHub-Installation repository
   if [[ ! -d ~/FreeTAKHub-Installation ]]; then
 
-    echo -e "NOT FOUND"
+    printf "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
     git clone ${REPO}
 
@@ -652,12 +599,12 @@ function generate_key_pair() {
 ###############################################################################
 function run_playbook() {
 
-  echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
+  echo $VIRTUAL_ENVIRONMENT
 
   if [[ -n "${CORE-}" ]]; then
-    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
+    ansible-playbook -u root -i localhost, --connection=local install_mainserver.yml
   else
-    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
+    ansible-playbook -u root -i localhost, --connection=local install_all.yml
   fi
 
 }
@@ -666,20 +613,19 @@ function run_playbook() {
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
 
-echo -e "-------------------------------------------------------------------------------"
-echo -e "INSTALLING FREE TAK SERVER"
+printf "INSTALLING FREE TAK SERVER"
+newline
+
 parse_params "${@}"
-setup_colors
 check_root
 identify_system
 identify_cloud
 identify_docker
+setup_virtual_environment
 
-download_dependencies
+handle_git_repository
+add_passwordless_ansible_execution
+generate_key_pair
+run_playbook
 
-# handle_git_repository
-# add_passwordless_ansible_execution
-# generate_key_pair
-# run_playbook
-
-inform_status DONE "SUCCESSFUL INSTALLATION"
+progress DONE "SUCCESSFUL INSTALLATION"
