@@ -14,4 +14,4 @@
   pip:
     name: "{{ fts_ui_pip_package_name }}"
     state: absent
-    executable: "{{ my_pip }}"
+    executable: pip

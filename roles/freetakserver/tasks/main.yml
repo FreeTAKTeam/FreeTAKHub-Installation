@@ -1,4 +1,9 @@
 ---
+- shell: echo $CONDA_DEFAULT_ENV
+  register: result
+
+- debug: var=result.stdout_lines
+
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
