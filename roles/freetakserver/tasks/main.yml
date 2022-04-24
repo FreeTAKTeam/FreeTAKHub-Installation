@@ -16,9 +16,9 @@
   set_fact:
     fts_python_sitepackages: "{{ my_sitepackages.stdout_lines[0] }}"
 
-- name: Print fts_ui_sitepackages
+- name: Print fts_python_sitepackages
   debug:
-    msg: "{{ fts_ui_sitepackages }}"
+    msg: "{{ fts_python_sitepackages }}"
 
 - name: Get sitepackages directory
   command: which pip
