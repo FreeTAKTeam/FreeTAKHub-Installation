@@ -9,4 +9,4 @@
 - name: "Install pip packages"
   pip:
     name: "{{ pip3_packages }}"
-    executable: "{{ my_pip }}"
+    executable: pip
