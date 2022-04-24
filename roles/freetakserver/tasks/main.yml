@@ -15,7 +15,7 @@
 
 - name: Setting sitepackages
   set_fact:
-    fts_python_sitepackages: "{{ sitepackage_dir.stdout_lines }}"
+    fts_python_sitepackages: "{{ sitepackage_dir.stdout_lines[0] }}"
 
 - name: Print fts_python_sitepackages
   debug:

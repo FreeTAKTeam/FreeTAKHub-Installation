@@ -12,7 +12,7 @@
 
 - name: Setting sitepackages
   set_fact:
-    fts_ui_sitepackages: "{{ sitepackage_dir.stdout_lines }}"
+    fts_ui_sitepackages: "{{ sitepackage_dir.stdout_lines[0] }}"
 
 - name: Print fts_ui_sitepackages
   debug:
