@@ -602,9 +602,9 @@ function run_playbook() {
   echo $VIRTUAL_ENVIRONMENT
 
   if [[ -n "${CORE-}" ]]; then
-    ansible-playbook -u root -i localhost, --connection=local install_mainserver.yml
+    ansible-playbook -u root -i localhost, --connection=local install_mainserver.yml -vvv
   else
-    ansible-playbook -u root -i localhost, --connection=local install_all.yml
+    ansible-playbook -u root -i localhost, --connection=local install_all.yml -vvv
   fi
 
 }
