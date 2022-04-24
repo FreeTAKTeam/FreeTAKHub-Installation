@@ -6,7 +6,7 @@
   include_vars: "FTSConfig.yml"
 
 - name: Get sitepackages directory
-  script: python_script.py
+  script: getsitepackages.py
   register: sitepackage_dir
 
 - name: Print sitepackages directory
