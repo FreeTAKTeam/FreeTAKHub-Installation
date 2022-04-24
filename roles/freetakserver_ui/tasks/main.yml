@@ -2,6 +2,22 @@
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
+- name: Get sitepackages directory
+  script: getsitepackages.py
+  register: sitepackage_dir
+
+- name: Print sitepackages directory
+  debug:
+    msg: "{{ sitepackage_dir.stdout_lines }}"
+
+- name: Setting sitepackages
+  set_fact:
+    fts_ui_sitepackages: "{{ sitepackage_dir.stdout_lines }}"
+
+- name: Print fts_ui_sitepackages
+  debug:
+    msg: "{{ fts_ui_sitepackages }}"
+
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 
