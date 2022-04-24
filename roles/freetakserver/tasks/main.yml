@@ -13,6 +13,14 @@
   debug:
     msg: "{{ sitepackage_dir.stdout_lines }}"
 
+- name: Setting sitepackages
+  set_fact:
+    fts_python_sitepackages: "{{ sitepackage_dir.stdout_lines[0] }}"
+
+- name: Print fts_python_sitepackages
+  debug:
+    msg: "{{ fts_python_sitepackages }}"
+
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 
