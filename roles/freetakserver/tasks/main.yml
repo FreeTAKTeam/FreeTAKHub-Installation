@@ -19,13 +19,13 @@
 
 - name: Set sitepackages
   set_fact:
-    fts_python_sitepackages: "{{ my_sitepackages.stdout_lines[0] }}"
+    my_sitepackages: "{{ my_sitepackages.stdout_lines[0] }}"
 
-- name: Print fts_python_sitepackages
+- name: Print my_sitepackages
   debug:
-    msg: "{{ fts_python_sitepackages }}"
+    msg: "{{ my_sitepackages }}"
 
-- name: Get sitepackages directory
+- name: Get pip directory
   command: which pip
   register: my_pip
 
