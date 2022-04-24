@@ -1,5 +1,6 @@
 ---
-- debug:
+- name: print out value
+  debug:
     msg: "{{ my_sitepackages }}/FreeTAKServer-UI/config.py"
 
 - name: Template config file
