@@ -8,38 +8,6 @@
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Get sitepackages directory
-  command: python -c 'import site; print(site.getsitepackages()[0])'
-  register: my_sitepackages
-
-- name: Print sitepackages directory
-  debug:
-    msg: "{{ my_sitepackages.stdout_lines }}"
-
-- name: Set sitepackages
-  set_fact:
-    my_sitepackages: "{{ my_sitepackages.stdout_lines}}"
-
-- name: Print my_sitepackages
-  debug:
-    msg: "{{ my_sitepackages }}"
-
-- name: Get pip directory
-  command: which pip
-  register: my_pip
-
-- name: Print pip directory
-  debug:
-    msg: "{{ my_pip }}"
-
-- name: Setting my_pip
-  set_fact:
-    my_pip: "{{ my_pip }}"
-
-- name: Print pip directory
-  debug:
-    msg: "{{ my_pip }}"
-
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 

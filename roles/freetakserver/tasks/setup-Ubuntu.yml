@@ -4,6 +4,4 @@
     name: "{{ fts_apt_dependencies | list }}"
 
 - name: "Install {{ fts_pip_package_name }}"
-  pip:
-    name: "{{ fts_pip_package_name }}"
-    executable: pip
+  shell: "conda run -n {{ VENV_NAME }} pip install -y {{ fts_pip_package_name }}"

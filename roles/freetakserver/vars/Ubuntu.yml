@@ -3,7 +3,7 @@ fts_config_path: /opt/FTSConfig.yaml
 
 fts_db_path: /opt/FreeTAKServer.db
 
-my_sitepackages: "/usr/local/lib/python{{ python3_version }}/dist-packages"
+my_sitepackages: "{{ CONDA_PREFIX }}/lib/python3.8/site-packages"
 
 fts_install_path: "{{ my_sitepackages }}/FreeTAKServer"
 

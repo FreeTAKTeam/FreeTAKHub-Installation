@@ -11,7 +11,4 @@
     state: absent
 
 - name: Uninstall
-  pip:
-    name: "{{ fts_ui_pip_package_name }}"
-    state: absent
-    executable: pip
+  shell: "conda run -n {{ VENV_NAME }} pip unininstall -y {{ fts_ui_pip_package_name }}"

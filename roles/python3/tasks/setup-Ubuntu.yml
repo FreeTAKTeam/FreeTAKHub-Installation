@@ -7,6 +7,5 @@
     name: "{{ python3_apt_packages }}"
 
 - name: "Install pip packages"
-  pip:
-    name: "{{ pip3_packages }}"
-    executable: pip
+  shell: "conda run -n {{ VENV_NAME }} pip install -y {{ item }}"
+  loop: "{{ pip3_packages }}"

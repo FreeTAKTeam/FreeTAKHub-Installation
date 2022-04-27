@@ -569,8 +569,8 @@ function handle_git_repository() {
   if [[ ! -d ~/FreeTAKHub-Installation ]]; then
 
     printf "NOT FOUND"
-    echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone ${REPO}
+    echo -e "Cloning the FreeTAKHub-Installation repository..."
+    conda run -n "$VENV_NAME" git clone ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -580,8 +580,8 @@ function handle_git_repository() {
 
     cd ~/FreeTAKHub-Installation
 
-    echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull
+    echo -e "Pulling latest from the FreeTAKHub-Installation repository..."
+    conda run -n "$VENV_NAME" git pull
 
   fi
 
@@ -627,10 +627,12 @@ function generate_key_pair() {
 ###############################################################################
 function run_playbook() {
 
-  if [[ -n "${CORE-}" ]]; then
-    ansible-playbook -u root -i localhost, --connection=local install_mainserver.yml -vvv
+  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet --channel conda-forge ansible >/dev/null 2>&1
+
+  if [[ -n "${ANSIBLE-}" ]]; then
+    conda run -n "$VENV_NAME" ansible-playbook -u "$SUDO_USER" -i localhost, --connection=local -e "CONDA_PREFIX=$CONDA_PREFIX" -e "VENV_NAME=$VENV_NAME" install_mainserver.yml -vvv
   else
-    ansible-playbook -u root -i localhost, --connection=local install_all.yml -vvv
+    conda run -n "$VENV_NAME" ansible-playbook -u "$SUDO_USER" -i localhost, --connection=local -e "CONDA_PREFIX=$CONDA_PREFIX" -e "VENV_NAME=$VENV_NAME" install_all.yml -vvv
   fi
 
 }
@@ -651,8 +653,6 @@ setup_virtual_environment
 
 if [[ -n "${ANSIBLE-}" ]]; then
   handle_git_repository
-  add_passwordless_ansible_execution
-  generate_key_pair
   run_playbook
 
 else
