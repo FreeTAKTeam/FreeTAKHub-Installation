@@ -10,6 +10,13 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 trap ctrl_c INT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+WEBMAP_VERSION="0.2.5"
+WEBMAP_FILENAME="FTH-webmap-linux-$WEBMAP_VERSION.zip"
+WEBMAP_EXECUTABLE="FTH-webmap-linux-$WEBMAP_VERSION"
+WEBMAP_URL="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$WEBMAP_VERSION/FTH-webmap-linux-$WEBMAP_VERSION.zip"
+WEBMAP_ZIP=$(mktemp --suffix ".$WEBMAP_FILENAME")
+WEBMAP_INSTALL_DIR="/usr/local/bin"
+
 CONDA_FILENAME="Miniconda3-py38_4.11.0-Linux-x86_64.sh"
 CONDA_INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-py38_4.11.0-Linux-x86_64.sh"
 CONDA_SHA256SUM="4bb91089ecc5cc2538dece680bfe2e8192de1901e5e420f63d4e78eb26b0ac1a"
@@ -77,8 +84,7 @@ Available options:
 
 -h, --help       Print help
 -v, --verbose    Print script debug info
--c, --check      Check for compatibility issues while installing
-    --core       Install FreeTAKServer, UI, and Web Map
+-a, --ansible    Install with ansible
 USAGE_TEXT
   exit
 }
@@ -98,6 +104,7 @@ function cleanup() {
 
 function _cleanup() {
   rm -f "${CONDA_INSTALLER}"
+  rm -f "${WEBMAP_ZIP}"
 }
 
 ###############################################################################
@@ -178,38 +185,20 @@ function progress() {
 ###############################################################################
 # Parse parameters
 ###############################################################################
-
-# verbose by default
-# v_apt="-qq"
-# v_bash=/dev/null
 function parse_params() {
   progress BUSY "parsing input parameters"
 
   while true; do
     case "${1-}" in
 
+    --ansible | -a)
+      ANSIBLE=1
+      shift
+      ;;
+
     --help | -h)
       usage
       exit 0
-      shift
-      ;;
-
-    --verbose | -v)
-      set -x
-
-      NO_COLOR=1
-      # GIT_TRACE=true
-      # GIT_CURL_VERBOSE=true
-      # GIT_SSH_COMMAND="ssh -vvv"
-      # v_ansible="-vv"
-      # unset v_apt
-      # unset v_bash
-
-      shift
-      ;;
-
-    --check | -c)
-      CHECK=1
       shift
       ;;
 
@@ -218,13 +207,13 @@ function parse_params() {
       shift
       ;;
 
-    --dev-test)
-      TEST=1
+    --no-color)
+      NO_COLOR=1
       shift
       ;;
 
-    --no-color)
-      NO_COLOR=1
+    --verbose | -v)
+      set -x
       shift
       ;;
 
@@ -514,7 +503,8 @@ function setup_virtual_environment() {
 
   # set permissions on conda directory
   chgrp -R fts "$CONDA_INSTALL_DIR" >/dev/null
-  chgrp fts "/usr/local/bin/conda" >/dev/null
+  # chgrp fts "/usr/local/bin/conda" >/dev/null
+  chgrp fts "/usr/local/bin" >/dev/null
   chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR" >/dev/null
 
   # symlink conda executable
@@ -539,16 +529,32 @@ function setup_virtual_environment() {
   progress_clear DONE "setting up virtual environment"
 
   progress BUSY "downloading dependencies"
-  sudo -i -u "$SUDO_USER" conda install --quiet pip >/dev/null 2>&1
+  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet pip >/dev/null 2>&1
+  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet --channel conda-forge unzip >/dev/null 2>&1
   progress_clear DONE "downloading dependencies"
+
+  # fix permissions
+  chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR"
+
+}
+
+###############################################################################
+# Install FTS via shell
+###############################################################################
+function fts_shell_install() {
 
   progress BUSY "installing fts core"
   sudo -i -u "$SUDO_USER" pip install --quiet freetakserver >/dev/null 2>&1
   sudo -i -u "$SUDO_USER" pip install --quiet freetakserver[ui] >/dev/null 2>&1
-  progress_clear DONE "installing fts core"
+  $(wget $WEBMAP_URL -qO "$WEBMAP_ZIP")
+  conda run -n "$VENV_NAME" unzip -o "$WEBMAP_ZIP"
+  mv "$WEBMAP_EXECUTABLE" "FTH-webmap-linux"
+  chmod +x "FTH-webmap-linux"
+  chown $SUDO_USER:$GROUP_NAME "FTH-webmap-linux"
+  mv "FTH-webmap-linux" "$WEBMAP_INSTALL_DIR/FTH-webmap-linux"
+  rm "webMAP_config.json"
 
-  # fix permissions
-  chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR"
+  progress_clear DONE "installing fts core"
 
 }
 
@@ -619,20 +625,20 @@ function generate_key_pair() {
 ###############################################################################
 # Run Ansible playbook to install
 ###############################################################################
-# function run_playbook() {
+function run_playbook() {
 
-#   if [[ -n "${CORE-}" ]]; then
-#     ansible-playbook -u root -i localhost, --connection=local install_mainserver.yml -vvv
-#   else
-#     ansible-playbook -u root -i localhost, --connection=local install_all.yml -vvv
-#   fi
+  if [[ -n "${CORE-}" ]]; then
+    ansible-playbook -u root -i localhost, --connection=local install_mainserver.yml -vvv
+  else
+    ansible-playbook -u root -i localhost, --connection=local install_all.yml -vvv
+  fi
 
-# }
+}
 
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
-
+start=$(date +%s)
 printf "INSTALLING FREE TAK SERVER"
 newline
 
@@ -643,9 +649,15 @@ identify_cloud
 identify_docker
 setup_virtual_environment
 
-# handle_git_repository
-# add_passwordless_ansible_execution
-# generate_key_pair
-# run_playbook
+if [[ -n "${ANSIBLE-}" ]]; then
+  handle_git_repository
+  add_passwordless_ansible_execution
+  generate_key_pair
+  run_playbook
 
-progress DONE "SUCCESSFUL INSTALLATION"
+else
+  fts_shell_install
+fi
+end=$(date +%s)
+
+progress DONE "Successfully installed in $((end - start)) seconds."
