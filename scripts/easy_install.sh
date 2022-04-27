@@ -10,14 +10,13 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 trap ctrl_c INT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
-
 CONDA_FILENAME="Miniconda3-py38_4.11.0-Linux-x86_64.sh"
 CONDA_INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-py38_4.11.0-Linux-x86_64.sh"
 CONDA_SHA256SUM="4bb91089ecc5cc2538dece680bfe2e8192de1901e5e420f63d4e78eb26b0ac1a"
 CONDA_INSTALLER=$(mktemp --suffix ".$CONDA_FILENAME")
-CONDA_INSTALL_DIR="${HOME}/conda"
 
 VENV_NAME="fts"
+GROUP_NAME="fts"
 PYTHON_VERSION=3.8
 
 ###############################################################################
@@ -493,6 +492,9 @@ function check_file_integrity() {
 ###############################################################################
 function setup_virtual_environment() {
 
+  HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+  CONDA_INSTALL_DIR="$HOME/conda"
+
   progress BUSY "downloading miniconda"
   wget ${CONDA_INSTALLER_URL} -qO "${CONDA_INSTALLER}"
   progress_clear DONE "downloading miniconda"
@@ -502,14 +504,32 @@ function setup_virtual_environment() {
   progress BUSY "setting up virtual environment"
 
   mkdir -p "$CONDA_INSTALL_DIR"
-  bash "$CONDA_INSTALLER" -u -b -p "$CONDA_INSTALL_DIR"
-  "$CONDA_INSTALL_DIR/bin/conda" update --yes --quiet --name base conda
-  ln -sf "$CONDA_INSTALL_DIR/bin/conda" /bin/conda
 
-  conda create --quiet --name "$VENV_NAME" python="$PYTHON_VERSION"
-  conda init --quiet bash
+  # install conda
+  bash "$CONDA_INSTALLER" -u -b -p "$CONDA_INSTALL_DIR"
+
+  # create group and add user to it
+  groupadd -f "$GROUP_NAME"
+  gpasswd -a "$SUDO_USER" "$GROUP_NAME"
+
+  # # set permissions on conda directory
+  chgrp -R fts "$CONDA_INSTALL_DIR"
+  chgrp fts "/usr/local/bin/conda"
+  chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR"
+
+  # symlink conda executable
+  ln -sf "$CONDA_INSTALL_DIR/bin/conda" "/usr/local/bin/conda"
+
+  # shellcheck source="$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
+  source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
+
+  sudo -i -u "$SUDO_USER" conda update --yes --quiet --name base conda
+
+  # create virtual environment
+  sudo -i -u "$SUDO_USER" conda create --quiet --name "$VENV_NAME" python="$PYTHON_VERSION"
 
   # activate virtual environment
+  conda init --quiet bash
   eval "$(conda shell.bash hook)"
   conda activate "$VENV_NAME"
 
@@ -519,15 +539,22 @@ function setup_virtual_environment() {
   progress_clear DONE "setting up virtual environment"
 
   progress BUSY "downloading virtual environment dependencies"
-  conda install --quiet conda
-  conda install --quiet git
-  conda install --quiet -c conda-forge ansible
-  conda install --quiet pip
+  sudo -i -u "$SUDO_USER" conda install --quiet conda
+  sudo -i -u "$SUDO_USER" conda install --quiet git
+  sudo -i -u "$SUDO_USER" conda install --quiet -c conda-forge ansible
+  sudo -i -u "$SUDO_USER" conda install --quiet pip
+  sudo -i -u "$SUDO_USER" pip install freetakserver
+  sudo -i -u "$SUDO_USER" pip install freetakserver[ui]
+
   progress_clear DONE "downloading virtual environment dependencies"
 
   VIRTUAL_ENVIRONMENT=$CONDA_DEFAULT_ENV
   VIRTUAL_ENVIRONMENT_FOLDER=$CONDA_PREFIX
 
+  # fix permissions
+  chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR"
+
+  echo "$VIRTUAL_ENVIRONMENT"
 }
 
 ###############################################################################
@@ -597,17 +624,15 @@ function generate_key_pair() {
 ###############################################################################
 # Run Ansible playbook to install
 ###############################################################################
-function run_playbook() {
+# function run_playbook() {
 
-  echo $VIRTUAL_ENVIRONMENT
+#   if [[ -n "${CORE-}" ]]; then
+#     ansible-playbook -u root -i localhost, --connection=local install_mainserver.yml -vvv
+#   else
+#     ansible-playbook -u root -i localhost, --connection=local install_all.yml -vvv
+#   fi
 
-  if [[ -n "${CORE-}" ]]; then
-    ansible-playbook -u root -i localhost, --connection=local install_mainserver.yml -vvv
-  else
-    ansible-playbook -u root -i localhost, --connection=local install_all.yml -vvv
-  fi
-
-}
+# }
 
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
@@ -623,9 +648,9 @@ identify_cloud
 identify_docker
 setup_virtual_environment
 
-handle_git_repository
-add_passwordless_ansible_execution
-generate_key_pair
-run_playbook
+# handle_git_repository
+# add_passwordless_ansible_execution
+# generate_key_pair
+# run_playbook
 
 progress DONE "SUCCESSFUL INSTALLATION"
