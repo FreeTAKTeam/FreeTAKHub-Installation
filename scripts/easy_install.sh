@@ -496,65 +496,60 @@ function setup_virtual_environment() {
   CONDA_INSTALL_DIR="$HOME/conda"
 
   progress BUSY "downloading miniconda"
-  wget ${CONDA_INSTALLER_URL} -qO "${CONDA_INSTALLER}"
+  result=$(wget ${CONDA_INSTALLER_URL} -qO "${CONDA_INSTALLER}")
   progress_clear DONE "downloading miniconda"
 
-  check_file_integrity "$CONDA_SHA256SUM" "$CONDA_INSTALLER"
+  check_file_integrity "$CONDA_SHA256SUM" "$CONDA_INSTALLER" >/dev/null
 
   progress BUSY "setting up virtual environment"
 
-  mkdir -p "$CONDA_INSTALL_DIR"
+  mkdir -p "$CONDA_INSTALL_DIR" >/dev/null
 
   # install conda
-  bash "$CONDA_INSTALLER" -u -b -p "$CONDA_INSTALL_DIR"
+  bash "$CONDA_INSTALLER" -u -b -p "$CONDA_INSTALL_DIR" >/dev/null
 
   # create group and add user to it
-  groupadd -f "$GROUP_NAME"
-  gpasswd -a "$SUDO_USER" "$GROUP_NAME"
+  groupadd -f "$GROUP_NAME" >/dev/null
+  gpasswd -a "$SUDO_USER" "$GROUP_NAME" >/dev/null
 
-  # # set permissions on conda directory
-  chgrp -R fts "$CONDA_INSTALL_DIR"
-  chgrp fts "/usr/local/bin/conda"
-  chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR"
+  # set permissions on conda directory
+  chgrp -R fts "$CONDA_INSTALL_DIR" >/dev/null
+  chgrp fts "/usr/local/bin/conda" >/dev/null
+  chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR" >/dev/null
 
   # symlink conda executable
-  ln -sf "$CONDA_INSTALL_DIR/bin/conda" "/usr/local/bin/conda"
+  ln -sf "$CONDA_INSTALL_DIR/bin/conda" "/usr/local/bin/conda" >/dev/null
 
   # shellcheck source="$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
-  source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
+  source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh" >/dev/null
 
-  sudo -i -u "$SUDO_USER" conda update --yes --quiet --name base conda
+  sudo -i -u "$SUDO_USER" conda update --yes --quiet --name base conda >/dev/null
 
   # create virtual environment
-  sudo -i -u "$SUDO_USER" conda create --quiet --name "$VENV_NAME" python="$PYTHON_VERSION"
+  sudo -i -u "$SUDO_USER" conda create --quiet --name "$VENV_NAME" python="$PYTHON_VERSION" >/dev/null
 
   # activate virtual environment
-  conda init --quiet bash
-  eval "$(conda shell.bash hook)"
-  conda activate "$VENV_NAME"
+  conda init --quiet bash >/dev/null
+  eval "$(conda shell.bash hook)" >/dev/null
+  conda activate "$VENV_NAME" >/dev/null
 
   # configure conda
-  conda config --set auto_activate_base true --set always_yes yes --set changeps1 yes
+  conda config --set auto_activate_base true --set always_yes yes --set changeps1 yes >/dev/null
 
   progress_clear DONE "setting up virtual environment"
 
-  progress BUSY "downloading virtual environment dependencies"
-  sudo -i -u "$SUDO_USER" conda install --quiet conda
-  sudo -i -u "$SUDO_USER" conda install --quiet git
-  sudo -i -u "$SUDO_USER" conda install --quiet -c conda-forge ansible
-  sudo -i -u "$SUDO_USER" conda install --quiet pip
-  sudo -i -u "$SUDO_USER" pip install freetakserver
-  sudo -i -u "$SUDO_USER" pip install freetakserver[ui]
+  progress BUSY "downloading dependencies"
+  sudo -i -u "$SUDO_USER" conda install --quiet pip >/dev/null 2>&1
+  progress_clear DONE "downloading dependencies"
 
-  progress_clear DONE "downloading virtual environment dependencies"
-
-  VIRTUAL_ENVIRONMENT=$CONDA_DEFAULT_ENV
-  VIRTUAL_ENVIRONMENT_FOLDER=$CONDA_PREFIX
+  progress BUSY "installing fts core"
+  sudo -i -u "$SUDO_USER" pip install --quiet freetakserver >/dev/null 2>&1
+  sudo -i -u "$SUDO_USER" pip install --quiet freetakserver[ui] >/dev/null 2>&1
+  progress_clear DONE "installing fts core"
 
   # fix permissions
   chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR"
 
-  echo "$VIRTUAL_ENVIRONMENT"
 }
 
 ###############################################################################
