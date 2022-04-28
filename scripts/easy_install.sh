@@ -11,8 +11,6 @@ trap ctrl_c INT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
 
-USER_EXEC="sudo -i -u $SUDO_USER"
-
 IPV4=$(dig @resolver4.opendns.com myip.opendns.com +short -4)
 IP_ARG="ansible_host=$IPV4"
 
@@ -25,8 +23,8 @@ CONDA_INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-py38_4.11.0-
 CONDA_SHA256SUM="4bb91089ecc5cc2538dece680bfe2e8192de1901e5e420f63d4e78eb26b0ac1a"
 CONDA_INSTALLER=$(mktemp --suffix ".$CONDA_FILENAME")
 
-CONDA="sudo -i -u $SUDO_USER conda"
-CONDA_RUN="sudo -i -u $SUDO_USER conda run -n $VENV_NAME"
+CONDA="conda"
+CONDA_RUN="conda run -n $VENV_NAME"
 
 WEBMAP_NAME="FTH-webmap-linux"
 WEBMAP_VERSION="0.2.5"
@@ -40,7 +38,6 @@ WEBMAP_CONFIG_FILE="/tmp/webMAP_config.json"
 
 UNIT_FILES_DIR="/lib/systemd/system"
 
-PYTHON_SITEPACKAGES="$CONDA_INSTALL_DIR/envs/$VENV_NAME/lib/python${PYTHON_VERSION}/site-packages"
 FTS_PACKAGE="FreeTAKServer[ui]"
 
 ###############################################################################
@@ -563,7 +560,7 @@ function setup_virtual_environment() {
   groupadd -f "$GROUP_NAME"
 
   # add user to newly created group
-  gpasswd -a "$SUDO_USER" "$GROUP_NAME"
+  usermod -a -G "$GROUP_NAME" "$SUDO_USER"
 
   # set permissions
   chown -R "$SUDO_USER":"$SUDO_USER" "$CONDA_INSTALL_DIR"
@@ -573,7 +570,7 @@ function setup_virtual_environment() {
   ln -sf "$CONDA_INSTALL_DIR/bin/conda" "/usr/local/bin/conda"
 
   # shellcheck source="$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
-  $USER_EXEC source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
+  source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
 
   # update conda
   $CONDA update --yes --name base conda
@@ -586,8 +583,9 @@ function setup_virtual_environment() {
   eval "$(conda shell.bash hook)"
   conda activate "$VENV_NAME"
 
-  # get location of virtual environment's python
+  # set python variables
   PYTHON_EXEC=$($CONDA_RUN which python${PYTHON_VERSION})
+  PYTHON_SITEPACKAGES="$CONDA_INSTALL_DIR/envs/$VENV_NAME/lib/python${PYTHON_VERSION}/site-packages"
 
   progress_clear DONE "setting up virtual environment"
 
@@ -612,8 +610,6 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-StandardOutput=append:/var/log/${name}/${name}-stdout.log
-StandardError=append:/var/log/${name}/${name}-stderr.log
 ExecStart=$command
 
 [Install]
@@ -631,10 +627,10 @@ function enable_and_start_service() {
   local name="$1"
   local unit_file="$2"
 
-  systemctl daemon-reload
-  systemctl enable "$unit_file" 2>&1
+  systemctl daemon-reload 2>&1
+  systemctl enable "$unit_file"
 
-  chgrp -R "$GROUP_NAME" "/var/log"
+  chgrp -R "$GROUP_NAME" "/var/log/journal"
 
 }
 
@@ -725,7 +721,7 @@ function fts_shell_install() {
   chgrp -R "$GROUP_NAME" /var/log
 
   progress BUSY "configuring fts to autostart"
-  local startup_command="$PYTHON_EXEC -m ${PYTHON_SITEPACKAGES}/FreeTAKServer.controllers.services.FTS"
+  local startup_command="$PYTHON_EXEC -m $PYTHON_SITEPACKAGES/FreeTAKServer.controllers.services.FTS"
   setup_service "fts" "$startup_command"
   progress_clear DONE "setting up fts"
 
