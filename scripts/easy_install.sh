@@ -585,7 +585,6 @@ function setup_virtual_environment() {
 
   # set python variables
   PYTHON_EXEC=$($CONDA_RUN which python${PYTHON_VERSION})
-  PYTHON_SITEPACKAGES="$CONDA_INSTALL_DIR/envs/$VENV_NAME/lib/python${PYTHON_VERSION}/site-packages"
 
   progress_clear DONE "setting up virtual environment"
 
@@ -599,7 +598,18 @@ function setup_service() {
   local name=$1
   local command=$2
   local unit_file="${1}.service"
+  local script="${1}.sh"
 
+  # create launch script
+  cat >"${script}" <<EOL
+#!/bin/bash
+
+source $/etc/profile.d/conda.sh
+conda activate $VENV_NAME
+$command
+EOL
+
+  # create unit file
   cat >"$unit_file" <<EOL
 [Unit]
 Description=$name service
@@ -610,7 +620,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart=$command
+ExecStart=$UNIT_FILES_DIR/$script
 
 [Install]
 WantedBy=multi-user.target
@@ -627,7 +637,7 @@ function enable_and_start_service() {
   local name="$1"
   local unit_file="$2"
 
-  systemctl daemon-reload 2>&1
+  systemctl daemon-reload >/dev/null 2>&1
   systemctl enable "$unit_file"
 
   chgrp -R "$GROUP_NAME" "/var/log/journal"
@@ -721,7 +731,7 @@ function fts_shell_install() {
   chgrp -R "$GROUP_NAME" /var/log
 
   progress BUSY "configuring fts to autostart"
-  local startup_command="$PYTHON_EXEC -m $PYTHON_SITEPACKAGES/FreeTAKServer.controllers.services.FTS"
+  local startup_command="$PYTHON_EXEC -m FreeTAKServer.controllers.services.FTS"
   setup_service "fts" "$startup_command"
   progress_clear DONE "setting up fts"
 
