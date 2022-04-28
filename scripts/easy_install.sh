@@ -12,7 +12,9 @@ trap ctrl_c INT
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
 
 IPV4=$(dig @resolver4.opendns.com myip.opendns.com +short -4)
+
 IP_ARG="ansible_host=$IPV4"
+LOCALHOST="127.0.0.1"
 
 GROUP_NAME="fts"
 VENV_NAME="fts"
@@ -34,11 +36,55 @@ WEBMAP_URL="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$WEBMAP
 WEBMAP_SHA256SUM="11afcde545cc4c2119c0ff7c89d23ebff286c99c6e0dfd214eae6e16760d6723"
 WEBMAP_INSTALL_DIR="/usr/local/bin"
 WEBMAP_CONFIG_FILE="/tmp/webMAP_config.json"
-# WEBMAP_ZIP=$(mktemp --suffix ".$WEBMAP_FILENAME")
 
 UNIT_FILES_DIR="/lib/systemd/system"
 
 FTS_PACKAGE="FreeTAKServer[ui]"
+
+###############################################################################
+# fts yaml file
+###############################################################################
+FTS_YAML_FILE=""
+cat >"$FTS_YAML_FILE" <<EOL
+System:
+  #FTS_DATABASE_TYPE: SQLite
+  FTS_CONNECTION_MESSAGE: Welcome to FreeTAKServer {MainConfig.version}. The Parrot is not dead. It's just resting
+  #FTS_OPTIMIZE_API: True
+  #FTS_MAINLOOP_DELAY: 1
+Addresses:
+  #FTS_COT_PORT: 8087
+  #FTS_SSLCOT_PORT: 8089
+  FTS_DP_ADDRESS: $IPV4
+  FTS_USER_ADDRESS: $IPV4
+  #FTS_API_PORT: 19023
+  #FTS_FED_PORT: 9000
+  #FTS_API_ADDRESS: $IPV4
+FileSystem:
+  FTS_DB_PATH: /opt/FreeTAKServer.db
+  #FTS_COT_TO_DB: True
+  FTS_MAINPATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer
+  #FTS_CERTS_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs
+  #FTS_EXCHECK_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck
+  #FTS_EXCHECK_TEMPLATE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck/template
+  #FTS_EXCHECK_CHECKLIST_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck/checklist
+  #FTS_DATAPACKAGE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/FreeTAKServerDataPackageFolder
+  #FTS_LOGFILE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/Logs
+Certs:
+  #FTS_SERVER_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key
+  #FTS_SERVER_PEMDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.pem
+  #FTS_TESTCLIENT_PEMDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/Client.pem
+  #FTS_TESTCLIENT_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/Client.key
+  #FTS_UNENCRYPTED_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key.unencrypted
+  #FTS_SERVER_P12DIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.p12
+  #FTS_CADIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/ca.pem
+  #FTS_CAKEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/ca.key
+  #FTS_FEDERATION_CERTDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.pem
+  #FTS_FEDERATION_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key
+  #FTS_CRLDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/FTS_CRL.json
+  #FTS_FEDERATION_KEYPASS: demopassfed
+  #FTS_CLIENT_CERT_PASSWORD: demopasscert
+  #FTS_WEBSOCKET_KEY: YourWebsocketKey
+EOL
 
 ###############################################################################
 # SUPPORTED OS VARIABLES
@@ -597,22 +643,20 @@ function setup_service() {
 
   local name=$1
   local command=$2
-  local unit_file="${1}.service"
-  local script="${1}.sh"
 
   # create launch script
-  cat >"${script}" <<EOL
+  cat >"${name}.sh" <<EOL
 #!/bin/bash
 
-source $/etc/profile.d/conda.sh
-conda activate $VENV_NAME
-$command
+source "$CONDA_INSTALL_DIR"/etc/profile.d/conda.sh
+conda activate "$VENV_NAME"
+"$command"
 EOL
 
   # create unit file
-  cat >"$unit_file" <<EOL
+  cat >"${name}.service" <<EOL
 [Unit]
-Description=$name service
+Description=${name} service
 After=network.target
 StartLimitIntervalSec=0
 
@@ -620,15 +664,19 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart=$UNIT_FILES_DIR/$script
+ExecStart=${UNIT_FILES_DIR}/${name}.sh
 
 [Install]
 WantedBy=multi-user.target
 EOL
 
-  chgrp "$GROUP_NAME" "$unit_file"
-  mv "$unit_file" "$UNIT_FILES_DIR/$unit_file"
-  enable_and_start_service "$name" "$unit_file"
+  chgrp "$GROUP_NAME" "${name}.service"
+  chgrp "$GROUP_NAME" "${name}.sh"
+
+  mv -f "${name}.sh" "$UNIT_FILES_DIR/$script"
+  mv -f "${name}.service" "$UNIT_FILES_DIR/$unit_file"
+
+  enable_and_start_service "$name" "${name}.service"
 
 }
 
@@ -638,9 +686,7 @@ function enable_and_start_service() {
   local unit_file="$2"
 
   systemctl daemon-reload >/dev/null 2>&1
-  systemctl enable "$unit_file"
-
-  chgrp -R "$GROUP_NAME" "/var/log/journal"
+  systemctl enable "$name"
 
 }
 
@@ -688,17 +734,31 @@ function run_playbook() {
   fi
 }
 
+function replace() {
+  local file=$1
+  local search=$2
+  local replace=$3
+  sed -i "s/$search/$replace/g" "$file"
+
+}
+
 ###############################################################################
 # Install FTS via shell
 ###############################################################################
 function fts_shell_install() {
 
   progress BUSY "downloading fts dependencies"
-  $CONDA install --name "$VENV_NAME" pip unzip flask lxml pathlib tabulate sqlalchemy setuptools Flask-SQLAlchemy
+  $CONDA install --name "$VENV_NAME" "pip unzip flask lxml pathlib tabulate sqlalchemy setuptools Flask-SQLAlchemy"
   progress_clear DONE "downloading fts dependencies"
 
-  progress BUSY "installing fts"
-  $CONDA_RUN pip3 install "$FTS_PACKAGE"
+  progress BUSY "setting up fts"
+  sudo -i -u "$SUDO_USER" $CONDA_RUN pip3 install "$FTS_PACKAGE"
+
+  # change first start to false
+  local search="    first_start = True"
+  local replace="    first_start = False"
+  replace "$WEBMAP_CONFIG_FILE" "$search" "$replace"
+
   progress_clear DONE "setting up fts"
 
   progress BUSY "downloading webmap"
@@ -721,7 +781,7 @@ function fts_shell_install() {
   # configure ip in webMAP_config.json
   local search="\"FTH_FTS_URL\": \"204.48.30.216\","
   local replace="\"FTH_FTS_URL\": \"$IPV4\","
-  sed -i "s/$search/$replace/g" "$WEBMAP_CONFIG_FILE"
+  replace "$WEBMAP_CONFIG_FILE" "$search" "$replace"
 
   chgrp "$GROUP_NAME" "$WEBMAP_CONFIG_FILE"
   mv -f "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
@@ -748,7 +808,6 @@ function install_fts() {
   else
     fts_shell_install
   fi
-
 }
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
