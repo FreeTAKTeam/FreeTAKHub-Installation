@@ -9,28 +9,40 @@ set -o pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 trap ctrl_c INT
 
+REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+
+USER_EXEC="sudo -i -u $SUDO_USER"
+
 IPV4=$(dig @resolver4.opendns.com myip.opendns.com +short -4)
 IP_ARG="ansible_host=$IPV4"
 
-REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
-
-WEBMAP_VERSION="0.2.5"
-WEBMAP_NAME="FTH-webmap-linux"
-WEBMAP_FILENAME="$WEBMAP_NAME-$WEBMAP_VERSION.zip"
-WEBMAP_EXECUTABLE="$WEBMAP_NAME-$WEBMAP_VERSION"
-WEBMAP_URL="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$WEBMAP_VERSION/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
-WEBMAP_ZIP=$(mktemp --suffix ".$WEBMAP_FILENAME")
-WEBMAP_INSTALL_DIR="/usr/local/bin"
-WEBMAP_CONFIG_FILE="webMAP_config.json"
+GROUP_NAME="fts"
+VENV_NAME="fts"
+PYTHON_VERSION=3.8
 
 CONDA_FILENAME="Miniconda3-py38_4.11.0-Linux-x86_64.sh"
 CONDA_INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-py38_4.11.0-Linux-x86_64.sh"
 CONDA_SHA256SUM="4bb91089ecc5cc2538dece680bfe2e8192de1901e5e420f63d4e78eb26b0ac1a"
 CONDA_INSTALLER=$(mktemp --suffix ".$CONDA_FILENAME")
 
-VENV_NAME="fts"
-GROUP_NAME="fts"
-PYTHON_VERSION=3.8
+CONDA="sudo -i -u $SUDO_USER conda"
+CONDA_RUN="sudo -i -u $SUDO_USER conda run -n $VENV_NAME"
+
+WEBMAP_NAME="FTH-webmap-linux"
+WEBMAP_VERSION="0.2.5"
+WEBMAP_FILENAME="$WEBMAP_NAME-$WEBMAP_VERSION.zip"
+WEBMAP_EXECUTABLE="$WEBMAP_NAME-$WEBMAP_VERSION"
+WEBMAP_URL="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$WEBMAP_VERSION/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
+WEBMAP_SHA256SUM="11afcde545cc4c2119c0ff7c89d23ebff286c99c6e0dfd214eae6e16760d6723"
+WEBMAP_INSTALL_DIR="/usr/local/bin"
+WEBMAP_CONFIG_FILE="webMAP_config.json"
+WEBMAP_ZIP=$(mktemp --suffix ".$WEBMAP_FILENAME")
+
+UNIT_FILES_DIR="/lib/systemd/system"
+
+PYTHON_SITEPACKAGES="$CONDA_INSTALL_DIR/envs/$VENV_NAME/lib/python${PYTHON_VERSION}/site-packages"
+FTS_PACKAGE="freetakserver"
+FTS_UI_PACKAGE="freetakserver[ui]"
 
 ###############################################################################
 # SUPPORTED OS VARIABLES
@@ -73,8 +85,10 @@ clear() {
 }
 
 progress_clear() {
-  clear
-  progress "${1}" "${2}"
+  if [[ "${PROGRESS_MSG-}" = true ]]; then
+    clear
+    progress "${1}" "${2}"
+  fi
 }
 
 ###############################################################################
@@ -93,8 +107,8 @@ Available options:
 -h, --help       Print help
 -v, --verbose    Print script debug info
 -a, --ansible    Install with ansible
--l, --log        create fts.log to log installation (in running directory)
-    --local      use localhost (default is public ip)
+-l, --log        Create fts.log to log installation (in running directory)
+    --local      Use localhost (default is public ip)
 USAGE_TEXT
   exit
 }
@@ -107,6 +121,7 @@ function setup_log() {
   exec 3>&1 4>&2
   trap 'exec 2>&4 1>&3' 0 1 2 3
   exec 1>fts.log 2>&1
+  # TODO: tail -f fts.log
 
 }
 
@@ -115,7 +130,7 @@ function setup_log() {
 ###############################################################################
 function cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
-  _cleanup
+  # _cleanup
   die
 }
 
@@ -177,22 +192,16 @@ function die() {
 ###############################################################################
 # STATUS VARIABLES
 ###############################################################################
-declare -i EXIT_SUCCESS=0
-declare -i EXIT_FAILURE=1
-FOREGROUND="\033[39m"
-NOFORMAT="\033[0m"
-RED="\033[1;31m"
-GREEN="\033[1;32m"
-YELLOW='\033[1;33m'
-BLUE='\033[1;34m'
+EXIT_SUCCESS=0
+EXIT_FAILURE=1
 
 declare -A STATUS_COLOR=(
-  [DONE]=$GREEN
-  [FAIL]=$RED
-  [INFO]=$FOREGROUND
-  [WARN]=$YELLOW
-  [BUSY]=$YELLOW
-  [EXIT]=$FOREGROUND
+  [DONE]=${GREEN-}
+  [FAIL]=${RED-}
+  [INFO]=${FOREGROUND-}
+  [WARN]=${YELLOW-}
+  [BUSY]=${YELLOW-}
+  [EXIT]=${FOREGROUND-}
 )
 
 declare -A STATUS_TEXT=(
@@ -205,15 +214,21 @@ declare -A STATUS_TEXT=(
 )
 
 function progress() {
-
-  echo -e "[  ${STATUS_COLOR[$1]}${STATUS_TEXT[$1]}${NOFORMAT}  ] ${2}"
-
+  if [[ "${PROGRESS_MSG-}" = true ]]; then
+    echo -e "[  ${STATUS_COLOR[$1]}${STATUS_TEXT[$1]}${NOFORMAT}  ] ${2}"
+  fi
 }
 
 ###############################################################################
 # Parse parameters
 ###############################################################################
 function parse_params() {
+
+  # setup console colors
+  color
+
+  PROGRESS_MSG=true
+
   while true; do
     case "${1-}" in
 
@@ -229,16 +244,20 @@ function parse_params() {
       ;;
 
     --log | -l)
+      set -x
+      PROGRESS_MSG=false
+      no_color
       setup_log
       shift
       ;;
 
     --no-color)
-      NO_COLOR=1
+      no_color
       shift
       ;;
 
     --verbose | -v)
+      no_color
       set -x
       shift
       ;;
@@ -253,6 +272,25 @@ function parse_params() {
 
     esac
   done
+
+}
+
+function color() {
+  FOREGROUND="\033[39m"
+  NOFORMAT="\033[0m"
+  RED="\033[1;31m"
+  GREEN="\033[1;32m"
+  YELLOW='\033[1;33m'
+  BLUE='\033[1;34m'
+}
+
+function no_color() {
+  unset FOREGROUND
+  unset NOFORMAT
+  unset RED
+  unset GREEN
+  unset YELLOW
+  unset BLUE
 }
 
 ###############################################################################
@@ -288,7 +326,7 @@ function identify_cloud() {
 function identify_docker() {
 
   # Detect if inside Docker
-  if grep -iq docker /proc/1/cgroup 2>/dev/null || head -n 1 /proc/1/sched 2>/dev/null | grep -Eq '^(bash|sh) ' || [ -f /.dockerenv ]; then
+  if grep -iq docker /proc/1/cgroup 2 || head -n 1 /proc/1/sched 2 | grep -Eq '^(bash|sh) ' || [ -f /.dockerenv ]; then
     SYSTEM_CONTAINER="true"
   fi
 
@@ -347,7 +385,7 @@ function identify_system() {
     uname -m | grep -q "64" && SYSTEM_ARCH_NAME="amd64"
     { uname -m | grep -q "arm[_]*64" || uname -m | grep -q "aarch64"; } && SYSTEM_ARCH_NAME="arm64"
 
-  elif which apk >/dev/null 2>&1; then # Detect Alpine
+  elif which apk 2>&1; then # Detect Alpine
     SYSTEM_DIST="alpine"
     SYSTEM_DIST_BASED_ON="alpine"
     SYSTEM_PSEUDO_NAME=
@@ -356,7 +394,7 @@ function identify_system() {
     uname -m | grep -q "64" && SYSTEM_ARCH_NAME="amd64"
     { uname -m | grep -q "arm[_]*64" || uname -m | grep -q "aarch64"; } && SYSTEM_ARCH_NAME="arm64"
 
-  elif which busybox >/dev/null 2>&1; then # Detect Busybox
+  elif which busybox 2>&1; then # Detect Busybox
     SYSTEM_DIST="busybox"
     SYSTEM_DIST_BASED_ON="busybox"
     SYSTEM_PSEUDO_NAME=
@@ -365,7 +403,7 @@ function identify_system() {
     uname -m | grep -q "64" && SYSTEM_ARCH_NAME="amd64"
     { uname -m | grep -q "arm[_]*64" || uname -m | grep -q "aarch64"; } && SYSTEM_ARCH_NAME="arm64"
 
-  elif grep -iq "amazon linux" /etc/os-release 2>/dev/null; then # Detect Amazon Linux
+  elif grep -iq "amazon linux" /etc/os-release 2; then # Detect Amazon Linux
     SYSTEM_DIST="amazon"
     SYSTEM_DIST_BASED_ON="redhat"
     SYSTEM_PSEUDO_NAME=
@@ -450,7 +488,7 @@ function check_architecture() {
 
   # check for non-Intel-based architecture here
   arch=$(uname --hardware-platform) # uname is non-portable, but we only target Ubuntu 20.04
-  if ! grep --ignore-case x86 <<<"${arch}" >/dev/null; then
+  if ! grep --ignore-case x86 <<<"${arch}"; then
 
     echo "Possible non-Intel architecture detected, ${name}"
     echo "Non-intel architectures may cause problems. The web map might not install."
@@ -506,117 +544,104 @@ function check_file_integrity() {
 function setup_virtual_environment() {
 
   # get the home directory of user that ran this script
-  HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-
-  # set the conda install directory
-  CONDA_INSTALL_DIR="$HOME/conda"
+  USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+  CONDA_INSTALL_DIR="$USER_HOME/conda"
 
   progress BUSY "downloading miniconda"
-  result=$(wget ${CONDA_INSTALLER_URL} -qO "${CONDA_INSTALLER}")
+  wget $CONDA_INSTALLER_URL -qO "$CONDA_INSTALLER" 2>&1
   # todo: print out result when verbose
   progress_clear DONE "downloading miniconda"
 
-  check_file_integrity "$CONDA_SHA256SUM" "$CONDA_INSTALLER" >/dev/null
+  check_file_integrity "$CONDA_SHA256SUM" "$CONDA_INSTALLER"
 
   progress BUSY "setting up virtual environment"
 
   # create conda install directory
-  mkdir -p "$CONDA_INSTALL_DIR" >/dev/null
+  mkdir -p "$CONDA_INSTALL_DIR"
 
   # install conda
-  bash "$CONDA_INSTALLER" -u -b -p "$CONDA_INSTALL_DIR" >/dev/null
-
-  # create group and add user to it
-  groupadd -f "$GROUP_NAME" >/dev/null
-
-  # add user to newly created group
-  gpasswd -a "$SUDO_USER" "$GROUP_NAME" >/dev/null
-
-  # set permissions on conda directory
-  chgrp -R fts "$CONDA_INSTALL_DIR" >/dev/null
-
-  # chgrp fts "/usr/local/bin/conda" >/dev/null
-  chgrp fts "/usr/local/bin" >/dev/null
-
-  # make conda executable for user that ran this script
-  chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR" >/dev/null
-
-  # symlink conda executable
-  ln -sf "$CONDA_INSTALL_DIR/bin/conda" "/usr/local/bin/conda" >/dev/null
-
-  # shellcheck source="$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
-  source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh" >/dev/null
-
-  # update conda
-  sudo -i -u "$SUDO_USER" conda update --yes --quiet --name base conda >/dev/null
-
-  # create virtual environment
-  sudo -i -u "$SUDO_USER" conda create --quiet --name "$VENV_NAME" python="$PYTHON_VERSION" >/dev/null
-
-  # activate virtual environment
-  conda init --quiet bash >/dev/null
-  eval "$(conda shell.bash hook)" >/dev/null
-  conda activate "$VENV_NAME" >/dev/null
+  bash "$CONDA_INSTALLER" -u -b -p "$CONDA_INSTALL_DIR"
 
   # configure conda
-  conda config --set auto_activate_base true --set always_yes yes --set changeps1 yes >/dev/null
+  conda config --set auto_activate_base true --set always_yes yes --set changeps1 yes
+
+  # create group and add user to it
+  groupadd -f "$GROUP_NAME"
+
+  # add user to newly created group
+  gpasswd -a "$SUDO_USER" "$GROUP_NAME"
+
+  # set permissions
+  chown -R "$SUDO_USER":"$SUDO_USER" "$CONDA_INSTALL_DIR"
+  chgrp "$GROUP_NAME" "/usr/local/bin"
+
+  # symlink conda executable
+  ln -sf "$CONDA_INSTALL_DIR/bin/conda" "/usr/local/bin/conda"
+
+  # shellcheck source="$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
+  $USER_EXEC source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
+
+  # update conda
+  $CONDA update --yes --name base conda
+
+  # create virtual environment
+  $CONDA create --name "$VENV_NAME" python="$PYTHON_VERSION"
+
+  # activate virtual environment
+  conda init bash
+  eval "$(conda shell.bash hook)"
+  conda activate "$VENV_NAME"
+
+  # get location of virtual environment's python
+  PYTHON_EXEC=$($CONDA_RUN which python)
 
   progress_clear DONE "setting up virtual environment"
-
-  # fix permissions
-  chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR"
 
 }
 
 ###############################################################################
-# Install FTS via shell
+# add a service (used for autostarting on login)
 ###############################################################################
-function fts_shell_install() {
+function add_service() {
 
-  progress BUSY "downloading fts dependencies"
+  local name=$1
+  local command=$2
+  local unit_file="${1}.service"
 
-  # install pip
-  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet pip >/dev/null 2>&1
+  cat >"$unit_file" <<EOL
+[Unit]
+Description=$name service
+After=network.target
+StartLimitIntervalSec=0
 
-  # install unzip
-  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet --channel conda-forge unzip >/dev/null 2>&1
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+StandardOutput=append:/var/log/${name}/${name}-stdout.log
+StandardError=append:/var/log/${name}/${name}-stderr.log
+ExecStart=$command
 
-  progress_clear DONE "downloading fts dependencies"
+[Install]
+WantedBy=multi-user.target
+EOL
 
-  progress BUSY "setting up fts"
-  sudo -i -u "$SUDO_USER" pip install --quiet freetakserver >/dev/null 2>&1
-  progress_clear DONE "setting up fts"
+  chgrp "$GROUP_NAME" "$unit_file"
+  mv "$unit_file" "$UNIT_FILES_DIR/$unit_file"
+  enable_and_start_service "$name" "$unit_file"
 
-  progress BUSY "setting up fts user interface"
-  sudo -i -u "$SUDO_USER" pip install --quiet freetakserver[ui] >/dev/null 2>&1
-  progress_clear DONE "setting up fts user interface"
+}
 
-  progress BUSY "setting up webmap"
-  wget $WEBMAP_URL -qO "$WEBMAP_ZIP" >/dev/null 2>&1
+function enable_and_start_service() {
 
-  # unzip webmap
-  conda run -n "$VENV_NAME" unzip -o "$WEBMAP_ZIP" >/dev/null 2>&1
+  local name="$1"
+  local unit_file="$2"
 
-  # change to simpler name
-  mv "$WEBMAP_EXECUTABLE" "$WEBMAP_NAME"
-
-  # set file permissions of webmap executable
-  chmod +x "$WEBMAP_NAME"
-  chown "$SUDO_USER":"$GROUP_NAME" "$WEBMAP_NAME"
-
-  # move webmap executable to destination directory
-  mv "$WEBMAP_NAME" "$WEBMAP_INSTALL_DIR/$WEBMAP_NAME"
-
-  # configure ip in webMAP_config.json
-  local search="\"FTH_FTS_URL\": \"204.48.30.216\","
-  local replace="\"FTH_FTS_URL\": \"$IPV4\","
-  sed -i "s/$search/$replace/g" "$WEBMAP_CONFIG_FILE"
-
-  chmod +x "$WEBMAP_CONFIG_FILE"
-  chown "$SUDO_USER":"$GROUP_NAME" "$WEBMAP_CONFIG_FILE"
-
-  mv "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
-  progress_clear DONE "setting up webmap"
+  systemctl daemon-reload
+  systemctl enable "$unit_file"
+  chgrp "$GROUP_NAME" "/var/log/${name}/${name}-stdout.log"
+  chgrp "$GROUP_NAME" "/var/log/${name}/${name}-stderr.log"
+  systemctl start "$unit_file"
 
 }
 
@@ -632,7 +657,7 @@ function handle_git_repository() {
 
     printf "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository..."
-    sudo -i -u "$SUDO_USER" conda run -n "$VENV_NAME" git clone ${REPO}
+    $CONDA_RUN git clone ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -643,42 +668,7 @@ function handle_git_repository() {
     cd ~/FreeTAKHub-Installation
 
     echo -e "Pulling latest from the FreeTAKHub-Installation repository..."
-    sudo -i -u "$SUDO_USER" conda run -n "$VENV_NAME" git pull
-
-  fi
-
-}
-
-###############################################################################
-# Add passwordless Ansible execution
-###############################################################################
-function add_passwordless_ansible_execution() {
-
-  echo -e "${BLUE}Adding passwordless Ansible execution for the current user...${NOFORMAT}"
-
-  # line to add
-  LINE="${USER} ALL=(ALL) NOPASSWD:/usr/bin/ansible-playbook"
-
-  # file to create for passwordless
-  FILE="/etc/sudoers.d/dont-prompt-${USER}-for-sudo-password"
-
-  # only add if non-existent
-  grep -qF -- "${LINE}" "${FILE}" || echo "${LINE}" >>"${FILE}"
-
-}
-
-###############################################################################
-# Generate public and private keys
-###############################################################################
-function generate_key_pair() {
-
-  echo -e "${BLUE}Creating a public and private keys if non-existent...${NOFORMAT}"
-
-  # check for public and private keys
-  if [[ ! -e ${HOME}/.ssh/id_rsa.pub ]]; then
-
-    # generate keys
-    ssh-keygen -t rsa -f "${HOME}/.ssh/id_rsa" -N ""
+    $CONDA_RUN git pull
 
   fi
 
@@ -689,14 +679,72 @@ function generate_key_pair() {
 ###############################################################################
 function run_playbook() {
 
-  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet --channel conda-forge ansible >/dev/null 2>&1
+  $CONDA install --name "$VENV_NAME" --channel conda-forge ansible 2>&1
 
   EXTRA_VARS=-e "CONDA_PREFIX=$CONDA_PREFIX" -e "VENV_NAME=$VENV_NAME"
   if [[ -n "${ANSIBLE-}" ]]; then
-    sudo -i -u "$SUDO_USER" conda run -n "$VENV_NAME" ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_mainserver.yml -vvv
+    $CONDA_RUN ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_mainserver.yml -vvv
   else
-    sudo -i -u "$SUDO_USER" conda run -n "$VENV_NAME" ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_all.yml -vvv
+    $CONDA_RUN ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_all.yml -vvv
   fi
+}
+
+###############################################################################
+# Install FTS via shell
+#   Note: As a design decision, unit files are created last in case
+#         there is an error with unit file creation or configuring.
+###############################################################################
+function fts_shell_install() {
+
+  progress BUSY "downloading fts dependencies"
+  $CONDA install --name "$VENV_NAME" pip 2>&1
+  # $CONDA install --name "$VENV_NAME" setuptools 2>&1
+  # $CONDA install --name "$VENV_NAME" gevent 2>&1
+  # $CONDA install --name "$VENV_NAME" lxml 2>&1
+  # $CONDA install --name "$VENV_NAME" cairo 2>&1
+  # $CONDA install --name "$VENV_NAME" wheel 2>&1
+  $CONDA install --name "$VENV_NAME" unzip 2>&1
+  progress_clear DONE "downloading fts dependencies"
+
+  progress BUSY "installing fts"
+  $CONDA_RUN pip3 install "$FTS_PACKAGE" 2>&1
+  progress_clear DONE "setting up fts"
+
+  progress BUSY "setting up fts user interface"
+  $CONDA_RUN pip3 install "$FTS_UI_PACKAGE" 2>&1
+  progress_clear DONE "setting up fts user interface"
+
+  progress BUSY "downloading webmap"
+  wget $WEBMAP_URL -qO "$WEBMAP_ZIP" 2>&1
+  check_file_integrity "$WEBMAP_SHA256SUM" "$WEBMAP_ZIP"
+  progress_clear DONE "downloading webmap"
+
+  progress BUSY "setting up webmap"
+
+  # unzip webmap
+  chmod 755 "$WEBMAP_ZIP"
+  $CONDA_RUN unzip -o "$WEBMAP_ZIP"
+
+  # # remove version string in webmap executable
+  # mv "$WEBMAP_EXECUTABLE" "$WEBMAP_NAME"
+
+  # chgrp "$GROUP_NAME" "$WEBMAP_NAME"
+  # mv "$WEBMAP_NAME" "$WEBMAP_INSTALL_DIR/$WEBMAP_NAME"
+
+  # # configure ip in webMAP_config.json
+  # local search="\"FTH_FTS_URL\": \"204.48.30.216\","
+  # local replace="\"FTH_FTS_URL\": \"$IPV4\","
+  # sed -i "s/$search/$replace/g" "$WEBMAP_CONFIG_FILE"
+
+  # chgrp "$GROUP_NAME" "$WEBMAP_CONFIG_FILE"
+  # mv "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
+  # progress_clear DONE "setting up webmap"
+
+  # progress BUSY "configuring fts to autostart"
+  # local startup_command="$PYTHON_EXEC -m ${PYTHON_SITEPACKAGES}/FreeTAKServer.controllers.services.FTS"
+  # add_service "fts" "$startup_command"
+  # progress_clear DONE "setting up fts"
+
 }
 
 ###############################################################################
@@ -716,18 +764,13 @@ function install_fts() {
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
 start=$(date +%s)
-
+parse_params "$@"
 check_root
-
-parse_params "${@}"
-
-identify_system
-identify_cloud
-identify_docker
+# identify_system
+# identify_cloud
+# identify_docker
 setup_virtual_environment
-get_public_ip
+# get_public_ip
 install_fts
-
 end=$(date +%s)
-
-progress DONE "Successfully installed in $((end - start)) seconds."
+progress DONE "SUCCESS! $((end - start))s."
