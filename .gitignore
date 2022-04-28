@@ -55,3 +55,6 @@ terraform.rc
 # ansible
 ansible_log.rb
 ansible.cfg
+
+# fts
+fts.log

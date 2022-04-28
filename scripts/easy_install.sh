@@ -9,13 +9,19 @@ set -o pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 trap ctrl_c INT
 
+IPV4=$(dig @resolver4.opendns.com myip.opendns.com +short -4)
+IP_ARG="ansible_host=$IPV4"
+
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+
 WEBMAP_VERSION="0.2.5"
-WEBMAP_FILENAME="FTH-webmap-linux-$WEBMAP_VERSION.zip"
-WEBMAP_EXECUTABLE="FTH-webmap-linux-$WEBMAP_VERSION"
-WEBMAP_URL="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$WEBMAP_VERSION/FTH-webmap-linux-$WEBMAP_VERSION.zip"
+WEBMAP_NAME="FTH-webmap-linux"
+WEBMAP_FILENAME="$WEBMAP_NAME-$WEBMAP_VERSION.zip"
+WEBMAP_EXECUTABLE="$WEBMAP_NAME-$WEBMAP_VERSION"
+WEBMAP_URL="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$WEBMAP_VERSION/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
 WEBMAP_ZIP=$(mktemp --suffix ".$WEBMAP_FILENAME")
 WEBMAP_INSTALL_DIR="/usr/local/bin"
+WEBMAP_CONFIG_FILE="webMAP_config.json"
 
 CONDA_FILENAME="Miniconda3-py38_4.11.0-Linux-x86_64.sh"
 CONDA_INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-py38_4.11.0-Linux-x86_64.sh"
@@ -47,12 +53,20 @@ SYSTEM_KERNEL=$(uname -r)
 SYSTEM_CONTAINER="false"
 CLOUD_PROVIVDER="false"
 
+###############################################################################
+# Functions for console output
+###############################################################################
+
 newline() { printf "\n"; }
 
+# go "up" one line in the terminal
 go_up() { echo -en "\033[${1}A"; }
 
+# clear the line in the terminal
+# helpful for changing progress status
 _clear() { echo -en "\033[K"; }
 
+# commonly combined functions
 clear() {
   go_up 1
   _clear
@@ -61,12 +75,6 @@ clear() {
 progress_clear() {
   clear
   progress "${1}" "${2}"
-}
-
-path_add() {
-  if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-    PATH="${PATH:+"$PATH:"}$1"
-  fi
 }
 
 ###############################################################################
@@ -85,8 +93,21 @@ Available options:
 -h, --help       Print help
 -v, --verbose    Print script debug info
 -a, --ansible    Install with ansible
+-l, --log        create fts.log to log installation (in running directory)
+    --local      use localhost (default is public ip)
 USAGE_TEXT
   exit
+}
+
+###############################################################################
+# Setup the log
+###############################################################################
+function setup_log() {
+
+  exec 3>&1 4>&2
+  trap 'exec 2>&4 1>&3' 0 1 2 3
+  exec 1>fts.log 2>&1
+
 }
 
 ###############################################################################
@@ -94,17 +115,24 @@ USAGE_TEXT
 ###############################################################################
 function cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
-
-  progress BUSY "cleaning up"
   _cleanup
-  progress_clear DONE "cleaning up"
-
   die
 }
 
 function _cleanup() {
   rm -f "${CONDA_INSTALLER}"
   rm -f "${WEBMAP_ZIP}"
+}
+
+###############################################################################
+# Get my public ip
+###############################################################################
+function get_public_ip() {
+
+  if [[ -n "${LOCALHOST-}" ]]; then
+    IP_ARG="-i localhost"
+  fi
+
 }
 
 ###############################################################################
@@ -186,8 +214,6 @@ function progress() {
 # Parse parameters
 ###############################################################################
 function parse_params() {
-  progress BUSY "parsing input parameters"
-
   while true; do
     case "${1-}" in
 
@@ -202,8 +228,8 @@ function parse_params() {
       shift
       ;;
 
-    --core)
-      CORE=1
+    --log | -l)
+      setup_log
       shift
       ;;
 
@@ -227,8 +253,6 @@ function parse_params() {
 
     esac
   done
-
-  progress_clear DONE "parsing input parameters"
 }
 
 ###############################################################################
@@ -464,11 +488,11 @@ function check_file_integrity() {
   local checksum=$1
   local file=$2
 
-  progress BUSY "checking sha256sum of ${file}"
+  progress BUSY "checking file integrity of ${file}"
   SHA256SUM_RESULT=$(printf "%s %s" "$checksum" "$file" | sha256sum -c)
 
   if [ "${SHA256SUM_RESULT}" = "${file}: OK" ]; then
-    progress_clear DONE "checking miniconda sha256sum"
+    progress_clear DONE "checking file integrity"
   else
     progress_clear FAIL "sha256sum check failed: ${file}"
     exit $EXIT_FAILURE
@@ -481,17 +505,22 @@ function check_file_integrity() {
 ###############################################################################
 function setup_virtual_environment() {
 
+  # get the home directory of user that ran this script
   HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+
+  # set the conda install directory
   CONDA_INSTALL_DIR="$HOME/conda"
 
   progress BUSY "downloading miniconda"
   result=$(wget ${CONDA_INSTALLER_URL} -qO "${CONDA_INSTALLER}")
+  # todo: print out result when verbose
   progress_clear DONE "downloading miniconda"
 
   check_file_integrity "$CONDA_SHA256SUM" "$CONDA_INSTALLER" >/dev/null
 
   progress BUSY "setting up virtual environment"
 
+  # create conda install directory
   mkdir -p "$CONDA_INSTALL_DIR" >/dev/null
 
   # install conda
@@ -499,12 +528,17 @@ function setup_virtual_environment() {
 
   # create group and add user to it
   groupadd -f "$GROUP_NAME" >/dev/null
+
+  # add user to newly created group
   gpasswd -a "$SUDO_USER" "$GROUP_NAME" >/dev/null
 
   # set permissions on conda directory
   chgrp -R fts "$CONDA_INSTALL_DIR" >/dev/null
+
   # chgrp fts "/usr/local/bin/conda" >/dev/null
   chgrp fts "/usr/local/bin" >/dev/null
+
+  # make conda executable for user that ran this script
   chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR" >/dev/null
 
   # symlink conda executable
@@ -513,6 +547,7 @@ function setup_virtual_environment() {
   # shellcheck source="$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
   source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh" >/dev/null
 
+  # update conda
   sudo -i -u "$SUDO_USER" conda update --yes --quiet --name base conda >/dev/null
 
   # create virtual environment
@@ -528,11 +563,6 @@ function setup_virtual_environment() {
 
   progress_clear DONE "setting up virtual environment"
 
-  progress BUSY "downloading dependencies"
-  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet pip >/dev/null 2>&1
-  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet --channel conda-forge unzip >/dev/null 2>&1
-  progress_clear DONE "downloading dependencies"
-
   # fix permissions
   chown -R "$SUDO_USER" "$CONDA_INSTALL_DIR"
 
@@ -543,18 +573,50 @@ function setup_virtual_environment() {
 ###############################################################################
 function fts_shell_install() {
 
-  progress BUSY "installing fts core"
-  sudo -i -u "$SUDO_USER" pip install --quiet freetakserver >/dev/null 2>&1
-  sudo -i -u "$SUDO_USER" pip install --quiet freetakserver[ui] >/dev/null 2>&1
-  $(wget $WEBMAP_URL -qO "$WEBMAP_ZIP")
-  conda run -n "$VENV_NAME" unzip -o "$WEBMAP_ZIP"
-  mv "$WEBMAP_EXECUTABLE" "FTH-webmap-linux"
-  chmod +x "FTH-webmap-linux"
-  chown $SUDO_USER:$GROUP_NAME "FTH-webmap-linux"
-  mv "FTH-webmap-linux" "$WEBMAP_INSTALL_DIR/FTH-webmap-linux"
-  rm "webMAP_config.json"
+  progress BUSY "downloading fts dependencies"
 
-  progress_clear DONE "installing fts core"
+  # install pip
+  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet pip >/dev/null 2>&1
+
+  # install unzip
+  sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet --channel conda-forge unzip >/dev/null 2>&1
+
+  progress_clear DONE "downloading fts dependencies"
+
+  progress BUSY "setting up fts"
+  sudo -i -u "$SUDO_USER" pip install --quiet freetakserver >/dev/null 2>&1
+  progress_clear DONE "setting up fts"
+
+  progress BUSY "setting up fts user interface"
+  sudo -i -u "$SUDO_USER" pip install --quiet freetakserver[ui] >/dev/null 2>&1
+  progress_clear DONE "setting up fts user interface"
+
+  progress BUSY "setting up webmap"
+  wget $WEBMAP_URL -qO "$WEBMAP_ZIP" >/dev/null 2>&1
+
+  # unzip webmap
+  conda run -n "$VENV_NAME" unzip -o "$WEBMAP_ZIP" >/dev/null 2>&1
+
+  # change to simpler name
+  mv "$WEBMAP_EXECUTABLE" "$WEBMAP_NAME"
+
+  # set file permissions of webmap executable
+  chmod +x "$WEBMAP_NAME"
+  chown "$SUDO_USER":"$GROUP_NAME" "$WEBMAP_NAME"
+
+  # move webmap executable to destination directory
+  mv "$WEBMAP_NAME" "$WEBMAP_INSTALL_DIR/$WEBMAP_NAME"
+
+  # configure ip in webMAP_config.json
+  local search="\"FTH_FTS_URL\": \"204.48.30.216\","
+  local replace="\"FTH_FTS_URL\": \"$IPV4\","
+  sed -i "s/$search/$replace/g" "$WEBMAP_CONFIG_FILE"
+
+  chmod +x "$WEBMAP_CONFIG_FILE"
+  chown "$SUDO_USER":"$GROUP_NAME" "$WEBMAP_CONFIG_FILE"
+
+  mv "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
+  progress_clear DONE "setting up webmap"
 
 }
 
@@ -570,7 +632,7 @@ function handle_git_repository() {
 
     printf "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository..."
-    conda run -n "$VENV_NAME" git clone ${REPO}
+    sudo -i -u "$SUDO_USER" conda run -n "$VENV_NAME" git clone ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -581,7 +643,7 @@ function handle_git_repository() {
     cd ~/FreeTAKHub-Installation
 
     echo -e "Pulling latest from the FreeTAKHub-Installation repository..."
-    conda run -n "$VENV_NAME" git pull
+    sudo -i -u "$SUDO_USER" conda run -n "$VENV_NAME" git pull
 
   fi
 
@@ -629,35 +691,43 @@ function run_playbook() {
 
   sudo -i -u "$SUDO_USER" conda install --name "$VENV_NAME" --quiet --channel conda-forge ansible >/dev/null 2>&1
 
+  EXTRA_VARS=-e "CONDA_PREFIX=$CONDA_PREFIX" -e "VENV_NAME=$VENV_NAME"
   if [[ -n "${ANSIBLE-}" ]]; then
-    conda run -n "$VENV_NAME" ansible-playbook -u "$SUDO_USER" -i localhost, --connection=local -e "CONDA_PREFIX=$CONDA_PREFIX" -e "VENV_NAME=$VENV_NAME" install_mainserver.yml -vvv
+    sudo -i -u "$SUDO_USER" conda run -n "$VENV_NAME" ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_mainserver.yml -vvv
   else
-    conda run -n "$VENV_NAME" ansible-playbook -u "$SUDO_USER" -i localhost, --connection=local -e "CONDA_PREFIX=$CONDA_PREFIX" -e "VENV_NAME=$VENV_NAME" install_all.yml -vvv
+    sudo -i -u "$SUDO_USER" conda run -n "$VENV_NAME" ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_all.yml -vvv
+  fi
+}
+
+###############################################################################
+# Install using shell script or ansible (default is shell)
+###############################################################################
+function install_fts() {
+
+  if [[ -n "${ANSIBLE-}" ]]; then
+    handle_git_repository
+    run_playbook
+  else
+    fts_shell_install
   fi
 
 }
-
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
 start=$(date +%s)
-printf "INSTALLING FREE TAK SERVER"
-newline
+
+check_root
 
 parse_params "${@}"
-check_root
+
 identify_system
 identify_cloud
 identify_docker
 setup_virtual_environment
+get_public_ip
+install_fts
 
-if [[ -n "${ANSIBLE-}" ]]; then
-  handle_git_repository
-  run_playbook
-
-else
-  fts_shell_install
-fi
 end=$(date +%s)
 
 progress DONE "Successfully installed in $((end - start)) seconds."
