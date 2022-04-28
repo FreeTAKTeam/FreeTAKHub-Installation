@@ -30,19 +30,18 @@ CONDA_RUN="sudo -i -u $SUDO_USER conda run -n $VENV_NAME"
 
 WEBMAP_NAME="FTH-webmap-linux"
 WEBMAP_VERSION="0.2.5"
-WEBMAP_FILENAME="$WEBMAP_NAME-$WEBMAP_VERSION.zip"
-WEBMAP_EXECUTABLE="$WEBMAP_NAME-$WEBMAP_VERSION"
+WEBMAP_FILENAME="/tmp/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
+WEBMAP_EXECUTABLE="/tmp/$WEBMAP_NAME-$WEBMAP_VERSION"
 WEBMAP_URL="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$WEBMAP_VERSION/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
 WEBMAP_SHA256SUM="11afcde545cc4c2119c0ff7c89d23ebff286c99c6e0dfd214eae6e16760d6723"
 WEBMAP_INSTALL_DIR="/usr/local/bin"
-WEBMAP_CONFIG_FILE="webMAP_config.json"
-WEBMAP_ZIP=$(mktemp --suffix ".$WEBMAP_FILENAME")
+WEBMAP_CONFIG_FILE="/tmp/webMAP_config.json"
+# WEBMAP_ZIP=$(mktemp --suffix ".$WEBMAP_FILENAME")
 
 UNIT_FILES_DIR="/lib/systemd/system"
 
 PYTHON_SITEPACKAGES="$CONDA_INSTALL_DIR/envs/$VENV_NAME/lib/python${PYTHON_VERSION}/site-packages"
-FTS_PACKAGE="freetakserver"
-FTS_UI_PACKAGE="freetakserver[ui]"
+FTS_PACKAGE="FreeTAKServer[ui]"
 
 ###############################################################################
 # SUPPORTED OS VARIABLES
@@ -85,10 +84,8 @@ clear() {
 }
 
 progress_clear() {
-  if [[ "${PROGRESS_MSG-}" = true ]]; then
-    clear
-    progress "${1}" "${2}"
-  fi
+  clear
+  progress "${1}" "${2}"
 }
 
 ###############################################################################
@@ -156,7 +153,7 @@ function get_public_ip() {
 function ctrl_c() {
   trap - INT
 
-  _cleanup
+  # _cleanup
 
   printf "\b\b"
 
@@ -214,9 +211,9 @@ declare -A STATUS_TEXT=(
 )
 
 function progress() {
-  if [[ "${PROGRESS_MSG-}" = true ]]; then
-    echo -e "[  ${STATUS_COLOR[$1]}${STATUS_TEXT[$1]}${NOFORMAT}  ] ${2}"
-  fi
+
+  echo -e "[  ${STATUS_COLOR[$1]}${STATUS_TEXT[$1]}${NOFORMAT}  ] ${2}"
+
 }
 
 ###############################################################################
@@ -226,8 +223,6 @@ function parse_params() {
 
   # setup console colors
   color
-
-  PROGRESS_MSG=true
 
   while true; do
     case "${1-}" in
@@ -245,7 +240,6 @@ function parse_params() {
 
     --log | -l)
       set -x
-      PROGRESS_MSG=false
       no_color
       setup_log
       shift
@@ -385,7 +379,7 @@ function identify_system() {
     uname -m | grep -q "64" && SYSTEM_ARCH_NAME="amd64"
     { uname -m | grep -q "arm[_]*64" || uname -m | grep -q "aarch64"; } && SYSTEM_ARCH_NAME="arm64"
 
-  elif which apk 2>&1; then # Detect Alpine
+  elif which apk; then # Detect Alpine
     SYSTEM_DIST="alpine"
     SYSTEM_DIST_BASED_ON="alpine"
     SYSTEM_PSEUDO_NAME=
@@ -394,7 +388,7 @@ function identify_system() {
     uname -m | grep -q "64" && SYSTEM_ARCH_NAME="amd64"
     { uname -m | grep -q "arm[_]*64" || uname -m | grep -q "aarch64"; } && SYSTEM_ARCH_NAME="arm64"
 
-  elif which busybox 2>&1; then # Detect Busybox
+  elif which busybox; then # Detect Busybox
     SYSTEM_DIST="busybox"
     SYSTEM_DIST_BASED_ON="busybox"
     SYSTEM_PSEUDO_NAME=
@@ -548,7 +542,7 @@ function setup_virtual_environment() {
   CONDA_INSTALL_DIR="$USER_HOME/conda"
 
   progress BUSY "downloading miniconda"
-  wget $CONDA_INSTALLER_URL -qO "$CONDA_INSTALLER" 2>&1
+  wget $CONDA_INSTALLER_URL -qO "$CONDA_INSTALLER"
   # todo: print out result when verbose
   progress_clear DONE "downloading miniconda"
 
@@ -593,16 +587,16 @@ function setup_virtual_environment() {
   conda activate "$VENV_NAME"
 
   # get location of virtual environment's python
-  PYTHON_EXEC=$($CONDA_RUN which python)
+  PYTHON_EXEC=$($CONDA_RUN which python${PYTHON_VERSION})
 
   progress_clear DONE "setting up virtual environment"
 
 }
 
 ###############################################################################
-# add a service (used for autostarting on login)
+# setup a service (used for autostarting on login)
 ###############################################################################
-function add_service() {
+function setup_service() {
 
   local name=$1
   local command=$2
@@ -638,10 +632,9 @@ function enable_and_start_service() {
   local unit_file="$2"
 
   systemctl daemon-reload
-  systemctl enable "$unit_file"
-  chgrp "$GROUP_NAME" "/var/log/${name}/${name}-stdout.log"
-  chgrp "$GROUP_NAME" "/var/log/${name}/${name}-stderr.log"
-  systemctl start "$unit_file"
+  systemctl enable "$unit_file" 2>&1
+
+  chgrp -R "$GROUP_NAME" "/var/log"
 
 }
 
@@ -679,7 +672,7 @@ function handle_git_repository() {
 ###############################################################################
 function run_playbook() {
 
-  $CONDA install --name "$VENV_NAME" --channel conda-forge ansible 2>&1
+  $CONDA install --name "$VENV_NAME" --channel conda-forge ansible
 
   EXTRA_VARS=-e "CONDA_PREFIX=$CONDA_PREFIX" -e "VENV_NAME=$VENV_NAME"
   if [[ -n "${ANSIBLE-}" ]]; then
@@ -691,59 +684,50 @@ function run_playbook() {
 
 ###############################################################################
 # Install FTS via shell
-#   Note: As a design decision, unit files are created last in case
-#         there is an error with unit file creation or configuring.
 ###############################################################################
 function fts_shell_install() {
 
   progress BUSY "downloading fts dependencies"
-  $CONDA install --name "$VENV_NAME" pip 2>&1
-  # $CONDA install --name "$VENV_NAME" setuptools 2>&1
-  # $CONDA install --name "$VENV_NAME" gevent 2>&1
-  # $CONDA install --name "$VENV_NAME" lxml 2>&1
-  # $CONDA install --name "$VENV_NAME" cairo 2>&1
-  # $CONDA install --name "$VENV_NAME" wheel 2>&1
-  $CONDA install --name "$VENV_NAME" unzip 2>&1
+  $CONDA install --name "$VENV_NAME" pip unzip flask lxml pathlib tabulate sqlalchemy setuptools Flask-SQLAlchemy
   progress_clear DONE "downloading fts dependencies"
 
   progress BUSY "installing fts"
-  $CONDA_RUN pip3 install "$FTS_PACKAGE" 2>&1
+  $CONDA_RUN pip3 install "$FTS_PACKAGE"
   progress_clear DONE "setting up fts"
 
-  progress BUSY "setting up fts user interface"
-  $CONDA_RUN pip3 install "$FTS_UI_PACKAGE" 2>&1
-  progress_clear DONE "setting up fts user interface"
-
   progress BUSY "downloading webmap"
-  wget $WEBMAP_URL -qO "$WEBMAP_ZIP" 2>&1
-  check_file_integrity "$WEBMAP_SHA256SUM" "$WEBMAP_ZIP"
+  wget $WEBMAP_URL -qO "$WEBMAP_FILENAME"
+  check_file_integrity "$WEBMAP_SHA256SUM" "$WEBMAP_FILENAME"
   progress_clear DONE "downloading webmap"
 
   progress BUSY "setting up webmap"
 
   # unzip webmap
-  chmod 755 "$WEBMAP_ZIP"
-  $CONDA_RUN unzip -o "$WEBMAP_ZIP"
+  chmod 777 "$WEBMAP_FILENAME"
+  $CONDA_RUN unzip -o "$WEBMAP_FILENAME" -d /tmp
 
-  # # remove version string in webmap executable
-  # mv "$WEBMAP_EXECUTABLE" "$WEBMAP_NAME"
+  # remove version string in webmap executable
+  mv -f "$WEBMAP_EXECUTABLE" "$WEBMAP_NAME"
 
-  # chgrp "$GROUP_NAME" "$WEBMAP_NAME"
-  # mv "$WEBMAP_NAME" "$WEBMAP_INSTALL_DIR/$WEBMAP_NAME"
+  chgrp "$GROUP_NAME" "$WEBMAP_NAME"
+  mv -f "$WEBMAP_NAME" "$WEBMAP_INSTALL_DIR/$WEBMAP_NAME"
 
-  # # configure ip in webMAP_config.json
-  # local search="\"FTH_FTS_URL\": \"204.48.30.216\","
-  # local replace="\"FTH_FTS_URL\": \"$IPV4\","
-  # sed -i "s/$search/$replace/g" "$WEBMAP_CONFIG_FILE"
+  # configure ip in webMAP_config.json
+  local search="\"FTH_FTS_URL\": \"204.48.30.216\","
+  local replace="\"FTH_FTS_URL\": \"$IPV4\","
+  sed -i "s/$search/$replace/g" "$WEBMAP_CONFIG_FILE"
 
-  # chgrp "$GROUP_NAME" "$WEBMAP_CONFIG_FILE"
-  # mv "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
-  # progress_clear DONE "setting up webmap"
+  chgrp "$GROUP_NAME" "$WEBMAP_CONFIG_FILE"
+  mv -f "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
+  progress_clear DONE "setting up webmap"
 
-  # progress BUSY "configuring fts to autostart"
-  # local startup_command="$PYTHON_EXEC -m ${PYTHON_SITEPACKAGES}/FreeTAKServer.controllers.services.FTS"
-  # add_service "fts" "$startup_command"
-  # progress_clear DONE "setting up fts"
+  # set file permissions for log folder
+  chgrp -R "$GROUP_NAME" /var/log
+
+  progress BUSY "configuring fts to autostart"
+  local startup_command="$PYTHON_EXEC -m ${PYTHON_SITEPACKAGES}/FreeTAKServer.controllers.services.FTS"
+  setup_service "fts" "$startup_command"
+  progress_clear DONE "setting up fts"
 
 }
 
@@ -772,5 +756,7 @@ check_root
 setup_virtual_environment
 # get_public_ip
 install_fts
+
+# systemctl start "${name}.service"
 end=$(date +%s)
-progress DONE "SUCCESS! $((end - start))s."
+progress DONE "SUCCESS! Installed in $((end - start))s."
