@@ -37,7 +37,8 @@ WEBMAP_INSTALL_DIR="/usr/local/bin"
 WEBMAP_CONFIG_FILE="/tmp/webMAP_config.json"
 
 FTS_PACKAGE="FreeTAKServer"
-FTS_UI_PACKAGE="freetakserver-ui==1.9.8"
+FTS_PACKAGE_VERSION="1.9.9.1"
+FTS_UI_PACKAGE="FreeTAKServer-UI"
 
 USER_EXEC="sudo -i -u $SUDO_USER"
 UNIT_FILES_DIR="/lib/systemd/system"
@@ -603,9 +604,6 @@ function setup_virtual_environment() {
   # install conda
   bash "$CONDA_INSTALLER" -u -b -p "$CONDA_INSTALL_DIR"
 
-  # configure conda
-  conda config --set auto_activate_base true --set always_yes yes --set changeps1 yes
-
   # create group and add user to it
   groupadd -f "$GROUP_NAME"
 
@@ -628,17 +626,20 @@ function setup_virtual_environment() {
   # update conda
   $CONDA update --yes --name base conda
 
+  # configure conda
+  $CONDA config --set auto_activate_base true --set always_yes yes --set changeps1 yes
+
   # create virtual environment
   $CONDA create --name "$VENV_NAME" python="$PYTHON_VERSION"
 
   # activate virtual environment
-  conda init bash
+  $USER_EXEC $CONDA init bash
   eval "$(conda shell.bash hook)"
-  conda activate "$VENV_NAME"
+  $CONDA activate "$VENV_NAME"
 
   # set conda variables
   PYTHON_EXEC=$($CONDA_RUN which python${PYTHON_VERSION})
-  SITEPACKAGES="$CONDA_INSTALL_DIR/lib/python${PYTHON_VERSION}/site-packages"
+  SITEPACKAGES="$CONDA_PREFIX/lib/python${PYTHON_VERSION}/site-packages"
 
   # ensure permissions after activate
   chown -R "$SUDO_USER":"$GROUP_NAME" "$CONDA_INSTALL_DIR"
@@ -675,19 +676,19 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart=${CONDA_SCRIPTS}/${name}.sh
+ExecStart=${UNIT_FILES_DIR}/${name}.sh
 
 [Install]
 WantedBy=multi-user.target
 EOL
 
-  chown -R "$SUDO_USER":"$GROUP_NAME" "${name}.service"
-  chown -R "$SUDO_USER":"$GROUP_NAME" "${name}.sh"
+  chown "$SUDO_USER":"$GROUP_NAME" "${name}.service"
+  chown "$SUDO_USER":"$GROUP_NAME" "${name}.sh"
   chgrp "$GROUP_NAME" "$UNIT_FILES_DIR"
   chgrp "$GROUP_NAME" "$CONDA_SCRIPTS"
 
-  mv -f "${name}.sh" "$CONDA_SCRIPTS/${name}.sh"
-  mv -f "${name}.service" "$UNIT_FILES_DIR/${unit_file}.service"
+  mv -f "${name}.sh" "$UNIT_FILES_DIR/${name}.sh"
+  mv -f "${name}.service" "$CONDA_SCRIPTS/${name}.service"
 
   enable_and_start_service "$name" "${name}.service"
 
@@ -701,8 +702,11 @@ function enable_and_start_service() {
   local name="$1"
   local unit_file="$2"
 
-  systemctl daemon-reload >/dev/null 2>&1
-  systemctl enable "$name"
+  # ensure permissions
+  chown -R "$SUDO_USER":"$GROUP_NAME" "$CONDA_INSTALL_DIR"
+
+  systemctl daemon-reload
+  systemctl --user enable "$name"
 
 }
 
@@ -747,14 +751,7 @@ function replace() {
 
 }
 
-###############################################################################
-# Install FTS via shell
-###############################################################################
-function fts_shell_install() {
-
-  progress BUSY "setting up fts"
-
-  $USER_EXEC $CONDA install --name "$VENV_NAME" unzip
+function manual_fts_build() {
 
   if [[ ! -d "$CONDA_PREFIX/$REPO_FTS" ]]; then
     $USER_EXEC $CONDA_RUN git clone "$FREETAKTEAM_BASE/$REPO_FTS" "$CONDA_PREFIX/$REPO_FTS"
@@ -762,16 +759,27 @@ function fts_shell_install() {
     cd "$CONDA_PREFIX/$REPO_FTS" && $CONDA_RUN git pull
   fi
 
-  $USER_EXEC $CONDA_RUN python "$CONDA_PREFIX/$REPO_FTS/setup.py install"
+  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} "$CONDA_PREFIX/$REPO_FTS/setup.py" install
+  chown -R "$SUDO_USER":"$GROUP_NAME" "$CONDA_PREFIX/$REPO_FTS/$FTS_PACKAGE"
+  mv -f "$CONDA_PREFIX/$REPO_FTS/$FTS_PACKAGE" "$SITEPACKAGES"
 
-  # change first start in MainConfig.py to false
-  local search="    first_start = True"
-  local replace="    first_start = False"
-  replace "$SITEPACKAGES/controllers/configuration/MainConfig.py" "$search" "$replace"
+}
 
-  $USER_EXEC $CONDA_RUN pip3 install "$FTS_UI_PACKAGE"
+###############################################################################
+# Install FTS via shell
+###############################################################################
+function fts_shell_install() {
+
+  progress BUSY "setting up fts"
+
+  manual_fts_build
+  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} -m pip install ruamel.yaml "$FTS_UI_PACKAGE"
 
   # configure FTS
+  local search="    first_start = True"
+  local replace="    first_start = False"
+  replace "$SITEPACKAGES/$FTS_PACKAGE/controllers/configuration/MainConfig.py" "$search" "$replace"
+
   create_fts_yaml
   cat >"/tmp/FTSConfig.yaml" <<EOL
 $FTS_YAML_FILE
@@ -791,6 +799,7 @@ EOL
 
   # unzip webmap
   chmod 777 "$WEBMAP_FILENAME"
+  $USER_EXEC $CONDA install -y --name "$VENV_NAME" unzip
   $CONDA_RUN unzip -o "$WEBMAP_FILENAME" -d /tmp
 
   # remove version string in webmap executable
@@ -807,6 +816,9 @@ EOL
   chgrp "$GROUP_NAME" "$WEBMAP_CONFIG_FILE"
   mv -f "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
   progress_clear DONE "setting up webmap"
+
+  # # use systemctl workaround
+  # wget https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py -qO "$CONDA_PREFIX/bin/systemctl"
 
   progress BUSY "configuring fts to autostart"
 
