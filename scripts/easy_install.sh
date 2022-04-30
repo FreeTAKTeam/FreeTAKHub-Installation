@@ -756,22 +756,20 @@ function fts_shell_install() {
 
   $USER_EXEC $CONDA install --name "$VENV_NAME" unzip
 
-  if [[ ! -d "$VENV_DIR/$REPO_FTS" ]]; then
-    $CONDA_RUN git clone "$FREETAKTEAM_BASE/$REPO_FTS" "$VENV_DIR/$REPO_FTS"
+  if [[ ! -d "$CONDA_PREFIX/$REPO_FTS" ]]; then
+    $USER_EXEC $CONDA_RUN git clone "$FREETAKTEAM_BASE/$REPO_FTS" "$CONDA_PREFIX/$REPO_FTS"
   else
-    cd "$VENV_DIR/$REPO_FTS" && $CONDA_RUN git pull
+    cd "$CONDA_PREFIX/$REPO_FTS" && $CONDA_RUN git pull
   fi
 
-  $USER_EXEC $CONDA_RUN python "$VENV_DIR/$REPO_FTS/setup.py" install --prefix="$SITEPACKAGES"
+  $USER_EXEC $CONDA_RUN python "$CONDA_PREFIX/$REPO_FTS/setup.py install"
 
   # change first start in MainConfig.py to false
   local search="    first_start = True"
   local replace="    first_start = False"
   replace "$SITEPACKAGES/controllers/configuration/MainConfig.py" "$search" "$replace"
 
-  $USER_EXEC $CONDA_RUN pip3 install --upgrade --target="$SITEPACKAGES" "$FTS_UI_PACKAGE"
-
-  chown -R "$SUDO_USER":"$GROUP_NAME" "$CONDA_INSTALL_DIR"
+  $USER_EXEC $CONDA_RUN pip3 install "$FTS_UI_PACKAGE"
 
   # configure FTS
   create_fts_yaml
