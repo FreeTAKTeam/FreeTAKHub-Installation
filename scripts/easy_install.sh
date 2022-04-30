@@ -6,10 +6,12 @@ set -o errexit
 set -o pipefail
 
 # trap or catch signals and direct execution to cleanup
-trap cleanup SIGINT SIGTERM ERR EXIT
+# trap cleanup SIGINT SIGTERM ERR EXIT
 trap ctrl_c INT
 
-REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+REPO_INSTALLER="FreeTAKHub-Installation"
+REPO_FTS="FreeTakServer"
+FREETAKTEAM_BASE="https://github.com/FreeTAKTeam"
 
 IPV4=$(dig @resolver4.opendns.com myip.opendns.com +short -4)
 
@@ -25,9 +27,6 @@ CONDA_INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-py38_4.11.0-
 CONDA_SHA256SUM="4bb91089ecc5cc2538dece680bfe2e8192de1901e5e420f63d4e78eb26b0ac1a"
 CONDA_INSTALLER=$(mktemp --suffix ".$CONDA_FILENAME")
 
-CONDA="conda"
-CONDA_RUN="conda run -n $VENV_NAME"
-
 WEBMAP_NAME="FTH-webmap-linux"
 WEBMAP_VERSION="0.2.5"
 WEBMAP_FILENAME="/tmp/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
@@ -37,15 +36,18 @@ WEBMAP_SHA256SUM="11afcde545cc4c2119c0ff7c89d23ebff286c99c6e0dfd214eae6e16760d67
 WEBMAP_INSTALL_DIR="/usr/local/bin"
 WEBMAP_CONFIG_FILE="/tmp/webMAP_config.json"
 
-UNIT_FILES_DIR="/lib/systemd/system"
+FTS_PACKAGE="FreeTAKServer"
+FTS_UI_PACKAGE="freetakserver-ui==1.9.8"
 
-FTS_PACKAGE="FreeTAKServer[ui]"
+USER_EXEC="sudo -i -u $SUDO_USER"
+UNIT_FILES_DIR="/lib/systemd/system"
 
 ###############################################################################
 # fts yaml file
 ###############################################################################
-FTS_YAML_FILE=""
-cat >"$FTS_YAML_FILE" <<EOL
+function create_fts_yaml() {
+  FTS_YAML_FILE=$(
+    cat <<-END
 System:
   #FTS_DATABASE_TYPE: SQLite
   FTS_CONNECTION_MESSAGE: Welcome to FreeTAKServer {MainConfig.version}. The Parrot is not dead. It's just resting
@@ -62,30 +64,32 @@ Addresses:
 FileSystem:
   FTS_DB_PATH: /opt/FreeTAKServer.db
   #FTS_COT_TO_DB: True
-  FTS_MAINPATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer
-  #FTS_CERTS_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs
-  #FTS_EXCHECK_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck
-  #FTS_EXCHECK_TEMPLATE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck/template
-  #FTS_EXCHECK_CHECKLIST_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/ExCheck/checklist
-  #FTS_DATAPACKAGE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/FreeTAKServerDataPackageFolder
-  #FTS_LOGFILE_PATH: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/Logs
+  FTS_MAINPATH: $SITEPACKAGES/FreeTAKServer
+  #FTS_CERTS_PATH: $SITEPACKAGES/FreeTAKServer/certs
+  #FTS_EXCHECK_PATH: $SITEPACKAGES/FreeTAKServer/ExCheck
+  #FTS_EXCHECK_TEMPLATE_PATH: $SITEPACKAGES/FreeTAKServer/ExCheck/template
+  #FTS_EXCHECK_CHECKLIST_PATH: $SITEPACKAGES/FreeTAKServer/ExCheck/checklist
+  #FTS_DATAPACKAGE_PATH: $SITEPACKAGES/FreeTAKServer/FreeTAKServerDataPackageFolder
+  #FTS_LOGFILE_PATH: $SITEPACKAGES/FreeTAKServer/Logs
 Certs:
-  #FTS_SERVER_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key
-  #FTS_SERVER_PEMDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.pem
-  #FTS_TESTCLIENT_PEMDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/Client.pem
-  #FTS_TESTCLIENT_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/Client.key
-  #FTS_UNENCRYPTED_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key.unencrypted
-  #FTS_SERVER_P12DIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.p12
-  #FTS_CADIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/ca.pem
-  #FTS_CAKEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/ca.key
-  #FTS_FEDERATION_CERTDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.pem
-  #FTS_FEDERATION_KEYDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/server.key
-  #FTS_CRLDIR: /usr/local/lib/python3.8/dist-packages/FreeTAKServer/certs/FTS_CRL.json
+  #FTS_SERVER_KEYDIR: $SITEPACKAGES/FreeTAKServer/certs/server.key
+  #FTS_SERVER_PEMDIR: $SITEPACKAGES/FreeTAKServer/certs/server.pem
+  #FTS_TESTCLIENT_PEMDIR: $SITEPACKAGES/FreeTAKServer/certs/Client.pem
+  #FTS_TESTCLIENT_KEYDIR: $SITEPACKAGES/FreeTAKServer/certs/Client.key
+  #FTS_UNENCRYPTED_KEYDIR: $SITEPACKAGES/FreeTAKServer/certs/server.key.unencrypted
+  #FTS_SERVER_P12DIR: $SITEPACKAGES/FreeTAKServer/certs/server.p12
+  #FTS_CADIR: $SITEPACKAGES/FreeTAKServer/certs/ca.pem
+  #FTS_CAKEYDIR: $SITEPACKAGES/FreeTAKServer/certs/ca.key
+  #FTS_FEDERATION_CERTDIR: $SITEPACKAGES/FreeTAKServer/certs/server.pem
+  #FTS_FEDERATION_KEYDIR: $SITEPACKAGES/FreeTAKServer/certs/server.key
+  #FTS_CRLDIR: $SITEPACKAGES/FreeTAKServer/certs/FTS_CRL.json
   #FTS_FEDERATION_KEYPASS: demopassfed
   #FTS_CLIENT_CERT_PASSWORD: demopasscert
   #FTS_WEBSOCKET_KEY: YourWebsocketKey
-EOL
+END
+  )
 
+}
 ###############################################################################
 # SUPPORTED OS VARIABLES
 ###############################################################################
@@ -282,9 +286,9 @@ function parse_params() {
       ;;
 
     --log | -l)
-      set -x
       no_color
       setup_log
+      set -x
       shift
       ;;
 
@@ -609,11 +613,14 @@ function setup_virtual_environment() {
   usermod -a -G "$GROUP_NAME" "$SUDO_USER"
 
   # set permissions
-  chown -R "$SUDO_USER":"$SUDO_USER" "$CONDA_INSTALL_DIR"
   chgrp "$GROUP_NAME" "/usr/local/bin"
 
   # symlink conda executable
   ln -sf "$CONDA_INSTALL_DIR/bin/conda" "/usr/local/bin/conda"
+
+  CONDA="conda"
+  CONDA_RUN="conda run -n $VENV_NAME"
+  CONDA_SCRIPTS="$CONDA_PREFIX/etc/profile.d"
 
   # shellcheck source="$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
   source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
@@ -629,8 +636,12 @@ function setup_virtual_environment() {
   eval "$(conda shell.bash hook)"
   conda activate "$VENV_NAME"
 
-  # set python variables
+  # set conda variables
   PYTHON_EXEC=$($CONDA_RUN which python${PYTHON_VERSION})
+  SITEPACKAGES="$CONDA_INSTALL_DIR/lib/python${PYTHON_VERSION}/site-packages"
+
+  # ensure permissions after activate
+  chown -R "$SUDO_USER":"$GROUP_NAME" "$CONDA_INSTALL_DIR"
 
   progress_clear DONE "setting up virtual environment"
 
@@ -648,9 +659,9 @@ function setup_service() {
   cat >"${name}.sh" <<EOL
 #!/bin/bash
 
-source "$CONDA_INSTALL_DIR"/etc/profile.d/conda.sh
-conda activate "$VENV_NAME"
-"$command"
+source $CONDA_INSTALL_DIR/etc/profile.d/conda.sh
+conda activate $VENV_NAME
+$command
 EOL
 
   # create unit file
@@ -664,22 +675,27 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart=${UNIT_FILES_DIR}/${name}.sh
+ExecStart=${CONDA_SCRIPTS}/${name}.sh
 
 [Install]
 WantedBy=multi-user.target
 EOL
 
-  chgrp "$GROUP_NAME" "${name}.service"
-  chgrp "$GROUP_NAME" "${name}.sh"
+  chown -R "$SUDO_USER":"$GROUP_NAME" "${name}.service"
+  chown -R "$SUDO_USER":"$GROUP_NAME" "${name}.sh"
+  chgrp "$GROUP_NAME" "$UNIT_FILES_DIR"
+  chgrp "$GROUP_NAME" "$CONDA_SCRIPTS"
 
-  mv -f "${name}.sh" "$UNIT_FILES_DIR/$script"
-  mv -f "${name}.service" "$UNIT_FILES_DIR/$unit_file"
+  mv -f "${name}.sh" "$CONDA_SCRIPTS/${name}.sh"
+  mv -f "${name}.service" "$UNIT_FILES_DIR/${unit_file}.service"
 
   enable_and_start_service "$name" "${name}.service"
 
 }
 
+###############################################################################
+# Enable systemctl services to execute on startup
+###############################################################################
 function enable_and_start_service() {
 
   local name="$1"
@@ -699,22 +715,11 @@ function handle_git_repository() {
 
   # check for FreeTAKHub-Installation repository
   if [[ ! -d ~/FreeTAKHub-Installation ]]; then
-
-    printf "NOT FOUND"
-    echo -e "Cloning the FreeTAKHub-Installation repository..."
     $CONDA_RUN git clone ${REPO}
-
     cd ~/FreeTAKHub-Installation
-
   else
-
-    echo -e "FOUND"
-
     cd ~/FreeTAKHub-Installation
-
-    echo -e "Pulling latest from the FreeTAKHub-Installation repository..."
     $CONDA_RUN git pull
-
   fi
 
 }
@@ -747,24 +752,42 @@ function replace() {
 ###############################################################################
 function fts_shell_install() {
 
-  progress BUSY "downloading fts dependencies"
-  $CONDA install --name "$VENV_NAME" "pip unzip flask lxml pathlib tabulate sqlalchemy setuptools Flask-SQLAlchemy"
-  progress_clear DONE "downloading fts dependencies"
-
   progress BUSY "setting up fts"
-  sudo -i -u "$SUDO_USER" $CONDA_RUN pip3 install "$FTS_PACKAGE"
 
-  # change first start to false
+  $USER_EXEC $CONDA install --name "$VENV_NAME" unzip
+
+  if [[ ! -d "$VENV_DIR/$REPO_FTS" ]]; then
+    $CONDA_RUN git clone "$FREETAKTEAM_BASE/$REPO_FTS" "$VENV_DIR/$REPO_FTS"
+  else
+    cd "$VENV_DIR/$REPO_FTS" && $CONDA_RUN git pull
+  fi
+
+  $USER_EXEC $CONDA_RUN python "$VENV_DIR/$REPO_FTS/setup.py" install --prefix="$SITEPACKAGES"
+
+  # change first start in MainConfig.py to false
   local search="    first_start = True"
   local replace="    first_start = False"
-  replace "$WEBMAP_CONFIG_FILE" "$search" "$replace"
+  replace "$SITEPACKAGES/controllers/configuration/MainConfig.py" "$search" "$replace"
+
+  $USER_EXEC $CONDA_RUN pip3 install --upgrade --target="$SITEPACKAGES" "$FTS_UI_PACKAGE"
+
+  chown -R "$SUDO_USER":"$GROUP_NAME" "$CONDA_INSTALL_DIR"
+
+  # configure FTS
+  create_fts_yaml
+  cat >"/tmp/FTSConfig.yaml" <<EOL
+$FTS_YAML_FILE
+EOL
+
+  chgrp "$GROUP_NAME" "/tmp/FTSConfig.yaml"
+  mv -f "/tmp/FTSConfig.yaml" "/opt/FTSConfig.yaml"
 
   progress_clear DONE "setting up fts"
 
-  progress BUSY "downloading webmap"
+  progress BUSY "setting up webmap"
   wget $WEBMAP_URL -qO "$WEBMAP_FILENAME"
   check_file_integrity "$WEBMAP_SHA256SUM" "$WEBMAP_FILENAME"
-  progress_clear DONE "downloading webmap"
+  progress_clear DONE "setting up webmap"
 
   progress BUSY "setting up webmap"
 
@@ -787,10 +810,8 @@ function fts_shell_install() {
   mv -f "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
   progress_clear DONE "setting up webmap"
 
-  # set file permissions for log folder
-  chgrp -R "$GROUP_NAME" /var/log
-
   progress BUSY "configuring fts to autostart"
+
   local startup_command="$PYTHON_EXEC -m FreeTAKServer.controllers.services.FTS"
   setup_service "fts" "$startup_command"
   progress_clear DONE "setting up fts"
@@ -809,6 +830,7 @@ function install_fts() {
     fts_shell_install
   fi
 }
+
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
