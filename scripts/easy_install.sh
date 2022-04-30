@@ -6,14 +6,14 @@ set -o errexit
 set -o pipefail
 
 # trap or catch signals and direct execution to cleanup
-# trap cleanup SIGINT SIGTERM ERR EXIT
+trap cleanup SIGINT SIGTERM ERR EXIT
 trap ctrl_c INT
 
 REPO_INSTALLER="FreeTAKHub-Installation"
 REPO_FTS="FreeTakServer"
 FREETAKTEAM_BASE="https://github.com/FreeTAKTeam"
 
-IPV4=$(dig @resolver4.opendns.com myip.opendns.com +short -4)
+IPV4="127.0.0.1"
 
 IP_ARG="ansible_host=$IPV4"
 LOCALHOST="127.0.0.1"
@@ -29,12 +29,12 @@ CONDA_INSTALLER=$(mktemp --suffix ".$CONDA_FILENAME")
 
 WEBMAP_NAME="FTH-webmap-linux"
 WEBMAP_VERSION="0.2.5"
-WEBMAP_FILENAME="/tmp/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
-WEBMAP_EXECUTABLE="/tmp/$WEBMAP_NAME-$WEBMAP_VERSION"
+WEBMAP_FILENAME="$WEBMAP_NAME-$WEBMAP_VERSION.zip"
+WEBMAP_EXECUTABLE="$WEBMAP_NAME-$WEBMAP_VERSION"
 WEBMAP_URL="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$WEBMAP_VERSION/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
 WEBMAP_SHA256SUM="11afcde545cc4c2119c0ff7c89d23ebff286c99c6e0dfd214eae6e16760d6723"
 WEBMAP_INSTALL_DIR="/usr/local/bin"
-WEBMAP_CONFIG_FILE="/tmp/webMAP_config.json"
+WEBMAP_CONFIG_FILE="webMAP_config.json"
 
 FTS_PACKAGE="FreeTAKServer"
 FTS_PACKAGE_VERSION="1.9.9.1"
@@ -42,6 +42,31 @@ FTS_UI_PACKAGE="FreeTAKServer-UI"
 
 USER_EXEC="sudo -i -u $SUDO_USER"
 UNIT_FILES_DIR="/lib/systemd/system"
+
+FOREGROUND="\033[39m"
+NOFORMAT="\033[0m"
+RED="\033[1;31m"
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+BLUE="\033[1;34m"
+
+declare -A STATUS_TEXT=(
+  [DONE]=" DONE "
+  [FAIL]=" FAIL "
+  [INFO]=" INFO "
+  [WARN]=" WARN "
+  [BUSY]=" BUSY "
+  [EXIT]=" EXIT "
+)
+
+declare -A STATUS_COLOR=(
+  [DONE]=${GREEN-}
+  [FAIL]=${RED-}
+  [INFO]=${FOREGROUND-}
+  [WARN]=${YELLOW-}
+  [BUSY]=${YELLOW-}
+  [EXIT]=${FOREGROUND-}
+)
 
 ###############################################################################
 # fts yaml file
@@ -119,11 +144,11 @@ CLOUD_PROVIVDER="false"
 newline() { printf "\n"; }
 
 # go "up" one line in the terminal
-go_up() { echo -en "\033[${1}A"; }
+go_up() { printf "\033[${1}A"; }
 
 # clear the line in the terminal
 # helpful for changing progress status
-_clear() { echo -en "\033[K"; }
+_clear() { printf "\033[K"; }
 
 # commonly combined functions
 clear() {
@@ -162,12 +187,7 @@ USAGE_TEXT
 # Setup the log
 ###############################################################################
 function setup_log() {
-
-  exec 3>&1 4>&2
-  trap 'exec 2>&4 1>&3' 0 1 2 3
-  exec 1>fts.log 2>&1
-  # TODO: tail -f fts.log
-
+  exec > >(tee fts.log) 2>&1
 }
 
 ###############################################################################
@@ -212,10 +232,10 @@ function ctrl_c() {
 }
 
 ###############################################################################
-# Echo a message
+# Print a message
 ###############################################################################
 function msg() {
-  echo -e "${1:-}" >&2
+  printf "${1:-}" >&2
 }
 
 ###############################################################################
@@ -240,28 +260,9 @@ function die() {
 EXIT_SUCCESS=0
 EXIT_FAILURE=1
 
-declare -A STATUS_COLOR=(
-  [DONE]=${GREEN-}
-  [FAIL]=${RED-}
-  [INFO]=${FOREGROUND-}
-  [WARN]=${YELLOW-}
-  [BUSY]=${YELLOW-}
-  [EXIT]=${FOREGROUND-}
-)
-
-declare -A STATUS_TEXT=(
-  [DONE]=" DONE "
-  [FAIL]=" FAIL "
-  [INFO]=" INFO "
-  [WARN]=" WARN "
-  [BUSY]=" BUSY "
-  [EXIT]=" EXIT "
-)
-
 function progress() {
 
-  echo -e "[  ${STATUS_COLOR[$1]}${STATUS_TEXT[$1]}${NOFORMAT}  ] ${2}"
-
+  printf "[  ${STATUS_COLOR[$1]}${STATUS_TEXT[$1]}${NOFORMAT}  ] ${2}\n"
 }
 
 ###############################################################################
@@ -269,14 +270,11 @@ function progress() {
 ###############################################################################
 function parse_params() {
 
-  # setup console colors
-  color
-
   while true; do
     case "${1-}" in
 
-    --ansible | -a)
-      ANSIBLE=1
+    --no-color)
+      NO_COLOR=1
       shift
       ;;
 
@@ -287,20 +285,35 @@ function parse_params() {
       ;;
 
     --log | -l)
-      no_color
       setup_log
-      set -x
-      shift
-      ;;
-
-    --no-color)
-      no_color
       shift
       ;;
 
     --verbose | -v)
-      no_color
       set -x
+      shift
+      ;;
+
+    -?*)
+      die "FAIL: unknown option $1"
+      ;;
+
+    *)
+      break
+      ;;
+
+    esac
+  done
+
+  setup_console_colors
+
+  check_root
+
+  while true; do
+    case "${1-}" in
+
+    --ansible | -a)
+      ANSIBLE=1
       shift
       ;;
 
@@ -317,36 +330,41 @@ function parse_params() {
 
 }
 
-function color() {
-  FOREGROUND="\033[39m"
-  NOFORMAT="\033[0m"
-  RED="\033[1;31m"
-  GREEN="\033[1;32m"
-  YELLOW='\033[1;33m'
-  BLUE='\033[1;34m'
-}
+function setup_console_colors() {
 
-function no_color() {
-  unset FOREGROUND
-  unset NOFORMAT
-  unset RED
-  unset GREEN
-  unset YELLOW
-  unset BLUE
+  if [ -n "${NO_COLOR}" ]; then
+
+    unset FOREGROUND
+    unset NOFORMAT
+    unset RED
+    unset GREEN
+    unset YELLOW
+    unset BLUE
+
+    STATUS_COLOR=(
+      [DONE]=${GREEN-}
+      [FAIL]=${RED-}
+      [INFO]=${FOREGROUND-}
+      [WARN]=${YELLOW-}
+      [BUSY]=${YELLOW-}
+      [EXIT]=${FOREGROUND-}
+    )
+
+  fi
+
 }
 
 ###############################################################################
 # Check if script was ran as root. This script requires root execution.
 ###############################################################################
 function check_root() {
-  progress BUSY "checking if user is root"
 
   # check Effective User ID (EUID) for root user, which has an EUID of 0.
   if [[ "$EUID" -ne 0 ]]; then
-    progress_clear FAIL "This script requires running as root. Use sudo before the command."
+    progress FAIL "This script requires running as root. Use sudo before the command."
     exit ${EXIT_FAILURE}
   fi
-  progress_clear DONE "checking if user is root"
+
 }
 
 function identify_cloud() {
@@ -487,10 +505,10 @@ function identify_system() {
   done
 
   if [ $is_supported = false ]; then
-    echo -e "${YELLOW}WARNING${NOFORMAT}"
-    echo -e "running"
-    echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}"
-    echo "Errors may arise during installation or execution."
+    printf "${YELLOW}WARNING${NOFORMAT}\n"
+    printf "running\n"
+    printf "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}\n"
+    printf "Errors may arise during installation or execution.\n"
   fi
 
   # # check for supported OS and version and warn if not supported
@@ -508,13 +526,13 @@ function identify_system() {
   #   if [[ "${PROCEED}" != "y" ]]; then
   #     die "Answer was not y. Not proceeding."
   #   else
-  #     echo -e "${GREEN}Proceeding...${NOFORMAT}"
+  #     printf "${GREEN}Proceeding...${NOFORMAT}\n"
   #   fi
 
   # else
 
-  #   echo -e "${GREEN}Success!${NOFORMAT}"
-  #   echo -e "This machine is currently running: ${GREEN}${OS} ${VER}${NOFORMAT}"
+  #   printf "${GREEN}Success!${NOFORMAT}\n"
+  #   printf "This machine is currently running: ${GREEN}${OS} ${VER}${NOFORMAT}\n"
 
   # fi
 
@@ -545,15 +563,15 @@ function check_architecture() {
 
     # Check user input to force install web map or not
     if [[ "${FORCE_WEBMAP_INSTALL_INPUT}" != "y" ]]; then
-      echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
+      printf "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation.\n"
     else
       WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
-      echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
+      printf "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!\n"
     fi
 
   else # good architecture to install webmap
-    echo -e "${GREEN}Success!${NOFORMAT}"
-    echo "Intel architecture detected, ${name}"
+    printf "${GREEN}Success!${NOFORMAT}\n"
+    printf "Intel architecture detected, ${name}\n"
 
   fi
 
@@ -685,14 +703,14 @@ EOL
   mv -f "${name}.sh" "$UNIT_FILES_DIR/${name}.sh"
   mv -f "${name}.service" "$UNIT_FILES_DIR/${name}.service"
 
-  enable_and_start_service "$name" "${name}.service"
+  enable_service "$name" "${name}.service"
 
 }
 
 ###############################################################################
-# Enable systemctl services to execute on startup
+# Enable services to execute on startup
 ###############################################################################
-function enable_and_start_service() {
+function enable_service() {
 
   local name="$1"
   local unit_file="$2"
@@ -731,7 +749,7 @@ function run_playbook() {
   $CONDA install --name "$VENV_NAME" --channel conda-forge ansible
 
   EXTRA_VARS=-e "CONDA_PREFIX=$CONDA_PREFIX" -e "VENV_NAME=$VENV_NAME"
-  if [[ -n "${ANSIBLE-}" ]]; then
+  if [[ -n "${CORE}" ]]; then
     $CONDA_RUN ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_mainserver.yml -vvv
   else
     $CONDA_RUN ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_all.yml -vvv
@@ -768,9 +786,9 @@ function fts_shell_install() {
   progress BUSY "setting up fts"
 
   manual_fts_build
-  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} -m pip install -y "$FTS_UI_PACKAGE"
-  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} -m pip uninstall -y ruamel.yaml
-  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} -m pip install -y ruamel.yaml
+  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} -m pip install --no-input "$FTS_UI_PACKAGE" --prefix="$SITEPACKAGES"
+  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} -m pip uninstall --yes ruamel.yaml
+  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} -m pip install --no-input ruamel.yaml
 
   # configure FTS
   local search="    first_start = True"
@@ -788,37 +806,43 @@ EOL
   progress_clear DONE "setting up fts"
 
   progress BUSY "setting up webmap"
-  wget $WEBMAP_URL -qO "$WEBMAP_FILENAME"
-  check_file_integrity "$WEBMAP_SHA256SUM" "$WEBMAP_FILENAME"
+  wget $WEBMAP_URL -qO "/tmp/$WEBMAP_FILENAME"
+  check_file_integrity "$WEBMAP_SHA256SUM" "/tmp/$WEBMAP_FILENAME"
   progress_clear DONE "setting up webmap"
 
   progress BUSY "setting up webmap"
 
   # unzip webmap
-  chmod 777 "$WEBMAP_FILENAME"
+  chmod 777 "/tmp/$WEBMAP_FILENAME"
   $USER_EXEC $CONDA install -y --name "$VENV_NAME" unzip
-  $CONDA_RUN unzip -o "$WEBMAP_FILENAME" -d /tmp
+  $CONDA_RUN unzip -o "/tmp/$WEBMAP_FILENAME" -d /tmp
 
   # remove version string in webmap executable
-  mv -f "$WEBMAP_EXECUTABLE" "$WEBMAP_NAME"
+  mv -f "/tmp/$WEBMAP_EXECUTABLE" "/tmp/$WEBMAP_NAME"
 
-  chgrp "$GROUP_NAME" "$WEBMAP_NAME"
-  mv -f "$WEBMAP_NAME" "$WEBMAP_INSTALL_DIR/$WEBMAP_NAME"
+  chgrp "$GROUP_NAME" "/tmp/$WEBMAP_NAME"
+  mv -f "/tmp/$WEBMAP_NAME" "$WEBMAP_INSTALL_DIR/$WEBMAP_NAME"
 
   # configure ip in webMAP_config.json
   local search="\"FTH_FTS_URL\": \"204.48.30.216\","
   local replace="\"FTH_FTS_URL\": \"$IPV4\","
-  replace "$WEBMAP_CONFIG_FILE" "$search" "$replace"
+  replace "/tmp/$WEBMAP_CONFIG_FILE" "$search" "$replace"
 
-  chgrp "$GROUP_NAME" "$WEBMAP_CONFIG_FILE"
-  mv -f "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
+  chgrp "$GROUP_NAME" "/tmp/$WEBMAP_CONFIG_FILE"
+  mv -f "/tmp/$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_FILE"
   progress_clear DONE "setting up webmap"
 
   progress BUSY "configuring fts to autostart"
 
-  local startup_command="$PYTHON_EXEC -m FreeTAKServer.controllers.services.FTS"
-  setup_service "fts" "$startup_command"
-  progress_clear DONE "setting up fts"
+  local fts_command="$PYTHON_EXEC -m FreeTAKServer.controllers.services.FTS"
+  setup_service "fts" "$fts_command"
+
+  local fts_ui_command="$PYTHON_EXEC  $SITEPACKAGES/$FTS_UI_PACKAGE/run.py"
+  setup_service "fts-ui" "$fts_ui_command"
+
+  local webmap_command="/usr/local/bin/$WEBMAP_NAME /opt/$WEBMAP_CONFIG_FILE"
+  setup_service "webmap" "$webmap_command"
+  progress_clear DONE "configuring fts to autostart"
 
 }
 
@@ -835,19 +859,24 @@ function install_fts() {
   fi
 }
 
+function start_services() {
+  systemctl start fts.service
+  systemctl start fts-ui.service
+  systemctl start webmap.service
+}
+
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
 start=$(date +%s)
 parse_params "$@"
-check_root
 # identify_system
 # identify_cloud
 # identify_docker
 setup_virtual_environment
 # get_public_ip
 install_fts
-
+start_services
 # systemctl start "${name}.service"
 end=$(date +%s)
 progress DONE "SUCCESS! Installed in $((end - start))s."
