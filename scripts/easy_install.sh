@@ -6,47 +6,75 @@ set -o errexit
 set -o pipefail
 
 # trap or catch signals and direct execution to cleanup
-# trap cleanup SIGINT SIGTERM ERR EXIT
+trap cleanup SIGINT SIGTERM ERR EXIT
 trap ctrl_c INT
 
-REPO_INSTALLER="FreeTAKHub-Installation"
-REPO_FTS="FreeTakServer"
-FREETAKTEAM_BASE="https://github.com/FreeTAKTeam"
-
-IPV4=$(dig @resolver4.opendns.com myip.opendns.com +short -4)
-
-IP_ARG="ansible_host=$IPV4"
 LOCALHOST="127.0.0.1"
+IPV4="$LOCALHOST"
+IP_ARG="ansible_host=$IPV4"
+USER_EXEC="sudo -i -u $SUDO_USER"
+UNIT_FILES_DIR="/lib/systemd/system"
+
+FTS_INSTALL_REPO="FreeTAKHub-Installation"
+FTS_REPO="FreeTakServer"
+FREETAKTEAM_BASE="https://github.com/FreeTAKTeam"
 
 GROUP_NAME="fts"
 VENV_NAME="fts"
-PYTHON_VERSION=3.8
+PYTHON_VERSION="3.8"
 
 CONDA_FILENAME="Miniconda3-py38_4.11.0-Linux-x86_64.sh"
-CONDA_INSTALLER_URL="https://repo.anaconda.com/miniconda/Miniconda3-py38_4.11.0-Linux-x86_64.sh"
+CONDA_INSTALLER_URL="https://repo.anaconda.com/miniconda/$CONDA_FILENAME"
 CONDA_SHA256SUM="4bb91089ecc5cc2538dece680bfe2e8192de1901e5e420f63d4e78eb26b0ac1a"
 CONDA_INSTALLER=$(mktemp --suffix ".$CONDA_FILENAME")
 
+FTS_PACKAGE_TEST_REPO="git+https://https://github.com/janseptaugust/FreeTakServer.git"
+FTS_PACKAGE="FreeTAKServer"
+FTS_VERSION="1.9.9.2"
+FTS_SERVICE=fts
+
+FTS_UI_PACKAGE="FreeTAKServer-UI"
+FTS_UI_SERVICE=fts-ui
+
 WEBMAP_NAME="FTH-webmap-linux"
 WEBMAP_VERSION="0.2.5"
-WEBMAP_FILENAME="/tmp/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
-WEBMAP_EXECUTABLE="/tmp/$WEBMAP_NAME-$WEBMAP_VERSION"
+WEBMAP_FILENAME="$WEBMAP_NAME-$WEBMAP_VERSION.zip"
+WEBMAP_EXECUTABLE="$WEBMAP_NAME-$WEBMAP_VERSION"
 WEBMAP_URL="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$WEBMAP_VERSION/$WEBMAP_NAME-$WEBMAP_VERSION.zip"
 WEBMAP_SHA256SUM="11afcde545cc4c2119c0ff7c89d23ebff286c99c6e0dfd214eae6e16760d6723"
 WEBMAP_INSTALL_DIR="/usr/local/bin"
-WEBMAP_CONFIG_FILE="/tmp/webMAP_config.json"
+WEBMAP_CONFIG_FILE="webMAP_config.json"
+WEBMAP_SERVICE=webmap
 
-FTS_PACKAGE="FreeTAKServer"
-FTS_PACKAGE_VERSION="1.9.9.1"
-FTS_UI_PACKAGE="FreeTAKServer-UI"
+FOREGROUND="\033[39m"
+NOFORMAT="\033[0m"
+RED="\033[1;31m"
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+BLUE="\033[1;34m"
 
-USER_EXEC="sudo -i -u $SUDO_USER"
-UNIT_FILES_DIR="/lib/systemd/system"
+declare -A STATUS_TEXT=(
+  [DONE]=" DONE "
+  [FAIL]=" FAIL "
+  [INFO]=" INFO "
+  [WARN]=" WARN "
+  [BUSY]=" BUSY "
+  [EXIT]=" EXIT "
+)
+
+declare -A STATUS_COLOR=(
+  [DONE]=${GREEN-}
+  [FAIL]=${RED-}
+  [INFO]=${FOREGROUND-}
+  [WARN]=${YELLOW-}
+  [BUSY]=${YELLOW-}
+  [EXIT]=${FOREGROUND-}
+)
 
 ###############################################################################
 # fts yaml file
 ###############################################################################
-function create_fts_yaml() {
+initialize_fts_yaml() {
   FTS_YAML_FILE=$(
     cat <<-END
 System:
@@ -90,6 +118,10 @@ Certs:
 END
   )
 
+  cat >"/tmp/FTSConfig.yaml" <<EOL
+$FTS_YAML_FILE
+EOL
+
 }
 ###############################################################################
 # SUPPORTED OS VARIABLES
@@ -115,15 +147,14 @@ CLOUD_PROVIVDER="false"
 ###############################################################################
 # Functions for console output
 ###############################################################################
-
 newline() { printf "\n"; }
 
 # go "up" one line in the terminal
-go_up() { echo -en "\033[${1}A"; }
+go_up() { printf "\033[${1}A"; }
 
 # clear the line in the terminal
 # helpful for changing progress status
-_clear() { echo -en "\033[K"; }
+_clear() { printf "\033[K"; }
 
 # commonly combined functions
 clear() {
@@ -137,11 +168,19 @@ progress_clear() {
 }
 
 ###############################################################################
-# Print out helpful message.
-# Outputs:
-#   Writes usage message to stdout
+# Replace string in file
 ###############################################################################
-function usage() {
+replace() {
+  local file=$1
+  local search=$2
+  local replace=$3
+  sed -i "s/$search/$replace/g" "$file"
+}
+
+###############################################################################
+# Print out helpful message.
+###############################################################################
+usage() {
   cat <<USAGE_TEXT
 Usage: $(basename "${BASH_SOURCE[0]:-}") [<optional-arguments>]
 
@@ -161,25 +200,20 @@ USAGE_TEXT
 ###############################################################################
 # Setup the log
 ###############################################################################
-function setup_log() {
-
-  exec 3>&1 4>&2
-  trap 'exec 2>&4 1>&3' 0 1 2 3
-  exec 1>fts.log 2>&1
-  # TODO: tail -f fts.log
-
+setup_log() {
+  exec > >(tee fts.log) 2>&1
 }
 
 ###############################################################################
 # Cleanup here
 ###############################################################################
-function cleanup() {
+cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
   # _cleanup
   die
 }
 
-function _cleanup() {
+_cleanup() {
   rm -f "${CONDA_INSTALLER}"
   rm -f "${WEBMAP_ZIP}"
 }
@@ -187,7 +221,7 @@ function _cleanup() {
 ###############################################################################
 # Get my public ip
 ###############################################################################
-function get_public_ip() {
+get_public_ip() {
 
   if [[ -n "${LOCALHOST-}" ]]; then
     IP_ARG="-i localhost"
@@ -198,10 +232,10 @@ function get_public_ip() {
 ###############################################################################
 # Interrupt Cleanup
 ###############################################################################
-function ctrl_c() {
+ctrl_c() {
   trap - INT
 
-  # _cleanup
+  _cleanup
 
   printf "\b\b"
 
@@ -212,16 +246,16 @@ function ctrl_c() {
 }
 
 ###############################################################################
-# Echo a message
+# Print a message
 ###############################################################################
-function msg() {
-  echo -e "${1:-}" >&2
+msg() {
+  printf "${1:-}" >&2
 }
 
 ###############################################################################
 # Exit gracefully
 ###############################################################################
-function die() {
+die() {
 
   # default exit status 0
   local -i code=${2:-0}
@@ -235,48 +269,25 @@ function die() {
 }
 
 ###############################################################################
-# STATUS VARIABLES
+# STATUS
 ###############################################################################
-EXIT_SUCCESS=0
 EXIT_FAILURE=1
 
-declare -A STATUS_COLOR=(
-  [DONE]=${GREEN-}
-  [FAIL]=${RED-}
-  [INFO]=${FOREGROUND-}
-  [WARN]=${YELLOW-}
-  [BUSY]=${YELLOW-}
-  [EXIT]=${FOREGROUND-}
-)
+progress() {
 
-declare -A STATUS_TEXT=(
-  [DONE]=" DONE "
-  [FAIL]=" FAIL "
-  [INFO]=" INFO "
-  [WARN]=" WARN "
-  [BUSY]=" BUSY "
-  [EXIT]=" EXIT "
-)
-
-function progress() {
-
-  echo -e "[  ${STATUS_COLOR[$1]}${STATUS_TEXT[$1]}${NOFORMAT}  ] ${2}"
-
+  printf "[  ${STATUS_COLOR[$1]}${STATUS_TEXT[$1]}${NOFORMAT}  ] ${2}\n"
 }
 
 ###############################################################################
 # Parse parameters
 ###############################################################################
-function parse_params() {
-
-  # setup console colors
-  color
+parse_params() {
 
   while true; do
     case "${1-}" in
 
-    --ansible | -a)
-      ANSIBLE=1
+    --no-color)
+      NO_COLOR=1
       shift
       ;;
 
@@ -287,20 +298,35 @@ function parse_params() {
       ;;
 
     --log | -l)
-      no_color
       setup_log
-      set -x
-      shift
-      ;;
-
-    --no-color)
-      no_color
       shift
       ;;
 
     --verbose | -v)
-      no_color
       set -x
+      shift
+      ;;
+
+    -?*)
+      die "FAIL: unknown option $1"
+      ;;
+
+    *)
+      break
+      ;;
+
+    esac
+  done
+
+  setup_console_colors
+
+  check_root
+
+  while true; do
+    case "${1-}" in
+
+    --ansible | -a)
+      ANSIBLE=1
       shift
       ;;
 
@@ -317,39 +343,44 @@ function parse_params() {
 
 }
 
-function color() {
-  FOREGROUND="\033[39m"
-  NOFORMAT="\033[0m"
-  RED="\033[1;31m"
-  GREEN="\033[1;32m"
-  YELLOW='\033[1;33m'
-  BLUE='\033[1;34m'
-}
+setup_console_colors() {
 
-function no_color() {
-  unset FOREGROUND
-  unset NOFORMAT
-  unset RED
-  unset GREEN
-  unset YELLOW
-  unset BLUE
+  if [ -n "${NO_COLOR}" ]; then
+
+    unset FOREGROUND
+    unset NOFORMAT
+    unset RED
+    unset GREEN
+    unset YELLOW
+    unset BLUE
+
+    STATUS_COLOR=(
+      [DONE]=${GREEN-}
+      [FAIL]=${RED-}
+      [INFO]=${FOREGROUND-}
+      [WARN]=${YELLOW-}
+      [BUSY]=${YELLOW-}
+      [EXIT]=${FOREGROUND-}
+    )
+
+  fi
+
 }
 
 ###############################################################################
 # Check if script was ran as root. This script requires root execution.
 ###############################################################################
-function check_root() {
-  progress BUSY "checking if user is root"
+check_root() {
 
   # check Effective User ID (EUID) for root user, which has an EUID of 0.
   if [[ "$EUID" -ne 0 ]]; then
-    progress_clear FAIL "This script requires running as root. Use sudo before the command."
+    progress FAIL "This script requires running as root. Use sudo before the command."
     exit ${EXIT_FAILURE}
   fi
-  progress_clear DONE "checking if user is root"
+
 }
 
-function identify_cloud() {
+identify_cloud() {
 
   if dmidecode --string "bios-vendor" | grep -iq "digitalocean"; then # DigitalOcean
     CLOUD_PROVIDER="digitalocean"
@@ -365,7 +396,7 @@ function identify_cloud() {
 
 }
 
-function identify_docker() {
+identify_docker() {
 
   # Detect if inside Docker
   if grep -iq docker /proc/1/cgroup 2 || head -n 1 /proc/1/sched 2 | grep -Eq '^(bash|sh) ' || [ -f /.dockerenv ]; then
@@ -377,28 +408,11 @@ function identify_docker() {
 ###############################################################################
 # Check for supported system and warn user if not supported.
 ###############################################################################
-function identify_system() {
+identify_system() {
 
   progress BUSY "identifying system attributes"
 
-  if uname -s | grep -iq "darwin"; then # Detect macOS
-    SYSTEM_NAME="unix"
-    SYSTEM_DIST="macos"
-    SYSTEM_DIST_BASED_ON="bsd"
-    sw_vers -productVersion | grep -q 10.10 && SYSTEM_PSEUDO_NAME="Yosemite"
-    sw_vers -productVersion | grep -q 10.11 && SYSTEM_PSEUDO_NAME="El Capitan"
-    sw_vers -productVersion | grep -q 10.12 && SYSTEM_PSEUDO_NAME="Sierra"
-    sw_vers -productVersion | grep -q 10.13 && SYSTEM_PSEUDO_NAME="High Sierra"
-    sw_vers -productVersion | grep -q 10.14 && SYSTEM_PSEUDO_NAME="Mojave"
-    sw_vers -productVersion | grep -q 10.15 && SYSTEM_PSEUDO_NAME="Catalina"
-    sw_vers -productVersion | grep -q 11. && SYSTEM_PSEUDO_NAME="Big Sur"
-    sw_vers -productVersion | grep -q 12. && SYSTEM_PSEUDO_NAME="Monterey"
-    SYSTEM_VERSION=$(sw_vers -productVersion)
-    SYSTEM_ARCH_NAME="i386"
-    uname -m | grep -q "x86_64" && SYSTEM_ARCH_NAME="amd64"
-    uname -m | grep -q "arm" && SYSTEM_ARCH_NAME="arm64"
-
-  elif [ -f /etc/debian_version ]; then # Detect Debian family
+  if [ -f /etc/debian_version ]; then # Detect Debian family
     id="$(grep "^ID=" /etc/os-release | awk -F= '{ print $2 }')"
     SYSTEM_DIST="$id"
     if [ "$SYSTEM_DIST" = "debian" ]; then
@@ -436,6 +450,23 @@ function identify_system() {
     uname -m | grep -q "64" && SYSTEM_ARCH_NAME="amd64"
     { uname -m | grep -q "arm[_]*64" || uname -m | grep -q "aarch64"; } && SYSTEM_ARCH_NAME="arm64"
 
+  elif uname -s | grep -iq "darwin"; then # Detect macOS
+    SYSTEM_NAME="unix"
+    SYSTEM_DIST="macos"
+    SYSTEM_DIST_BASED_ON="bsd"
+    sw_vers -productVersion | grep -q 10.10 && SYSTEM_PSEUDO_NAME="Yosemite"
+    sw_vers -productVersion | grep -q 10.11 && SYSTEM_PSEUDO_NAME="El Capitan"
+    sw_vers -productVersion | grep -q 10.12 && SYSTEM_PSEUDO_NAME="Sierra"
+    sw_vers -productVersion | grep -q 10.13 && SYSTEM_PSEUDO_NAME="High Sierra"
+    sw_vers -productVersion | grep -q 10.14 && SYSTEM_PSEUDO_NAME="Mojave"
+    sw_vers -productVersion | grep -q 10.15 && SYSTEM_PSEUDO_NAME="Catalina"
+    sw_vers -productVersion | grep -q 11. && SYSTEM_PSEUDO_NAME="Big Sur"
+    sw_vers -productVersion | grep -q 12. && SYSTEM_PSEUDO_NAME="Monterey"
+    SYSTEM_VERSION=$(sw_vers -productVersion)
+    SYSTEM_ARCH_NAME="i386"
+    uname -m | grep -q "x86_64" && SYSTEM_ARCH_NAME="amd64"
+    uname -m | grep -q "arm" && SYSTEM_ARCH_NAME="arm64"
+
   elif which busybox; then # Detect Busybox
     SYSTEM_DIST="busybox"
     SYSTEM_DIST_BASED_ON="busybox"
@@ -454,6 +485,7 @@ function identify_system() {
     SYSTEM_ARCH_NAME="i386"
     uname -m | grep -q "64" && SYSTEM_ARCH_NAME="amd64"
     { uname -m | grep -q "arm[_]*64" || uname -m | grep -q "aarch64"; } && SYSTEM_ARCH_NAME="arm64"
+
   fi
 
   # make vars lowercase
@@ -487,10 +519,7 @@ function identify_system() {
   done
 
   if [ $is_supported = false ]; then
-    echo -e "${YELLOW}WARNING${NOFORMAT}"
-    echo -e "running"
-    echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}"
-    echo "Errors may arise during installation or execution."
+    printf "${YELLOW}WARNING${NOFORMAT}\n"
   fi
 
   # # check for supported OS and version and warn if not supported
@@ -508,13 +537,13 @@ function identify_system() {
   #   if [[ "${PROCEED}" != "y" ]]; then
   #     die "Answer was not y. Not proceeding."
   #   else
-  #     echo -e "${GREEN}Proceeding...${NOFORMAT}"
+  #     printf "${GREEN}Proceeding...${NOFORMAT}\n"
   #   fi
 
   # else
 
-  #   echo -e "${GREEN}Success!${NOFORMAT}"
-  #   echo -e "This machine is currently running: ${GREEN}${OS} ${VER}${NOFORMAT}"
+  #   printf "${GREEN}Success!${NOFORMAT}\n"
+  #   printf "This machine is currently running: ${GREEN}${OS} ${VER}${NOFORMAT}\n"
 
   # fi
 
@@ -524,7 +553,7 @@ function identify_system() {
 ###############################################################################
 # Check for supported architecture
 ###############################################################################
-function check_architecture() {
+check_architecture() {
 
   progress BUSY "checking for supported architecture"
 
@@ -545,16 +574,14 @@ function check_architecture() {
 
     # Check user input to force install web map or not
     if [[ "${FORCE_WEBMAP_INSTALL_INPUT}" != "y" ]]; then
-      echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
+      printf "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation.\n"
     else
       WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
-      echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
+      printf "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!\n"
     fi
 
-  else # good architecture to install webmap
-    echo -e "${GREEN}Success!${NOFORMAT}"
-    echo "Intel architecture detected, ${name}"
-
+  else
+    : # good architecture to install webmap
   fi
 
   progress_clear DONE "checking for supported architecture"
@@ -563,7 +590,7 @@ function check_architecture() {
 ###############################################################################
 # check sha256sum
 ###############################################################################
-function check_file_integrity() {
+check_file_integrity() {
 
   local checksum=$1
   local file=$2
@@ -583,7 +610,7 @@ function check_file_integrity() {
 ###############################################################################
 # setup miniconda virtual environment
 ###############################################################################
-function setup_virtual_environment() {
+setup_virtual_environment() {
 
   # get the home directory of user that ran this script
   USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
@@ -618,7 +645,6 @@ function setup_virtual_environment() {
 
   CONDA="conda"
   CONDA_RUN="conda run -n $VENV_NAME"
-  CONDA_SCRIPTS="$CONDA_PREFIX/etc/profile.d"
 
   # shellcheck source="$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
   source "$CONDA_INSTALL_DIR/etc/profile.d/conda.sh"
@@ -649,14 +675,12 @@ function setup_virtual_environment() {
 }
 
 ###############################################################################
-# setup a service (used for autostarting on login)
+# create startup script
 ###############################################################################
-function setup_service() {
+create_start_script() {
+  local name="$1"
+  local command="$2"
 
-  local name=$1
-  local command=$2
-
-  # create launch script
   cat >"${name}.sh" <<EOL
 #!/bin/bash
 
@@ -664,8 +688,13 @@ source $CONDA_INSTALL_DIR/etc/profile.d/conda.sh
 conda activate $VENV_NAME
 $command
 EOL
+}
 
-  # create unit file
+###############################################################################
+# create a unit file
+###############################################################################
+create_unit_file() {
+
   cat >"${name}.service" <<EOL
 [Unit]
 Description=${name} service
@@ -682,38 +711,49 @@ ExecStart=${UNIT_FILES_DIR}/${name}.sh
 WantedBy=multi-user.target
 EOL
 
-  chown "$SUDO_USER":"$GROUP_NAME" "${name}.service"
-  chown "$SUDO_USER":"$GROUP_NAME" "${name}.sh"
-  chgrp "$GROUP_NAME" "$UNIT_FILES_DIR"
-  chgrp "$GROUP_NAME" "$CONDA_SCRIPTS"
+}
 
+###############################################################################
+# setup a service (used for autostarting on login)
+###############################################################################
+setup_service() {
+
+  local name="$1"
+  local command="$2"
+
+  # create start script
+  create_start_script "$name" "$command"
+
+  # create unit file
+  create_unit_file "$name"
+
+  # move files to systemd (unit files) directory
   mv -f "${name}.sh" "$UNIT_FILES_DIR/${name}.sh"
-  mv -f "${name}.service" "$CONDA_SCRIPTS/${name}.service"
+  mv -f "${name}.service" "$UNIT_FILES_DIR/${name}.service"
 
-  enable_and_start_service "$name" "${name}.service"
+  enable_service "$name"
 
 }
 
 ###############################################################################
-# Enable systemctl services to execute on startup
+# Enable services to execute on startup
 ###############################################################################
-function enable_and_start_service() {
+enable_service() {
 
-  local name="$1"
-  local unit_file="$2"
+  local name=$1
 
   # ensure permissions
   chown -R "$SUDO_USER":"$GROUP_NAME" "$CONDA_INSTALL_DIR"
 
   systemctl daemon-reload
-  systemctl --user enable "$name"
+  systemctl enable "$name"
 
 }
 
 ###############################################################################
 # Handle git repository
 ###############################################################################
-function handle_git_repository() {
+handle_git_repository() {
 
   cd ~
 
@@ -731,59 +771,52 @@ function handle_git_repository() {
 ###############################################################################
 # Run Ansible playbook to install
 ###############################################################################
-function run_playbook() {
+run_playbook() {
 
   $CONDA install --name "$VENV_NAME" --channel conda-forge ansible
 
   EXTRA_VARS=-e "CONDA_PREFIX=$CONDA_PREFIX" -e "VENV_NAME=$VENV_NAME"
-  if [[ -n "${ANSIBLE-}" ]]; then
+  if [[ -n "${CORE}" ]]; then
     $CONDA_RUN ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_mainserver.yml -vvv
   else
     $CONDA_RUN ansible-playbook -u "$SUDO_USER", "$IP_ARG", --connection=local "$EXTRA_VARS" install_all.yml -vvv
   fi
 }
 
-function replace() {
-  local file=$1
-  local search=$2
-  local replace=$3
-  sed -i "s/$search/$replace/g" "$file"
+manual_fts_build() {
 
-}
-
-function manual_fts_build() {
-
-  if [[ ! -d "$CONDA_PREFIX/$REPO_FTS" ]]; then
-    $USER_EXEC $CONDA_RUN git clone "$FREETAKTEAM_BASE/$REPO_FTS" "$CONDA_PREFIX/$REPO_FTS"
+  if [[ ! -d "$CONDA_PREFIX/$FTS_REPO" ]]; then
+    $USER_EXEC $CONDA_RUN git clone "$FREETAKTEAM_BASE/$FTS_REPO" "$CONDA_PREFIX/$FTS_REPO"
   else
-    cd "$CONDA_PREFIX/$REPO_FTS" && $CONDA_RUN git pull
+    cd "$CONDA_PREFIX/$FTS_REPO" && $CONDA_RUN git pull
   fi
 
-  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} "$CONDA_PREFIX/$REPO_FTS/setup.py" install
-  chown -R "$SUDO_USER":"$GROUP_NAME" "$CONDA_PREFIX/$REPO_FTS/$FTS_PACKAGE"
-  mv -f "$CONDA_PREFIX/$REPO_FTS/$FTS_PACKAGE" "$SITEPACKAGES"
+  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} "$CONDA_PREFIX/$FTS_REPO/setup.py" install
+
+  chown -R "$SUDO_USER":"$GROUP_NAME" "$CONDA_PREFIX/$FTS_REPO/$FTS_PACKAGE"
+  mv -f "$CONDA_PREFIX/$FTS_REPO/$FTS_PACKAGE" "$SITEPACKAGES"
 
 }
 
 ###############################################################################
 # Install FTS via shell
 ###############################################################################
-function fts_shell_install() {
+fts_shell_install() {
 
   progress BUSY "setting up fts"
 
-  manual_fts_build
-  $USER_EXEC $CONDA_RUN python${PYTHON_VERSION} -m pip install ruamel.yaml "$FTS_UI_PACKAGE"
+  # $USER_EXEC $CONDA_RUN python -m pip install --no-input "$FTS_PACKAGE"
+  $USER_EXEC $CONDA_RUN python -m pip install --no-input "git+https://github.com/janseptaugust/FreeTakServer.git@master"
+
+  $USER_EXEC $CONDA_RUN python -m pip install --no-input "$FTS_UI_PACKAGE"
 
   # configure FTS
   local search="    first_start = True"
   local replace="    first_start = False"
   replace "$SITEPACKAGES/$FTS_PACKAGE/controllers/configuration/MainConfig.py" "$search" "$replace"
 
-  create_fts_yaml
-  cat >"/tmp/FTSConfig.yaml" <<EOL
-$FTS_YAML_FILE
-EOL
+  # create FTSConfig.yaml file
+  initialize_fts_yaml
 
   chgrp "$GROUP_NAME" "/tmp/FTSConfig.yaml"
   mv -f "/tmp/FTSConfig.yaml" "/opt/FTSConfig.yaml"
@@ -791,47 +824,54 @@ EOL
   progress_clear DONE "setting up fts"
 
   progress BUSY "setting up webmap"
-  wget $WEBMAP_URL -qO "$WEBMAP_FILENAME"
-  check_file_integrity "$WEBMAP_SHA256SUM" "$WEBMAP_FILENAME"
+
+  # download the webmap
+  wget $WEBMAP_URL -qO "/tmp/$WEBMAP_FILENAME"
+  check_file_integrity "$WEBMAP_SHA256SUM" "/tmp/$WEBMAP_FILENAME"
   progress_clear DONE "setting up webmap"
 
   progress BUSY "setting up webmap"
 
   # unzip webmap
-  chmod 777 "$WEBMAP_FILENAME"
+  chmod 777 "/tmp/$WEBMAP_FILENAME"
   $USER_EXEC $CONDA install -y --name "$VENV_NAME" unzip
-  $CONDA_RUN unzip -o "$WEBMAP_FILENAME" -d /tmp
+  $CONDA_RUN unzip -o "/tmp/$WEBMAP_FILENAME" -d /tmp
 
   # remove version string in webmap executable
-  mv -f "$WEBMAP_EXECUTABLE" "$WEBMAP_NAME"
+  mv -f "/tmp/$WEBMAP_EXECUTABLE" "/tmp/$WEBMAP_NAME"
 
-  chgrp "$GROUP_NAME" "$WEBMAP_NAME"
-  mv -f "$WEBMAP_NAME" "$WEBMAP_INSTALL_DIR/$WEBMAP_NAME"
+  chgrp "$GROUP_NAME" "/tmp/$WEBMAP_NAME"
+  mv -f "/tmp/$WEBMAP_NAME" "$WEBMAP_INSTALL_DIR/$WEBMAP_NAME"
 
   # configure ip in webMAP_config.json
   local search="\"FTH_FTS_URL\": \"204.48.30.216\","
   local replace="\"FTH_FTS_URL\": \"$IPV4\","
-  replace "$WEBMAP_CONFIG_FILE" "$search" "$replace"
+  replace "/tmp/$WEBMAP_CONFIG_FILE" "$search" "$replace"
 
-  chgrp "$GROUP_NAME" "$WEBMAP_CONFIG_FILE"
-  mv -f "$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_DESTINATION"
+  chgrp "$GROUP_NAME" "/tmp/$WEBMAP_CONFIG_FILE"
+  mv -f "/tmp/$WEBMAP_CONFIG_FILE" "/opt/$WEBMAP_CONFIG_FILE"
+
   progress_clear DONE "setting up webmap"
 
-  # # use systemctl workaround
-  # wget https://raw.githubusercontent.com/gdraheim/docker-systemctl-replacement/master/files/docker/systemctl3.py -qO "$CONDA_PREFIX/bin/systemctl"
+  progress BUSY "enabling freetakserver services"
 
-  progress BUSY "configuring fts to autostart"
+  local fts_command="$PYTHON_EXEC -m FreeTAKServer.controllers.services.FTS"
+  setup_service "$FTS_SERVICE" "$fts_command"
 
-  local startup_command="$PYTHON_EXEC -m FreeTAKServer.controllers.services.FTS"
-  setup_service "fts" "$startup_command"
-  progress_clear DONE "setting up fts"
+  local fts_ui_command="$PYTHON_EXEC  $SITEPACKAGES/$FTS_UI_PACKAGE/run.py"
+  setup_service "$FTS_UI_SERVICE" "$fts_ui_command"
+
+  local webmap_command="/usr/local/bin/$WEBMAP_NAME /opt/$WEBMAP_CONFIG_FILE"
+  setup_service "$WEBMAP_SERVICE" "$webmap_command"
+
+  progress_clear DONE "enabling freetakserver services"
 
 }
 
 ###############################################################################
 # Install using shell script or ansible (default is shell)
 ###############################################################################
-function install_fts() {
+install_fts() {
 
   if [[ -n "${ANSIBLE-}" ]]; then
     handle_git_repository
@@ -841,19 +881,27 @@ function install_fts() {
   fi
 }
 
+start_services() {
+
+  progress BUSY "starting freetakserver services"
+
+  systemctl start "$FTS_SERVICE"
+  systemctl start "$FTS_UI_SERVICE"
+  systemctl start "$WEBMAP_SERVICE"
+
+  progress_clear DONE "starting freetakserver services"
+}
+
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
 start=$(date +%s)
 parse_params "$@"
-check_root
-# identify_system
-# identify_cloud
-# identify_docker
+identify_system
+identify_cloud
+identify_docker
 setup_virtual_environment
-# get_public_ip
 install_fts
-
-# systemctl start "${name}.service"
+start_services
 end=$(date +%s)
 progress DONE "SUCCESS! Installed in $((end - start))s."
