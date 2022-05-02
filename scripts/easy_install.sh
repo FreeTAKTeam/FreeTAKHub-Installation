@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
+# set failfast
+set -o errexit
+
 # used for calculating execution time
 start=$(date +%s) || false
-
-# exit if error
-set -o errexit
 
 # check if user is root
 if [[ "$EUID" -ne 0 ]]; then
@@ -29,7 +29,7 @@ fts_ip=$my_ipv4
 fts_ui_ip=$my_ipv4
 webmap_ip=$my_ipv4
 
-declare -a supported_operating_systems=(
+declare -a supported_os=(
   "ubuntu 20.04"
 )
 
@@ -41,11 +41,8 @@ Install Free TAK Server and components.
 
 Available options:
 -h, --help          print help
-
 -v, --verbose       print script debug info
-
 -l, --log           log output to file named fts.log (in running directory)
-
     --no-color      turn off console colors
 
 ===============================================================================
@@ -60,18 +57,12 @@ If any of the below switches are set, only the specified component will be
 installed.
 
     --all           install all components
-
-    --fts           install FTS
-
-    --ui            install FTS User Interface (UI)
-
-    --map           install WebMap
-
-    --nodered       install Node-RED server
-
-    --video         install Video Server
-
-    --mumble        install Murmur VOIP Server and Mumble Client
+    --fts           install fts
+    --ui            install fts user interface
+    --map           install webmap
+    --nodered       install node-red server
+    --video         install video server
+    --mumble        install murmur server voip and mumble client
 
 ===============================================================================
 NETWORKING OPTIONS
@@ -84,37 +75,37 @@ If you would like to use specific IPs for components,
 use the options below:
 
     --fts_ip=IPV4   Set FTS IPv4, defaults to localhost.
-
     --ui_ip=IPV4    Set FTS User Interface IPv4, defaults to localhost.
-
     --map_ip=IPV4   Set WebMap IPv4, defaults to localhost.
 
 ===============================================================================
 EXAMPLES
 ===============================================================================
-Install FTS core components (FTS, UI, and Web Map):
+Install freetakserver (fts) core components fts, user interface, and webmap:
 
         sudo ./easy_install
 
-Install all components (FTS, UI, Web Map, Video Server, Mumble/Murmur VOIP):
+Install all components (fts, ui, webmap, video server, mumble/murmur voip):
 
         sudo ./easy_install --all
 
-Install using a specific IPv4:
+Install using a specific ipv4:
 
         sudo ./easy_install --ipv4 161.31.208.79
 
-Install FTS core components with log and verbosity:
+Install fts core components with log and verbosity:
 
         sudo ./easy_install -v -l
 
-Install all components only the Video Server:
+Install all components only the video server:
 
         sudo ./easy_install --video
 
 USAGE_TEXT
   exit 1
 }
+
+####################################################################### LOGGING
 
 # main logging functions
 no_color="0"
@@ -131,7 +122,6 @@ print_error() {
     printf "ERROR: "
     printf "$COLOR_OFF"
     printf '%s\n' "$@"
-
   } >&2
 }
 
@@ -154,7 +144,6 @@ print_success() {
   printf "SUCCESS: "
   printf "$COLOR_OFF"
   printf '%s\n' "$@"
-
 }
 
 print_bold() {
@@ -244,13 +233,6 @@ while true; do
     shift
     shift
     ;;
-  --ipv4)
-    candidate_ipv4=$2
-    check_ipv4_arg "$candidate_ipv4"
-    my_ipv4="$candidate_ipv4"
-    shift
-    shift
-    ;;
   --fts_ip)
     candidate_ipv4=$2
     check_ipv4_arg "$candidate_ipv4"
@@ -321,8 +303,8 @@ replace() {
   # global replacement of string in file
   local file=$1 search=$2 replace=$3
   print_info "attempting to replace string: $search"
-  print_info "with string: $replace"
-  print_info "in file: $file"
+  print_info "    with string: $replace"
+  print_info "    in file: $file"
   sed -i "s/$search/$replace/g" "$file"
 }
 
@@ -365,9 +347,11 @@ create_start_script() {
   local name="$1" command="$2"
   cat >"${name}.sh" <<EOL
 #!/bin/bash
+
 source $conda_install_dir/etc/profile.d/conda.sh
 conda activate $env_name
 $command
+
 EOL
 }
 
@@ -386,6 +370,7 @@ ExecStart=${unit_files_dir}/${name}.sh
 
 [Install]
 WantedBy=multi-user.target
+
 EOL
 }
 
@@ -429,6 +414,7 @@ Certs:
   #FTS_FEDERATION_KEYPASS: demopassfed
   #FTS_CLIENT_CERT_PASSWORD: demopasscert
   #FTS_WEBSOCKET_KEY: YourWebsocketKey
+
 EOF
 }
 
@@ -594,10 +580,12 @@ identify_system() {
 
   local is_supported=false
 
+  print_info "list of supported operating systems: "
+
   # check for supported os
-  for candidate_os in "${SUPPORTED_OS[@]}"; do
+  for candidate_os in "${supported_os[@]}"; do
     local supported_os_version="$SYSTEM_DIST $SYSTEM_VERSION"
-    print_info "Supported OS: $supported_os_version"
+    print_info "    $supported_os_version"
     if [[ "$SYSTEM_DIST $SYSTEM_VERSION" = "$candidate_os" ]]; then
       is_supported=true
     fi
@@ -605,13 +593,15 @@ identify_system() {
 
   # if not a supported operating system, warn the user
   if [ $is_supported = false ]; then
-    print_warn "DID NOT DETECT SUPPORTED OPERATING SYSTEM\n"
+    print_warn "DID NOT DETECT A SUPPORTED OPERATING SYSTEM\n"
     read -r -e -p "Do you want to continue? [y/n]: " PROCEED
     if [[ "${PROCEED:-n}" != "y" ]]; then
       print_warn "Answer was not y (yes). Exiting."
       exit 1
     fi
   fi
+
+  print_success "found supported operating system: $candidate_os"
 }
 
 setup_virtual_environment() {
@@ -627,7 +617,7 @@ setup_virtual_environment() {
 
   print_info "installing conda virtual environment"
   mkdir -p "$conda_install_dir"
-  bash "$conda_installer" -u -b -p "$conda_install_dir"
+  bash "$conda_installer" -u -b -p "$conda_install_dir" >/dev/null 2>&1
 
   print_info "setting permissions for conda virtual environment"
   groupadd -f "$group_name"
@@ -637,14 +627,14 @@ setup_virtual_environment() {
 
   print_info "configuring conda virtual environment"
   source "$conda_install_dir/etc/profile.d/conda.sh"
-  conda update --yes --name base conda
+  conda update --yes --name base conda >/dev/null 2>&1
   conda config --set auto_activate_base true --set always_yes yes --set changeps1 yes
 
   print_info "creating virtual environment: $env_name"
-  conda create --name "$env_name" python="$python_version"
+  conda create --name "$env_name" python="$python_version" >/dev/null 2>&1
 
   print_info "activating virtual environment"
-  $user_exec conda init bash
+  $user_exec conda init bash >/dev/null 2>&1
   eval "$(conda shell.bash hook)"
   conda activate "$env_name"
 
@@ -661,7 +651,7 @@ setup_virtual_environment() {
 
 fts_shell_install() {
   print_info "installing Free TAK Server (FTS)"
-  $user_exec $conda_run python -m pip install --no-input "$fts_package"
+  $user_exec $conda_run python -m pip install --no-input "$fts_package" >/dev/null 2>&1
 
   print_info "configuring FTS"
 
@@ -695,15 +685,15 @@ fts_ui_shell_install() {
 }
 
 webmap_shell_install() {
-  print_info "downloading Web Map"
+  print_info "downloading webmap"
   wget $webmap_url -qO "/tmp/$webmap_filename"
   check_file_integrity "$webmap_sha256" "/tmp/$webmap_filename"
 
-  print_info "installing Web Map"
+  print_info "installing webmap"
 
   # unzip webmap
   chmod 777 "/tmp/$webmap_filename"
-  $user_exec conda install -y --name "$env_name" unzip
+  $user_exec conda install -y --name "$env_name" unzip >/dev/null 2>&1
   $conda_run unzip -o "/tmp/$webmap_filename" -d /tmp
 
   # remove version string
@@ -713,7 +703,7 @@ webmap_shell_install() {
   chgrp "$group_name" "/tmp/$webmap_name"
   mv -f "/tmp/$webmap_name" "$webmap_install_dir/$webmap_name"
 
-  print_info "configuring Web Map"
+  print_info "configuring webmap"
 
   # configure ip in webMAP_config.json
   local search="\"FTH_FTS_URL\": \"204.48.30.216\","
@@ -722,13 +712,12 @@ webmap_shell_install() {
   chgrp "$group_name" "/tmp/$webmap_config"
   mv -f "/tmp/$webmap_config" "/opt/$webmap_config"
 
-  print_info "setting up Web Map to automatically start"
+  print_info "setting up webmap to automatically start"
   local webmap_command="/usr/local/bin/$webmap_name /opt/$webmap_config"
   setup_service "$webmap_service" "$webmap_command"
 }
 
 install_components() {
-
   if [[ -n "$use_ansible" ]]; then
     clone_fts_installer_repo
     run_playbook
