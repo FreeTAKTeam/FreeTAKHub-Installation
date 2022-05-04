@@ -48,7 +48,11 @@ Available options:
 ===============================================================================
 INSTALLATION OPTIONS
 ===============================================================================
-The default installation is the FTS Core installation (FTS, UI, and Web Map).
+The default installation is the fts core installation, which consists of:
+    1. fts
+    2. ui
+    3. webmap
+
 Installation of other components requires passing parameters to the command.
 
 -a, --ansible       install using ansible
@@ -56,7 +60,7 @@ Installation of other components requires passing parameters to the command.
 If any of the below switches are set, only the specified component will be
 installed.
 
-    --all           install all components
+    --all           install all components (default is only fts, ui & webmap)
     --fts           install fts
     --ui            install fts user interface
     --map           install webmap
@@ -71,12 +75,10 @@ If none of the below options are set, the IPv4 will be localhost.
 
   -i, --ipv4=IPV4   If set, all services installed will use this IPv4.
 
-If you would like to use specific IPs for components,
-use the options below:
+If you would like to use specific IPs for components, use the options below:
 
-    --fts_ip=IPV4   Set FTS IPv4, defaults to localhost.
-    --ui_ip=IPV4    Set FTS User Interface IPv4, defaults to localhost.
-    --map_ip=IPV4   Set WebMap IPv4, defaults to localhost.
+    --fts_ip=IPV4   Set fts ipv4, defaults to localhost.
+    --map_ip=IPV4   Set webmap ipv4, defaults to localhost.
 
 ===============================================================================
 EXAMPLES
@@ -237,13 +239,6 @@ while true; do
     candidate_ipv4=$2
     check_ipv4_arg "$candidate_ipv4"
     fts_ip="$candidate_ipv4"
-    shift
-    shift
-    ;;
-  --ui_ip)
-    candidate_ipv4=$2
-    check_ipv4_arg "$candidate_ipv4"
-    fts_ui_ip="$candidate_ipv4"
     shift
     shift
     ;;
@@ -558,6 +553,11 @@ identify_system() {
     fi
   fi
 
+  # Detect if inside Docker
+  if grep -iq docker /proc/1/cgroup 2>/dev/null || head -n 1 /proc/1/sched 2>/dev/null | grep -Eq '^(bash|sh) ' || [ -f /.dockerenv ]; then
+    SYSTEM_CONTAINER="true"
+  fi
+
   # lowercase vars
   SYSTEM_NAME=$(echo "$SYSTEM_NAME" | tr "[:upper:]" "[:lower:]" | tr " " "_")
   SYSTEM_DIST=$(echo "$SYSTEM_DIST" | tr "[:upper:]" "[:lower:]" | tr " " "_")
@@ -694,7 +694,7 @@ webmap_shell_install() {
   # unzip webmap
   chmod 777 "/tmp/$webmap_filename"
   $user_exec conda install -y --name "$env_name" unzip >/dev/null 2>&1
-  $conda_run unzip -o "/tmp/$webmap_filename" -d /tmp
+  $conda_run unzip -o "/tmp/$webmap_filename" -d /tmp >/dev/null 2>&1
 
   # remove version string
   mv -f "/tmp/$webmap_executable" "/tmp/$webmap_name"
