@@ -977,13 +977,6 @@ start_services() {
 	$conda_run systemctl start "$fts_ui_service"
 	$conda_run systemctl start "$webmap_service"
 
-	$conda_run systemctl status "$fts_service"
-	print_info "started fts"
-	$conda_run systemctl status "$fts_ui_service"
-	print_info "started fts-ui"
-	$conda_run systemctl status "$webmap_service"
-	print_info "started webmap"
-
 }
 
 ########################################################## CONFIGURATION SUMMARY
@@ -1037,7 +1030,7 @@ print_config() {
 			webmap start command, $webmap_command\n
 			fts start script, $script_files_dir/${fts_service}.sh\n
 			fts ui start script, $script_files_dir/${fts_ui_service}.sh\n
-			webmap start command, $script_files_dir/${webmap_service}.sh\n
+			webmap start script, $script_files_dir/${webmap_service}.sh\n
 			activate virtual environment command, conda activate $venv_name\n
 		EOF
 	)
