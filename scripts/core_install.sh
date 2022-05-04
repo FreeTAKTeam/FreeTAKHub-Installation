@@ -20,13 +20,6 @@ fi
 
 trap cleanup SIGINT SIGTERM ERR EXIT INT
 
-# system-related variables
-readonly user_exec="sudo -i -u $SUDO_USER"
-readonly unit_files_dir="/lib/systemd/system"
-readonly group_name="fts"
-readonly venv_name="fts"
-readonly python_version="3.8"
-
 SYSTEM_NAME=$(uname)
 SYSTEM_DIST="Unknown"
 SYSTEM_DIST_BASED_ON="Unknown"
@@ -38,18 +31,21 @@ SYSTEM_KERNEL=$(uname -r)
 SYSTEM_CONTAINER=false
 CLOUD_PROVIDER="n/a"
 
-readonly fts_config_summary_location="/opt/fts_config_summary.txt"
+# system-related variables
+readonly user_exec="sudo -i -u $SUDO_USER"
+readonly group_name="fts"
+readonly venv_name="fts"
+readonly python_version="3.8"
 
 # fts variables
 readonly fts_package="FreeTAKServer"
-readonly fts_service=fts
 readonly fts_config_file="FTSConfig.yaml"
-readonly fts_config_destination="/opt/$fts_config_file"
+readonly fts_service=fts
 
 # fts ui variables
 readonly fts_ui_package="FreeTAKServer-UI"
-readonly fts_ui_service=fts-ui
 readonly fts_ui_config_file="config.py"
+readonly fts_ui_service=fts-ui
 
 # webmap variables
 readonly webmap_name="FTH-webmap-linux"
@@ -58,9 +54,7 @@ readonly webmap_filename="$webmap_name-$webmap_version.zip"
 readonly webmap_executable="$webmap_name-$webmap_version"
 readonly webmap_url="https://github.com/FreeTAKTeam/FreeTAKHub/releases/download/v$webmap_version/$webmap_name-$webmap_version.zip"
 readonly webmap_sha256="11afcde545cc4c2119c0ff7c89d23ebff286c99c6e0dfd214eae6e16760d6723"
-readonly webmap_install_dir="/usr/local/bin"
 readonly webmap_config_file="webMAP_config.json"
-readonly webmap_config_destination="/opt/webMAP_config.json"
 readonly webmap_service=webmap
 
 cleanup() {
@@ -217,7 +211,8 @@ check_ipv4_arg() {
 }
 
 ensure_permissions() {
-	chown -R "$SUDO_USER":"$group_name" "$conda_install_dir"
+	chown -R :"$group_name" "$conda_install_dir"
+	chmod -R g=rwx "$conda_install_dir"
 }
 
 print_debug_table() {
@@ -378,16 +373,20 @@ setup_service() {
 	print_debug_table "SETTING UP SERVICE: " params
 	create_start_script "${params[name]}" "${params[command]}"
 	create_unit_file "${params[name]}"
-	mv -f "${params[name]}.sh" "$unit_files_dir/${params[name]}.sh"
+	mv -f "${params[name]}.sh" "$script_files_dir/${params[name]}.sh"
 	mv -f "${params[name]}.service" "$unit_files_dir/${params[name]}.service"
+	ensure_permissions
 	enable_service "${params[name]}"
 }
 
 enable_service() {
 	local name=$1
-	chown -R "$SUDO_USER":"$group_name" "$conda_install_dir"
-	systemctl daemon-reload
-	systemctl enable "$name"
+	chown -R :"$group_name" "$conda_install_dir"
+	chown -R :"$group_name" "/var/log"
+	chmod -R g+rw "$conda_install_dir"
+	chmod -R g+rw "/var/log"
+	$conda_run systemctl daemon-reload
+	$conda_run systemctl enable "$name"
 }
 
 is_webmap_compatible() {
@@ -429,6 +428,7 @@ dependencies:
     - alembic==1.7.7
     - bcrypt==3.1.7
     - cffi==1.15.0
+    - charset-normalizer==2.0.12
     - click==8.0.4
     - colorama==0.4.4
     - cryptography==36.0.2
@@ -472,6 +472,7 @@ dependencies:
     - python-socketio==4.6.0
     - pyyaml==6.0
     - qrcode==7.3.1
+    - requests==2.27.1
     - ruamel-yaml==0.17.21
     - ruamel-yaml-clib==0.2.6
     - six==1.16.0
@@ -479,6 +480,7 @@ dependencies:
     - sqlalchemy-utils==0.38.2
     - tabulate==0.8.7
     - testresources==2.0.1
+    - urllib3==1.26.9
     - werkzeug==2.0.3
     - wtforms==2.3.3
     - zipp==3.8.0
@@ -512,7 +514,10 @@ create_unit_file() {
 		Type=simple
 		Restart=always
 		RestartSec=1
-		ExecStart=${unit_files_dir}/${name}.sh
+		StandardOutput=append:$CONDA_PREFIX/logs/${name}-stdout.log
+		StandardError=append:$CONDA_PREFIX/logs/${name}-stderr.log
+		WorkingDirectory=${script_files_dir}
+		ExecStart=${script_files_dir}/${name}.sh
 
 		[Install]
 		WantedBy=multi-user.target
@@ -861,15 +866,17 @@ setup_virtual_environment() {
 
 	# set conda/python variables to facilitate later steps
 	conda_run="conda run -n $venv_name"
-	python_exec=$($conda_run which python${python_version})
+	python_exec=$($conda_run which python)
 	sitepackages="$CONDA_PREFIX/lib/python${python_version}/site-packages"
+	unit_files_dir="/lib/systemd/system"
+	script_files_dir="$conda_install_dir/etc/profile.d"
 
+	ensure_permissions
 	print_info "installed virtual environment"
 }
 
 fts_shell_install() {
-
-	ensure_permissions
+	fts_config_destination="$CONDA_PREFIX/$fts_config_file"
 
 	# change first_start to False in MainConfig.py
 	local search="    first_start = True"
@@ -883,11 +890,6 @@ fts_shell_install() {
 	mv -f "/tmp/$fts_config_file" "$fts_config_destination"
 	print_debug "configured fts"
 
-	# setup fts unit file for autostart
-	fts_command="$python_exec -m FreeTAKServer.controllers.services.FTS"
-	setup_service "$fts_service" "$fts_command"
-	print_debug "set fts to autostart"
-
 	print_info "installed fts"
 }
 
@@ -900,14 +902,13 @@ fts_ui_shell_install() {
 	chgrp "$group_name" "/tmp/$fts_ui_config_file"
 	mv -f "/tmp/$fts_ui_config_file" "$fts_ui_config_destination"
 
-	print_debug "set fts ui to autostart"
-	fts_ui_command="$python_exec  $sitepackages/$fts_ui_package/run.py"
-	setup_service "$fts_ui_service" "$fts_ui_command"
-
 	print_info "installed fts ui"
 }
 
 webmap_shell_install() {
+
+	webmap_install_dir="$CONDA_PREFIX/bin"
+	webmap_config_destination="$CONDA_PREFIX/webMAP_config.json"
 
 	ensure_permissions
 
@@ -940,30 +941,56 @@ webmap_shell_install() {
 	print_debug "moving /tmp/webMAP_config.json to $webmap_config_destination"
 	mv -f "/tmp/$webmap_config_file" "$webmap_config_destination"
 
-	print_debug "setting up webmap to automatically start"
-	webmap_command="/usr/local/bin/$webmap_name $webmap_config_destination"
-	setup_service "$webmap_service" "$webmap_command"
-
 	print_info "installed webmap"
 }
 
 install_components() {
 	create_conda_env
 	conda env update -n "$venv_name" --file "/tmp/environment.yml" | format_subshell_output
+	ensure_permissions
 	fts_shell_install
 	fts_ui_shell_install
 	webmap_shell_install
+	ensure_permissions
+}
+
+enable_services() {
+	print_debug "set fts to autostart"
+	fts_command="$python_exec -u -m FreeTAKServer.controllers.services.FTS"
+	setup_service "$fts_service" "$fts_command"
+
+	print_debug "set fts ui to autostart"
+	fts_ui_command="$python_exec  $sitepackages/$fts_ui_package/run.py"
+	setup_service "$fts_ui_service" "$fts_ui_command"
+
+	print_debug "setting up webmap to autostart"
+	webmap_command="$webmap_install_dir/$webmap_name $webmap_config_destination"
+	setup_service "$webmap_service" "$webmap_command"
+
+	chgrp -R "$group_name" "/var/log"
 }
 
 start_services() {
-	systemctl start "$fts_service"
-	systemctl start "$fts_ui_service"
-	systemctl start "$webmap_service"
+	ensure_permissions
+
+	$conda_run systemctl start "$fts_service"
+	$conda_run systemctl start "$fts_ui_service"
+	$conda_run systemctl start "$webmap_service"
+
+	$conda_run systemctl status "$fts_service"
+	print_info "started fts"
+	$conda_run systemctl status "$fts_ui_service"
+	print_info "started fts-ui"
+	$conda_run systemctl status "$webmap_service"
+	print_info "started webmap"
+
 }
 
 ########################################################## CONFIGURATION SUMMARY
 
 print_config() {
+
+	fts_config_summary_location="$CONDA_PREFIX/fts_config_summary.txt"
 
 	VERSIONS=$(
 		cat <<-EOF
@@ -1001,12 +1028,16 @@ print_config() {
 			group, $group_name\n
 			unit files directory, $unit_files_dir\n
 			virtual environment path, $CONDA_PREFIX\n
+			python site-packages directory, $sitepackages\n
 			MainConfig.py location, $fts_mainconfig_file\n
 			FTS_Config.yaml location, $fts_config_destination\n
 			webmap install location, $webmap_install_dir/$webmap_name\n
 			fts start command, $fts_command\n
 			fts ui start command, $fts_ui_command\n
 			webmap start command, $webmap_command\n
+			fts start script, $script_files_dir/${fts_service}.sh\n
+			fts ui start script, $script_files_dir/${fts_ui_service}.sh\n
+			webmap start command, $script_files_dir/${webmap_service}.sh\n
 			activate virtual environment command, conda activate $venv_name\n
 		EOF
 	)
@@ -1081,6 +1112,7 @@ done
 identify_system
 setup_virtual_environment
 install_components
+enable_services
 start_services
 print_config
 
