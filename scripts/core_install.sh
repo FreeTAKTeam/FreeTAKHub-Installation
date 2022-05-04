@@ -973,7 +973,7 @@ EOF
   WARN=$(
     cat <<-EOF
 NETWORK ITEM, VALUE\n
-is system webmap compatible? , $my_ipv4\n
+is system webmap compatible? , $webmap_compatible\n
 EOF
   )
   {
