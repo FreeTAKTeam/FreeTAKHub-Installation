@@ -490,7 +490,6 @@ EOF
 
 create_start_script() {
 	local name="$1" command="$2"
-
 	cat >"${name}.sh" <<-EOF
 		#!/bin/bash
 
@@ -503,7 +502,6 @@ create_start_script() {
 
 create_unit_file() {
 	local name="$1"
-
 	cat >"${name}.service" <<-EOF
 		[Unit]
 		Description=${name} service
@@ -825,7 +823,6 @@ identify_system() {
 		print_warn "Intel processor NOT detected."
 		print_warn "Webmap installation/execution may fail."
 	fi
-
 }
 
 setup_virtual_environment() {
@@ -894,14 +891,11 @@ fts_shell_install() {
 }
 
 fts_ui_shell_install() {
-
 	fts_ui_config_destination="$sitepackages/$fts_ui_package/config.py"
-
 	print_debug "configuring fts ui"
 	initialize_fts_ui_config
 	chgrp "$group_name" "/tmp/$fts_ui_config_file"
 	mv -f "/tmp/$fts_ui_config_file" "$fts_ui_config_destination"
-
 	print_info "installed fts ui"
 }
 
@@ -972,26 +966,15 @@ enable_services() {
 
 start_services() {
 	ensure_permissions
-
 	$conda_run systemctl start "$fts_service"
 	$conda_run systemctl start "$fts_ui_service"
 	$conda_run systemctl start "$webmap_service"
-
-	$conda_run systemctl status "$fts_service"
-	print_info "started fts"
-	$conda_run systemctl status "$fts_ui_service"
-	print_info "started fts-ui"
-	$conda_run systemctl status "$webmap_service"
-	print_info "started webmap"
-
 }
 
 ########################################################## CONFIGURATION SUMMARY
 
 print_config() {
-
 	fts_config_summary_location="$CONDA_PREFIX/fts_config_summary.txt"
-
 	VERSIONS=$(
 		cat <<-EOF
 			VERSION ITEM, VALUE\n
@@ -1037,7 +1020,7 @@ print_config() {
 			webmap start command, $webmap_command\n
 			fts start script, $script_files_dir/${fts_service}.sh\n
 			fts ui start script, $script_files_dir/${fts_ui_service}.sh\n
-			webmap start command, $script_files_dir/${webmap_service}.sh\n
+			webmap start script, $script_files_dir/${webmap_service}.sh\n
 			activate virtual environment command, conda activate $venv_name\n
 		EOF
 	)
@@ -1108,14 +1091,12 @@ while true; do
 		;;
 	esac
 done
-
 identify_system
 setup_virtual_environment
 install_components
 enable_services
 start_services
 print_config
-
 end=$(date +%s)
 total_seconds=$((end - start))
 printf "SUCCESS! INSTALLED IN %ss.\n" "$total_seconds"

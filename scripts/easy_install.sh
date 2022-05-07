@@ -345,7 +345,7 @@ create_start_script() {
 
 source $conda_install_dir/etc/profile.d/conda.sh
 conda activate $env_name
-$command
+$conda_run $command
 
 EOL
 }
