@@ -1,6 +1,6 @@
 ---
 # system information
-fts_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+fts_ipv4: "0.0.0.0"
 
 fts_pip_package_name: FreeTAKServer
 

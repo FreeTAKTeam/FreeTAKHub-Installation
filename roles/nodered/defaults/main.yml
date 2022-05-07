@@ -9,7 +9,7 @@ nodered_wait_for_videoserver_timeout: 600
 noderedserver_token: "{{ lookup('password', '/dev/null chars=ascii,digits length=16') }}"
 
 # system information
-noderedserver_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+noderedserver_ipv4: "0.0.0.0"
 
 nodered_npm_packages:
   - node-red

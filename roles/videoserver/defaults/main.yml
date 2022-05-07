@@ -1,5 +1,5 @@
 ---
-videoserver_ipv4: "{{ ansible_default_ipv4.address | default(ansible_all_ipv4_addresses[0], true) }}"
+videoserver_ipv4: "0.0.0.0"
 
 videoserver_api_url: https://api.github.com/repos/aler9/rtsp-simple-server/releases/latest
 videoserver_package: rtsp-simple-server.tar.gz
