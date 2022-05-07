@@ -2,6 +2,17 @@
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
+- name: Get public IPv4
+  ipify_facts:
+
+- name: Set public IPv4
+  set_fact:
+    mumble_web_ipv4: "{{ ipify_public_ip }}"
+
+- name: Print IPv4
+  debug:
+    msg: "mumble_web_ipv4 = {{ mumble_web_ipv4 }}"
+
 - name: Install
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 

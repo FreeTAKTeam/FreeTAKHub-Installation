@@ -4,6 +4,17 @@
     msg: "non-intel, skipping webmap install"
   when: (ansible_architecture != "x86_64") or (not webmap_force_install)
 
+- name: Get public IPv4
+  ipify_facts:
+
+- name: Set public IPv4
+  set_fact:
+    webmap_ipv4: "{{ ipify_public_ip }}"
+
+- name: Print IPv4
+  debug:
+    msg: "webmap_ipv4 = {{ webmap_ipv4 }}"
+
   # ansible_archtecture mappings:
   # x86_64: amd64
   # ppc64le: ppc64el

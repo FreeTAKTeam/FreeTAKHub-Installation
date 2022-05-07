@@ -5,6 +5,17 @@
 - name: Include FTSConfig variables
   include_vars: "FTSConfig.yml"
 
+- name: Get public IPv4
+  ipify_facts:
+
+- name: Set public IPv4
+  set_fact:
+    fts_ipv4: "{{ ipify_public_ip }}"
+
+- name: Print IPv4
+  debug:
+    msg: "fts_ipv4 = {{ fts_ipv4 }}"
+
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 
