@@ -2,7 +2,7 @@
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Set public IPv4
+- name: Set IPv4
   set_fact:
     fts_ui_ipv4: 127.0.0.1
 
