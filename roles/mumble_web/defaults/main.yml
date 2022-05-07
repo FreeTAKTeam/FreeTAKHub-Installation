@@ -1,6 +1,6 @@
 ---
 # system information
-mumble_web_ipv4: "0.0.0.0"
+mumble_web_ipv4: 0.0.0.0
 
 mumble_web_npm_packages:
   - mumble-web

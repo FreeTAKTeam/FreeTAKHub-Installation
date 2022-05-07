@@ -1,6 +1,6 @@
 ---
 # system information
-fts_ipv4: "0.0.0.0"
+fts_ipv4: 0.0.0.0
 
 fts_pip_package_name: FreeTAKServer
 
