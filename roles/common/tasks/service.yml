@@ -5,7 +5,7 @@
     enabled: "{{ service_enabled }}"
     use: systemd
   register: enable_service
-  retries: 10
+  retries: 20
   until: enable_service is success
 
 - name: Set service state
@@ -14,5 +14,5 @@
     state: "{{ service_state }}"
     use: systemd
   register: set_service_state
-  retries: 10
+  retries: 20
   until: set_service_state is success

@@ -28,7 +28,7 @@
     enabled: true
     use: systemd
   register: enable_nodered_state
-  retries: 5
+  retries: 20
   until: enable_nodered_state is success
 
 - name: Set service state
@@ -37,7 +37,7 @@
     state: restarted
     use: systemd
   register: set_nodered_state
-  retries: 5
+  retries: 20
   until:
     - set_nodered_state is success
     - set_nodered_state.status.ActiveState == "active"

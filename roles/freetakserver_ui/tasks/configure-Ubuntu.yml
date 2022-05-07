@@ -26,7 +26,7 @@
     enabled: "{{ fts_ui_enabled }}"
     use: systemd
   register: enable_fts_ui
-  retries: 5
+  retries: 20
   until: enable_fts_ui is success
 
 - name: Set service state
@@ -35,5 +35,5 @@
     state: "{{ fts_ui_state }}"
     use: systemd
   register: set_fts_ui_state
-  retries: 5
+  retries: 20
   until: set_fts_ui_state is success

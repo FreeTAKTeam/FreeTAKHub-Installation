@@ -2,13 +2,9 @@
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Get public IPv4
-  ipify_facts:
-    timeout: 300
-
 - name: Set public IPv4
   set_fact:
-    fts_ui_ipv4: "{{ ipify_public_ip }}"
+    fts_ui_ipv4: 127.0.0.1
 
 - name: Print IPv4
   debug:
