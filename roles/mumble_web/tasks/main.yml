@@ -4,6 +4,8 @@
 
 - name: Get public IPv4
   ipify_facts:
+    api_url: http://api.example.com/ipify
+    timeout: 300
 
 - name: Set public IPv4
   set_fact:

@@ -2,12 +2,9 @@
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
-- name: Get public IPv4
-  ipify_facts:
-
-- name: Set public IPv4
+- name: Set localhost IPv4
   set_fact:
-    videoserver_ipv4: "{{ ipify_public_ip }}"
+    videoserver_ipv4: 127.0.0.1
 
   # ansible_archtecture mappings:
   # x86_64: amd64
