@@ -1,2 +1,2 @@
 ---
-unit_files_location: /lib/systemd/system/
+unit_files_location: /etc/systemd/system
