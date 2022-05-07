@@ -7,6 +7,7 @@
 
 - name: Get public IPv4
   ipify_facts:
+    timeout: 300
 
 - name: Set public IPv4
   set_fact:
