@@ -431,7 +431,7 @@
     "method": "POST",
     "ret": "txt",
     "paytoqs": "ignore",
-    "url": "http://{{ videoserver_ipv4 }}:9997/ManageVideoStream/postVideoStream",
+    "url": "http://{{ videoserver_public_ipv4 }}:9997/ManageVideoStream/postVideoStream",
     "tls": "",
     "persist": false,
     "proxy": "",
@@ -599,7 +599,7 @@
     "method": "GET",
     "ret": "obj",
     "paytoqs": "ignore",
-    "url": "http://{{ videoserver_ipv4 }}:9997/v1/paths/list",
+    "url": "http://{{ videoserver_public_ipv4 }}:9997/v1/paths/list",
     "tls": "",
     "persist": false,
     "proxy": "",
@@ -821,7 +821,7 @@
       {
         "p": "FTH_FTS_VIDEO_URL",
         "pt": "global",
-        "to": "{{ videoserver_ipv4 }}",
+        "to": "{{ videoserver_public_ipv4 }}",
         "tot": "str"
       },
       {

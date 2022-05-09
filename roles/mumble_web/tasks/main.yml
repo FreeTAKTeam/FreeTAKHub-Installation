@@ -3,12 +3,14 @@
   include_vars: "{{ ansible_distribution }}.yml"
 
 - name: Get public IPv4
-  ipify_facts:
-    timeout: 300
+  uri:
+    url: http://ifconfig.me/ip
+    return_content: yes
+  register: ip_response
 
 - name: Set public IPv4
   set_fact:
-    mumble_web_ipv4: "{{ ipify_public_ip }}"
+    mumble_web_ipv4: "{{ ip_response.content }}"
 
 - name: Print IPv4
   debug:

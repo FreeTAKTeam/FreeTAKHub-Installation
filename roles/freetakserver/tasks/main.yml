@@ -5,13 +5,23 @@
 - name: Include FTSConfig variables
   include_vars: "FTSConfig.yml"
 
-- name: Set IPv4
+- name: Get public IPv4
+  uri:
+    url: http://ifconfig.me/ip
+    return_content: yes
+  register: ip_response
+
+- name: Set public IPv4
   set_fact:
-    fts_ipv4: 127.0.0.1
+    fts_public_ipv4: "{{ ip_response.content }}"
 
 - name: Print IPv4
   debug:
-    msg: "fts_ipv4 = {{ fts_ipv4 }}"
+    msg: "fts_public_ipv4 = {{ fts_public_ipv4 }}"
+
+- name: Set localhost IPv4
+  set_fact:
+    fts_ipv4: 127.0.0.1
 
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"

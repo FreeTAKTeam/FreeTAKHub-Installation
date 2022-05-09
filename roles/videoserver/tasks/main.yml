@@ -2,6 +2,20 @@
 - name: "Include {{ ansible_distribution }}-specific variables"
   include_vars: "{{ ansible_distribution }}.yml"
 
+- name: Get public IPv4
+  uri:
+    url: http://ifconfig.me/ip
+    return_content: yes
+  register: ip_response
+
+- name: Set public IPv4
+  set_fact:
+    videoserver_public_ipv4: "{{ ip_response.content }}"
+
+- name: Print IPv4
+  debug:
+    msg: "videoserver_public_ipv4 = {{ videoserver_public_ipv4 }}"
+
 - name: Set localhost IPv4
   set_fact:
     videoserver_ipv4: 127.0.0.1

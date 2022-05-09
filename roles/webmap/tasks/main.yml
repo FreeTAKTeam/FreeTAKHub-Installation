@@ -5,16 +5,22 @@
   when: (ansible_architecture != "x86_64") or (not webmap_force_install)
 
 - name: Get public IPv4
-  ipify_facts:
-    timeout: 300
+  uri:
+    url: http://ifconfig.me/ip
+    return_content: yes
+  register: ip_response
 
 - name: Set public IPv4
   set_fact:
-    webmap_ipv4: "{{ ipify_public_ip }}"
+    webmap_public_ipv4: "{{ ip_response.content }}"
 
 - name: Print IPv4
   debug:
-    msg: "webmap_ipv4 = {{ webmap_ipv4 }}"
+    msg: "webmap_public_ipv4 = {{ webmap_public_ipv4 }}"
+
+- name: Set localhost IPv4
+  set_fact:
+    webmap_ipv4: 127.0.0.1
 
   # ansible_archtecture mappings:
   # x86_64: amd64
