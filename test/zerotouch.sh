@@ -21,3 +21,5 @@ if [[ "$EUID" -ne 0 ]]; then
 fi
 
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/test/conda.sh | sudo bash
+
+#test
