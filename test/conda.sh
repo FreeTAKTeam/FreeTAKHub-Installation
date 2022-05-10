@@ -11,7 +11,7 @@ shopt -s inherit_errexit
 trap cleanup SIGINT SIGQUIT SIGTERM SIGTSTP ERR EXIT
 
 cleanup() {
-    rm -rf "$_MINICONDA_INSTALLER_FILE"
+    rm -f "${_MINICONDA_INSTALLER_FILE-}"
     unset -f _MY_OS
     unset -f _MY_ARCH
     unset -f _USER_HOME

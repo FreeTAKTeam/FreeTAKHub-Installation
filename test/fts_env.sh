@@ -11,7 +11,7 @@ shopt -s inherit_errexit
 trap cleanup SIGINT SIGQUIT SIGTERM SIGTSTP ERR EXIT
 
 cleanup() {
-    rm -rf "$_FTS_ENV_FILE"
+    rm -f "${_FTS_ENV_FILE-}"
     unset _USER_HOME
     unset _USER_BASHRC
 }
