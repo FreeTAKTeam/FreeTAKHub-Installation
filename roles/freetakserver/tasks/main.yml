@@ -8,7 +8,7 @@
 - name: Get public IPv4
   uri:
     url: http://ifconfig.me/ip
-    return_content: yes
+    return_content: true
   register: ip_response
 
 - name: Set public IPv4
