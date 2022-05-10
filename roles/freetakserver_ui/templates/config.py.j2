@@ -26,16 +26,16 @@ class Config(object):
     keyfilepath = f"{certpath}pubserver.key.unencrypted"
 
     # this IP will be used to connect with the FTS API
-    IP = '{{ fts_ipv4 }}'
+    IP = '{{ fts_public_ipv4 }}'
 
     # Port the  UI uses to communicate with the API
     PORT = '19023'
 
     # the public IP your server is exposing
-    APPIP = '{{ fts_ipv4 }}'
+    APPIP = 0.0.0.0
 
     # webmap IP
-    WEBMAPIP = '{{ webmap_ipv4 }}'
+    WEBMAPIP = '{{ webmap_public_ipv4 }}'
 
     # webmap port
     WEBMAPPORT = 8000
