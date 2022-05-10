@@ -154,25 +154,4 @@ conda config --set always_yes yes
 # text indicator in console to show which environment is active
 conda config --set changeps1 yes
 
-# initialize conda
-# detect shell
-if [ -n "$BASH_VERSION" ]; then
-    conda init bash
-elif [ -n "$ZSH_VERSION" ]; then
-    conda init zsh
-else
-    echo "ERROR: unidentified shell: $SHELL" 1>&2
-fi
-
-# activate base environment
-conda init bash
-eval "$(python3 -m conda shell.bash hook)" >/dev/null
-
-conda info
-echo "Activating base environment..."
-if ! conda activate base >/dev/null; then
-    echo "ERROR: failed to activate base environment" 1>&2
-    exit 1
-fi
-
 echo "SUCCESS! Installed conda $(conda --version)."
