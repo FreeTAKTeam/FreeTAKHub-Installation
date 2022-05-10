@@ -11,11 +11,9 @@ shopt -s inherit_errexit
 trap cleanup SIGINT SIGQUIT SIGTERM SIGTSTP ERR EXIT
 
 cleanup() {
-    rm -f "${_MINICONDA_INSTALLER_FILE-}"
+    rm -f "${_MINICONDA_INSTALLER_FILE:-0}}"
     unset -f _MY_OS
     unset -f _MY_ARCH
-    unset -f _USER_HOME
-    unset -f _USER_BASHRC
     unset -f _MY_PYTHON_MAJOR_VERSION
     unset -f _MY_PYTHON_MINOR_VERSION
     unset -f _MINICONDA_INSTALLER_INFO
@@ -32,8 +30,6 @@ fi
 
 _MY_OS="$(uname -s)"
 _MY_ARCH="$(uname -m)"
-_USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-_USER_BASHRC="$_USER_HOME/.bashrc"
 
 while true; do
     case "${1-}" in

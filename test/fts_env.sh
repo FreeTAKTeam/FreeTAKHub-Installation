@@ -11,19 +11,39 @@ shopt -s inherit_errexit
 trap cleanup SIGINT SIGQUIT SIGTERM SIGTSTP ERR EXIT
 
 cleanup() {
-    rm -f "${_FTS_ENV_FILE-}"
-    unset _USER_HOME
-    unset _USER_BASHRC
+    rm -f "${_FTS_ENV_FILE:-0}"
 }
 
-# user variables
-_USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-_USER_BASHRC="$_USER_HOME/.bashrc"
+# check root
+if [[ "$EUID" -ne 0 ]]; then
+    echo "$0 is not running as root (use sudo)."
+    exit 1
+fi
 
-# add command to bashrc to auto activate environment
-readonly CONDA_ACTIVATE_CMD="conda activate fts"
-grep -qxF "$CONDA_ACTIVATE_CMD" "$_USER_BASHRC" || echo "$CONDA_ACTIVATE_CMD" >>"$_USER_BASHRC"
-source "$_USER_BASHRC"
+while true; do
+    case "${1-}" in
+    --verbose | -v)
+        set -o xtrace
+        # set -o verbose
+        VERBOSITY_FLAG=-v
+        shift
+        ;;
+    *)
+        break
+        ;;
+    esac
+done
+
+# deactivate any prior environments
+if ! [ "${CONDA_SHLVL:-0}" = 0 ]; then
+    echo "deactivating ${CONDA_SHLVL} environment(s)..."
+    while ! [ "${CONDA_SHLVL:-0}" = 0 ]; do
+        if ! conda deactivate; then
+            echo "ERROR: failed to deactivate environment(s)" 1>&2
+            exit 1
+        fi
+    done
+fi
 
 # create fts virtual environment
 readonly ENV_NAME="fts"
@@ -43,7 +63,7 @@ if [ "$(printf "%s %s" "$_FTS_ENV_SHASUM" "$_FTS_ENV_FILE" | sha256sum --check -
 fi
 
 # install fts environment
-if ! conda env update -n "$ENV_NAME" --file "$_FTS_ENV_FILE" >/dev/null; then
+if ! conda env update -n "$ENV_NAME" --file "$(readlink -f $_FTS_ENV_FILE)"; then
     echo "Error: failed to install fts environment"
     exit 1
 fi
@@ -57,13 +77,21 @@ else
     echo "ERROR: unidentified shell: $SHELL" 1>&2
 fi
 
-# activate fts virtual environment
-eval "$(conda shell.bash hook)"
+# test activate fts virtual environment
+eval "$(conda shell.bash hook)" >/dev/null
 conda info
 if ! conda activate $ENV_NAME >/dev/null; then
     echo "Error: failed to activate fts environment"
     exit 1
 fi
+
+# add command to bashrc to auto activate environment
+CONDA_ACTIVATE_CMD="conda activate $CONDA_PREFIX"
+grep -qxF "$CONDA_ACTIVATE_CMD" "$_USER_BASHRC" || echo "$CONDA_ACTIVATE_CMD" >>"$_USER_BASHRC"
+
+set +o nounset
+source "$_USER_BASHRC"
+set -o nounset
 
 echo "Activated fts environment"
 conda info

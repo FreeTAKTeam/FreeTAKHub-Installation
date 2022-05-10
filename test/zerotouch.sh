@@ -11,9 +11,7 @@ shopt -s inherit_errexit
 trap cleanup SIGINT SIGQUIT SIGTERM SIGTSTP ERR EXIT
 
 cleanup() {
-    rm -f "${_FTS_ENV_FILE-}"
-    unset _USER_HOME
-    unset _USER_BASHRC
+    rm -f "${_FTS_ENV_FILE:-0}}"
 }
 
 # check root
@@ -26,7 +24,7 @@ while true; do
     case "${1-}" in
     --verbose | -v)
         set -o xtrace
-        set -o verbose
+        # set -o verbose
         VERBOSITY_FLAG=-v
         shift
         ;;
@@ -36,8 +34,16 @@ while true; do
     esac
 done
 
+# user variables
+_USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+_USER_BASHRC="$_USER_HOME/.bashrc"
+export _USER_HOME
+export _USER_BASHRC
+
 # install conda virtual environment
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/test/conda.sh | sudo bash
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/test/conda.sh | sudo -E bash
+# sudo -E bash conda.sh -v
 
 # install fts virtual environment configuration
-wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/test/fts_env.sh | sudo bash
+wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/test/fts_env.sh | sudo -E bash
+# sudo -E bash fts_env.sh -v
