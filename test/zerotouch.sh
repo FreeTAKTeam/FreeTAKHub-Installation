@@ -33,8 +33,7 @@ while true; do
     case "${1-}" in
     --verbose | -v)
         set -o xtrace
-        # set -o verbose
-        VERBOSITY_FLAG=-v
+        set -o verbose
         shift
         ;;
     *)
@@ -51,8 +50,8 @@ export USER_BASHRC
 
 # install conda virtual environment
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/test/conda.sh | sudo -E bash
-# sudo -E bash conda.sh -v
+# sudo -E bash conda.sh
 
 # install fts virtual environment configuration
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/test/fts_env.sh | sudo -E bash
-# sudo -E bash fts_env.sh -v
+# sudo -E bash fts_env.sh
