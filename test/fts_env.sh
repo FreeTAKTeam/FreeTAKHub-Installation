@@ -1,17 +1,9 @@
 #!/usr/bin/env bash
-export LANG=C.UTF-8
-export LC_ALL=C.UTF-8
-
-# set failfast
-set -o errexit
-set -o nounset
-set -o pipefail
-shopt -s inherit_errexit
 
 trap cleanup SIGINT SIGQUIT SIGTERM SIGTSTP ERR EXIT
-
 cleanup() {
     rm -f "${_FTS_ENV_FILE:-0}"
+    unset -f _CONDA_ACTIVATE_CMD
 }
 
 # check root
@@ -19,20 +11,6 @@ if [[ "$EUID" -ne 0 ]]; then
     echo "$0 is not running as root (use sudo)."
     exit 1
 fi
-
-while true; do
-    case "${1-}" in
-    --verbose | -v)
-        set -o xtrace
-        # set -o verbose
-        VERBOSITY_FLAG=-v
-        shift
-        ;;
-    *)
-        break
-        ;;
-    esac
-done
 
 # deactivate any prior environments
 if ! [ "${CONDA_SHLVL:-0}" = 0 ]; then
@@ -86,11 +64,11 @@ if ! conda activate $ENV_NAME >/dev/null; then
 fi
 
 # add command to bashrc to auto activate environment
-CONDA_ACTIVATE_CMD="conda activate $CONDA_PREFIX"
-grep -qxF "$CONDA_ACTIVATE_CMD" "$_USER_BASHRC" || echo "$CONDA_ACTIVATE_CMD" >>"$_USER_BASHRC"
+_CONDA_ACTIVATE_CMD="conda activate $CONDA_PREFIX"
+grep -qxF "$_CONDA_ACTIVATE_CMD" "$USER_BASHRC" || echo "$_CONDA_ACTIVATE_CMD" >>"$USER_BASHRC"
 
 set +o nounset
-source "$_USER_BASHRC"
+source "$USER_BASHRC"
 set -o nounset
 
 echo "Activated fts environment"

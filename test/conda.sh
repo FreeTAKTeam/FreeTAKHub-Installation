@@ -1,17 +1,8 @@
 #!/usr/bin/env bash
-export LANG=C.UTF-8
-export LC_ALL=C.UTF-8
-
-# set failfast
-set -o errexit
-set -o nounset
-set -o pipefail
-shopt -s inherit_errexit
 
 trap cleanup SIGINT SIGQUIT SIGTERM SIGTSTP ERR EXIT
-
 cleanup() {
-    rm -f "${_MINICONDA_INSTALLER_FILE:-0}}"
+    rm -f "${_MINICONDA_INSTALLER_FILE:-0}"
     unset -f _MY_OS
     unset -f _MY_ARCH
     unset -f _MY_PYTHON_MAJOR_VERSION
@@ -30,19 +21,6 @@ fi
 
 _MY_OS="$(uname -s)"
 _MY_ARCH="$(uname -m)"
-
-while true; do
-    case "${1-}" in
-    --verbose | -v)
-        set -o xtrace
-        set -o verbose
-        shift
-        ;;
-    *)
-        break
-        ;;
-    esac
-done
 
 # check if system has Python 3 installed
 if ! command -v python3 >/dev/null; then
@@ -131,12 +109,12 @@ readonly CONDA_INSTALL_DIR="/opt/conda"
 
 # add conda to PATH in bashrc if not existent
 readonly CONDA_PATH='PATH=/opt/conda/bin:$PATH'
-grep -qxF "$CONDA_PATH" "$_USER_BASHRC" || echo "$CONDA_PATH" >>"$_USER_BASHRC"
+grep -qxF "$CONDA_PATH" "$USER_BASHRC" || echo "$CONDA_PATH" >>"$USER_BASHRC"
 export PATH=/opt/conda/bin:$PATH
 
 # source conda.sh in bashrc if not existent
 readonly CONDA_SH_CMD='. /opt/conda/etc/profile.d/conda.sh'
-grep -qxF "$CONDA_SH_CMD" "$_USER_BASHRC" || echo "$CONDA_SH_CMD" >>"$_USER_BASHRC"
+grep -qxF "$CONDA_SH_CMD" "$USER_BASHRC" || echo "$CONDA_SH_CMD" >>"$USER_BASHRC"
 ln -sf /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh
 
 # clean out unneeded intermediate files

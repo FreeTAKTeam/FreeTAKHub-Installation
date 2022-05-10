@@ -11,7 +11,16 @@ shopt -s inherit_errexit
 trap cleanup SIGINT SIGQUIT SIGTERM SIGTSTP ERR EXIT
 
 cleanup() {
-    rm -f "${_FTS_ENV_FILE:-0}}"
+    rm -f "${_FTS_ENV_FILE:-0}"
+    rm -f "${_MINICONDA_INSTALLER_FILE:-0}"
+    unset -f _MY_OS
+    unset -f _MY_ARCH
+    unset -f _MY_PYTHON_MAJOR_VERSION
+    unset -f _MY_PYTHON_MINOR_VERSION
+    unset -f _MINICONDA_INSTALLER_INFO
+    unset -f _MINICONDA_SHA256SUM
+    unset -f _MINICONDA_FILE_URL
+    unset -f _MINICONDA_INSTALLER_FILE
 }
 
 # check root
@@ -36,9 +45,9 @@ done
 
 # user variables
 _USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-_USER_BASHRC="$_USER_HOME/.bashrc"
+USER_BASHRC="$_USER_HOME/.bashrc"
 export _USER_HOME
-export _USER_BASHRC
+export USER_BASHRC
 
 # install conda virtual environment
 wget -qO - https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/main/test/conda.sh | sudo -E bash
