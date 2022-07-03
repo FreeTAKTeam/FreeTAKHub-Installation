@@ -431,11 +431,16 @@
     "method": "POST",
     "ret": "txt",
     "paytoqs": "ignore",
-    "url": "http://{{ videoserver_public_ipv4 }}:9997/ManageVideoStream/postVideoStream",
+    "url": "http://{{ videoserver_public_ipv4 }}:19023/ManageVideoStream/postVideoStream",
     "tls": "",
     "persist": false,
     "proxy": "",
     "authType": "bearer",
+    "credentials": {
+            "password": "token"
+        },"credentials": {
+        "password": "token"
+    },
     "x": 970,
     "y": 240,
     "wires": [
