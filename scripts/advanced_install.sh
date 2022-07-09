@@ -20,7 +20,7 @@ function usage() {
   cat <<USAGE_TEXT
 Usage: $(basename "${BASH_SOURCE[0]}") [<optional-arguments>]
 
-Install Free TAK Server and components.
+Install FreeTAKServer and components.
 
 Available options:
 
