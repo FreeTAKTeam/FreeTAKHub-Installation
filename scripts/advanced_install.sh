@@ -406,6 +406,7 @@ function handle_git_repository() {
 
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
     git pull
+    git checkout ${BRANCH}
 
   fi
 
