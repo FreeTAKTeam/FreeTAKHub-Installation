@@ -10,6 +10,7 @@ set -o pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+BRANCH="main"
 
 ###############################################################################
 # Print out helpful message.
@@ -141,7 +142,7 @@ function parse_params() {
       ;;
 
     --branch)
-      BRANCH=
+      BRANCH="59-implement-webmap-flow"
       shift
       ;;
 
@@ -393,7 +394,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone ${REPO}
+    git clone --branch ${BRANCH} ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
