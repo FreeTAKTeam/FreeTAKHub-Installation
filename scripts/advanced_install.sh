@@ -101,7 +101,7 @@ function parse_params() {
       GIT_CURL_VERBOSE=true
       GIT_SSH_COMMAND="ssh -vvv"
       unset APT_VERBOSITY # verbose is the default
-      ANSIBLE_VERBOSITY="-vv"
+      ANSIBLE_VERBOSITY="-vvvv"
 
       shift
       ;;
