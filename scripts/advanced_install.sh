@@ -32,6 +32,8 @@ Available options:
       --nodered            Install Node-RED Server
       --video              Install Video Server
       --mumble             Install Murmur VOIP Server and Mumble Client
+-d,   --dev-test           Sets TEST=1
+-b,   --branch             Specify the branch of FreeTAKHub-Installation to checkout
 USAGE_TEXT
   exit
 }
@@ -135,6 +137,11 @@ function parse_params() {
 
     --dev-test)
       TEST=1
+      shift
+      ;;
+
+    --branch)
+      BRANCH=
       shift
       ;;
 
