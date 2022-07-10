@@ -10,7 +10,6 @@ set -o pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
-BRANCH="main"
 
 ###############################################################################
 # Print out helpful message.
@@ -29,8 +28,6 @@ Available options:
 -v, --verbose    Print script debug info
 -c, --check      Check for compatibility issues while installing
     --core       Install FreeTAKServer, UI, and Web Map
--d, --dev-test   Sets TEST=1
--b, --branch     Specify the branch of FreeTAKHub-Installation to checkout
 USAGE_TEXT
   exit
 }
@@ -114,11 +111,6 @@ function parse_params() {
 
     --dev-test)
       TEST=1
-      shift
-      ;;
-
-    --branch)
-      BRANCH="59-implement-webmap-flow"
       shift
       ;;
 
@@ -292,7 +284,7 @@ function check_os() {
 function check_architecture() {
 
   echo -e -n "${BLUE}Checking for supported architecture...${NOFORMAT}"
-
+  
   # check for non-Intel-based architecture here
   arch=$(uname --hardware-platform) # uname is non-portable, but we only target Ubuntu 20.04
   if ! grep --ignore-case x86 <<<"${arch}" >/dev/null; then
@@ -363,7 +355,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone --branch ${BRANCH} ${REPO}
+    git clone ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -372,10 +364,9 @@ function handle_git_repository() {
     echo -e "FOUND"
 
     cd ~/FreeTAKHub-Installation
-
+  
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull
-    git checkout ${BRANCH}
+    git pull 
 
   fi
 
