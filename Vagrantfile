@@ -49,9 +49,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    end
   end
   config.vm.synced_folder ".", "/vagrant", disabled: true
-  $script = <<-SCRIPT
-  bash -c "$(wget -qO - 'https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/59-implement-webmap-flow/scripts/advanced_install.sh')" '' --non-interactive --branch
-  SCRIPT
-  config.vm.provision "shell", inline: $script
+  #$script = <<-SCRIPT
+  #bash -c "$(wget -qO - 'https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/59-implement-webmap-flow/scripts/advanced_install.sh')" '' --non-interactive
+  #SCRIPT
+  #config.vm.provision "shell", inline: $script
 end
 end
