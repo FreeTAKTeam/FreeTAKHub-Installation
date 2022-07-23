@@ -337,7 +337,7 @@
     "method": "POST",
     "ret": "txt",
     "paytoqs": "body",
-    "url": "http://204.48.30.216:19023/ManageKML/postKML",
+    "url": "http://{{ videoserver_public_ipv4 }}:19023/ManageKML/postKML",
     "tls": "",
     "persist": false,
     "proxy": "",
@@ -804,7 +804,7 @@
       {
         "p": "FTH_FTS_URL",
         "pt": "global",
-        "to": "{{ fts_ipv4 }}",
+        "to": "{{ videoserver_public_ipv4 }}",
         "tot": "str"
       },
       {
@@ -1256,7 +1256,7 @@
       {
         "p": "FTH_FTS_URL",
         "pt": "global",
-        "to": "204.48.30.216",
+        "to": "{{ videoserver_public_ipv4 }}",
         "tot": "str"
       },
       {
@@ -1274,7 +1274,7 @@
       {
         "p": "FTH_FTS_API_Auth",
         "pt": "global",
-        "to": "token",
+        "to": "{{ noderedserver_token }}",
         "tot": "str"
       },
       {
