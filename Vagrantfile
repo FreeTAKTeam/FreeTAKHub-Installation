@@ -15,7 +15,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     override.ssh.private_key_path =  ENV["SSH_KEY"]
     #override.vm.box = 'linode/ubuntu2004'
     #override.vm.box = 'bento/ubuntu-20.04'
-    provider.api_key = ENV["API_KEY"]
+    provider.api_key = ENV["LIN_API_KEY"]
     provider.distribution = 'Ubuntu 20.04 LTS'
     provider.datacenter = 'newark'
     provider.plan = 'Linode 8GB' # This will work
