@@ -48,10 +48,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     provider.monitoring = false
    end
   end
+
   config.vm.synced_folder ".", "/vagrant", disabled: true
-  #$script = <<-SCRIPT
-  #bash -c "$(wget -qO - 'https://raw.githubusercontent.com/FreeTAKTeam/FreeTAKHub-Installation/59-implement-webmap-flow/scripts/advanced_install.sh')" '' --non-interactive
-  #SCRIPT
-  #config.vm.provision "shell", inline: $script
-end
+
+  $script = <<-SCRIPT
+  echo Updating APT Packages...
+  sudo apt update -y && sudo apt upgrade -y
+  SCRIPT
+
+  config.vm.provision "shell", inline: $script
+
 end

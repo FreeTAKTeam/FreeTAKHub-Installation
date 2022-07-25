@@ -10,7 +10,6 @@ set -o pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
-BRANCH="main"
 
 ###############################################################################
 # Print out helpful message.
@@ -21,7 +20,7 @@ function usage() {
   cat <<USAGE_TEXT
 Usage: $(basename "${BASH_SOURCE[0]}") [<optional-arguments>]
 
-Install FreeTAKServer and components.
+Install Free TAK Server and components.
 
 Available options:
 
@@ -33,8 +32,6 @@ Available options:
       --nodered            Install Node-RED Server
       --video              Install Video Server
       --mumble             Install Murmur VOIP Server and Mumble Client
--d,   --dev-test           Sets TEST=1
--b,   --branch             Specify the branch of FreeTAKHub-Installation to checkout
 USAGE_TEXT
   exit
 }
@@ -101,7 +98,7 @@ function parse_params() {
       GIT_CURL_VERBOSE=true
       GIT_SSH_COMMAND="ssh -vvv"
       unset APT_VERBOSITY # verbose is the default
-      ANSIBLE_VERBOSITY="-vvvv"
+      ANSIBLE_VERBOSITY="-vv"
 
       shift
       ;;
@@ -138,11 +135,6 @@ function parse_params() {
 
     --dev-test)
       TEST=1
-      shift
-      ;;
-
-    --branch)
-      BRANCH="59-implement-webmap-flow"
       shift
       ;;
 
@@ -394,7 +386,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone --branch ${BRANCH} ${REPO}
+    git clone ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -406,7 +398,6 @@ function handle_git_repository() {
 
     echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
     git pull
-    git checkout ${BRANCH}
 
   fi
 
