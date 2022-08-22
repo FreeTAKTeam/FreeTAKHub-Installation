@@ -34,6 +34,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # provider.distributionid = <int>
   config.vm.provider :digital_ocean do |provider, override|
     override.ssh.private_key_path = ENV["SSH_KEY"]
+    provider.ssh_key_name = ENV["DO_SSH_KEY_NAME"]
     #override.vm.box = 'digital_ocean'
     #override.vm.box_url = "https://github.com/devopsgroup-io/vagrant-digitalocean/raw/master/box/digital_ocean.box"
     override.nfs.functional = false

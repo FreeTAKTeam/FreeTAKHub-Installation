@@ -14,6 +14,7 @@ noderedserver_ipv4: 0.0.0.0
 nodered_npm_packages:
   - node-red
   - node-red-admin
+  - node-red-contrib-web-worldmap
 
 nodered_nodes:
   - node-red-contrib-config
@@ -23,6 +24,7 @@ nodered_nodes:
 nodered_flows:
   - salute.json
   - videochecker.json
+  - webmap.json
 
 nodered_post_flows_body: "{{ lookup('template', 'flows.json.j2') }}"
 
