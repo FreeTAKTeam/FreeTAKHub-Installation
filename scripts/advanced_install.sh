@@ -10,6 +10,7 @@ set -o pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+BRANCH="main"
 
 ###############################################################################
 # Print out helpful message.
@@ -32,6 +33,7 @@ Available options:
       --nodered            Install Node-RED Server
       --video              Install Video Server
       --mumble             Install Murmur VOIP Server and Mumble Client
+      --branch             Use specified ZT Installer repository
 USAGE_TEXT
   exit
 }
@@ -115,6 +117,11 @@ function parse_params() {
 
     --core)
       CORE="y"
+      shift
+      ;;
+
+    --branch
+      BRANCH="357-dynamically-generate-credentials-for-fts-admin"
       shift
       ;;
 
@@ -386,7 +393,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone ${REPO}
+    git clone --branch ${BRANCH} ${REPO}
 
     cd ~/FreeTAKHub-Installation
 

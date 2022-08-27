@@ -33,3 +33,19 @@
     service_name: "{{ fts_service_name }}"
     service_enabled: "{{ fts_enabled }}"
     service_state: "{{ fts_state }}"
+
+- name: Set FTS Administrator credentials
+  block:
+    - name: Wait until FTS REST API port is open
+      wait_for:
+        port: 19023
+
+    - name: Import Node-RED flows via HTTP POST
+      uri:
+        url: "http://{{  }}:19023/ManageSystemUser/putSystemUser"
+        method: PUT
+        headers:
+          Content-Type: application/json
+        body: 
+        body_format: json
+        status_code: 200
