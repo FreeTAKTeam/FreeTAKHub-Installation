@@ -57,7 +57,7 @@
         body:
           systemUsers:
             - uid: "1"
-              token: "token"
-              password: "password"
+              token: "{{ fts_admin_token }}"
+              password: "{{ fts_admin_password }}"
         body_format: json
         status_code: 200
