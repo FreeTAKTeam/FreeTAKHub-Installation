@@ -52,7 +52,7 @@
         body:
           systemUsers:
             - uid: "1"
-            - token: "token"
-            - password: "password"
+              token: "token"
+              password: "password"
         body_format: json
         status_code: 200
