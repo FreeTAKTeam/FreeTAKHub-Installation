@@ -18,6 +18,6 @@
   debug:
     msg: "FreeTAKServer-UI URL: http://{{ fts_ui_ipv4 }}:5000/"
 
-- name: print fts_ui credentials
+- name: print FTS Admin credentials
   debug:
-    msg: "username: admin     password: password"
+    msg: "username: admin     password: {{ fts_admin_password }}     bearer token: {{ fts_admin_token }}"
