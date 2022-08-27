@@ -38,7 +38,8 @@
   block:
     - name: Wait until FTS REST API port is open
       wait_for:
-        port: 19023
+        ip: {{ fts_public_ipv4 }}
+        port: {{ fts_api_port }}
 
     - name: Import Node-RED flows via HTTP POST
       uri:
@@ -46,6 +47,6 @@
         method: PUT
         headers:
           Content-Type: application/json
-        body: 
+        body:
         body_format: json
         status_code: 200
