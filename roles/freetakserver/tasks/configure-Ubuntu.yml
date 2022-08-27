@@ -47,8 +47,8 @@
         method: PUT
         headers:
           Content-Type: application/json
-        unredirected_headers:
           Authorization: "Bearer token"
+        unredirected_headers:
         body:
           systemUsers:
             uid: "1"
