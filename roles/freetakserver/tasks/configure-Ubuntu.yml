@@ -43,10 +43,14 @@
 
     - name: Import Node-RED flows via HTTP POST
       uri:
-        url: "http://{{  }}:19023/ManageSystemUser/putSystemUser"
+        url: "http://{{ fts_public_ipv4 }}:19023/ManageSystemUser/putSystemUser"
         method: PUT
         headers:
           Content-Type: application/json
         body:
+          systemUsers:
+            uid: "1"
+            token: "token"
+            password: "password"
         body_format: json
         status_code: 200
