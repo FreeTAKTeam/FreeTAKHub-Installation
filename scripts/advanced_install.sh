@@ -120,7 +120,7 @@ function parse_params() {
       shift
       ;;
 
-    --branch
+    --branch)
       BRANCH="357-dynamically-generate-credentials-for-fts-admin"
       shift
       ;;
