@@ -38,7 +38,7 @@
   block:
     - name: Wait until FTS REST API port is open
       wait_for:
-        ip: {{ fts_public_ipv4 }}
+        host: {{ fts_public_ipv4 }}
         port: {{ fts_api_port }}
 
     - name: Import Node-RED flows via HTTP POST
