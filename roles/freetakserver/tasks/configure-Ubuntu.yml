@@ -47,6 +47,7 @@
         method: PUT
         headers:
           Content-Type: application/json
+          Authorization: "token"
         body:
           systemUsers:
             uid: "1"
