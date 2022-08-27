@@ -46,7 +46,7 @@
         host: "{{ fts_public_ipv4 }}"
         port: "{{ fts_api_port }}"
 
-    - name: Import Node-RED flows via HTTP POST
+    - name: Update the default FTS admin credentials
       uri:
         url: "http://{{ fts_public_ipv4 }}:19023/ManageSystemUser/putSystemUser"
         method: PUT
