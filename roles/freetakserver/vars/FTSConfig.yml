@@ -5,9 +5,10 @@ fts_database_type: SQLite
 fts_optimize_api: true
 fts_mainloop_delay: 1
 
-# Addresses
+# TCP Ports
 fts_cot_port: 8087
 fts_sslcot_port: 8089
+fts_ui_port: 5000
 fts_api_port: 19023
 fts_fed_port: 9000
 

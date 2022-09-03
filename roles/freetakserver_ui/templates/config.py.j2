@@ -29,24 +29,24 @@ class Config(object):
     IP = '{{ fts_public_ipv4 }}'
 
     # Port the  UI uses to communicate with the API
-    PORT = '19023'
+    PORT = ' {{ fts_api_port }} '
 
     # the public IP your server is exposing
     APPIP = '0.0.0.0'
 
-    # webmap IP
+    # This is the IP the Web UI will use for the Webmap service
     WEBMAPIP = '{{ fts_public_ipv4 }}'
 
-    # webmap port
-    WEBMAPPORT = 8000
+    # This port will be used to point the Web UI to the Webmap service
+    WEBMAPPORT = '{{ fts_webmap_port }}'
 
-    # this port will be used to listen
-    APPPort = 5000
+    # This port will be used to serve the Web UI
+    APPPort = '{{ fts_ui_port }}'
 
-    # the webSocket  key used by the UI to communicate with FTS.
+    # The webSocket  key used by the UI to communicate with FTS.
     WEBSOCKETKEY = 'YourWebsocketKey'
 
-    # the API key used by the UI to comunicate with FTS. generate a new system user and then set it
+    # The API key used by the UI to comunicate with FTS. Generate a new system user and then set it
     APIKEY = 'Bearer token'
 
     # For 'in memory' database, please use:
