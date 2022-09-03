@@ -9,6 +9,7 @@ fts_mainloop_delay: 1
 fts_cot_port: 8087
 fts_sslcot_port: 8089
 fts_ui_port: 5000
+fts_webmap_port: 1880
 fts_api_port: 19023
 fts_fed_port: 9000
 
