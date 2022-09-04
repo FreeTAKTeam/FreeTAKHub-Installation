@@ -34,13 +34,13 @@ class Config(object):
     # the public IP your server is exposing
     APPIP = '0.0.0.0'
 
-    # webmap IP
+    # The IP the Web UI service will use to access the Webmap service
     WEBMAPIP = '{{ fts_public_ipv4 }}'
 
-    # webmap port
-    WEBMAPPORT = 8000
+    # The TCP port the Web UI service will use to access the Webmap service
+    WEBMAPPORT = '{{ fts_webmap_port }}'
 
-    # This port will be used to serve the Web UI
+    # This TCP port will be used to serve the Web UI service
     APPPort = '{{ fts_ui_port }}'
 
     # the webSocket  key used by the UI to communicate with FTS.
