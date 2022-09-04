@@ -40,8 +40,8 @@ class Config(object):
     # webmap port
     WEBMAPPORT = 8000
 
-    # this port will be used to listen
-    APPPort = 5000
+    # This port will be used to serve the Web UI
+    APPPort = '{{ fts_ui_port }}'
 
     # the webSocket  key used by the UI to communicate with FTS.
     WEBSOCKETKEY = 'YourWebsocketKey'
