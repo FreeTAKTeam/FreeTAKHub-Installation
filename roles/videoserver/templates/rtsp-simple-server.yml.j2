@@ -34,12 +34,12 @@ externalAuthenticationURL:
 # Enable the HTTP API.
 api: yes
 # Address of the API listener.
-apiAddress: {{ videoserver_public_ipv4 }}:9997
+apiAddress: 0.0.0.0:9997
 
 # Enable Prometheus-compatible metrics.
 metrics: no
 # Address of the metrics listener.
-metricsAddress: {{ videoserver_public_ipv4 }}:9998
+metricsAddress: 0.0.0.0:9998
 
 # Enable pprof-compatible endpoint to monitor performances.
 pprof: no
