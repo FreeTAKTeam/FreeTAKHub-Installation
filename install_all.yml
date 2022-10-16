@@ -6,7 +6,6 @@
   roles:
     - freetakserver
     - freetakserver_ui
-    - webmap
     - murmur
     - videoserver
     - nodered
