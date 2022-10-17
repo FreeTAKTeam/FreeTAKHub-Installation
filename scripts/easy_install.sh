@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 #: Free TAK Server Installation Script
+#: Author: John
+#: Maintainer: Sypher
 
 # enforce failfast
 set -o errexit

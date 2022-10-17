@@ -8,10 +8,10 @@ Download Ubuntu 20.04 here: <https://ubuntu.com/download/desktop>
 
 FreeTAKTeam is currently testing on other Operating Systems and distributions.
 
-## Zero Touch Deployment 
+## Zero Touch Deployment
 
 ```console
-wget -qO - bit.ly/ftszerotouch | sudo bash 
+wget -qO - bit.ly/ftszerotouch | sudo bash
 ```
 
 ```console
@@ -21,6 +21,7 @@ Available options:
 -v, --verbose    Print script debug info
 -c, --check      Check for compatibility issues while installing
     --core       Install FreeTAKServer, UI, and Web Map
+    --branch     Execute Zero Touch from a development branch
 ```
 
 ### Examples
@@ -43,7 +44,7 @@ wget -qO - bit.ly/ftszerotouch | sudo bash -s -- -c -v
 ## Install Specific Components (Advanced)
 
 ```console
-wget -qO - bit.ly/ftsadvancedinstall | sudo bash 
+wget -qO - bit.ly/ftsadvancedinstall | sudo bash
 ```
 
 ```console
@@ -189,7 +190,7 @@ To learn more about Python virtual environments and why they are a good idea, se
 <https://realpython.com/python-virtual-environments-a-primer/>
 
 ### Manual Ansible Installation
- 
+
 The manual installation allows more control.
 
 In the console, enter:
@@ -237,7 +238,7 @@ http://<YOUR_IP_ADDRESS>:5000/
 ```
 
 - login with your credentials
-- immediately change the password 
+- immediately change the password
 - check whether services are OK (blue)
 ![image](https://user-images.githubusercontent.com/60719165/148986287-0c83aa3f-e909-4b38-bc81-d66cddb08f89.png)
 - connect a client to the server
