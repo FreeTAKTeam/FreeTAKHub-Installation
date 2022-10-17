@@ -17,7 +17,7 @@ concurrency:
 jobs:
   vagrant_zero_touch:
     name: Zero Touch Installer Test with Vagrant
-    runs-on: macos-10.15
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
