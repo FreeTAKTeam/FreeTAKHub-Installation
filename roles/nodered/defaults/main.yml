@@ -8,6 +8,9 @@ nodered_wait_for_videoserver_timeout: 600
 # generate a random token
 noderedserver_token: "{{ lookup('password', '/dev/null chars=ascii,digits length=16') }}"
 
+#Location of the NodeRed settings file
+nodered_settings_file: settings.js
+
 # system information
 noderedserver_ipv4: 0.0.0.0
 

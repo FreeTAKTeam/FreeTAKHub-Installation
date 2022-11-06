@@ -17,6 +17,15 @@
     group: root
     mode: 0644
 
+- name: Template settings file
+  template:
+    src: settings.js.j2
+    dest: "{{ nodered_settings_location }}"
+    owner: root
+    group: root
+    mode: 0644
+
+
 - name: Kill any currently running processes
   include_tasks: ../../common/tasks/kill.yml
   vars:
