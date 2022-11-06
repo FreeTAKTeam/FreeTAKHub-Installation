@@ -115,7 +115,7 @@ function parse_params() {
       ;;
 
     --branch)
-      BRANCH="357-dynamically-generate-credentials-for-fts-admin"
+      BRANCH="67-nodered-default-password"
       shift
       ;;
 
