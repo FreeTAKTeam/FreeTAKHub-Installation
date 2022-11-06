@@ -20,7 +20,7 @@
 - name: Template settings file
   template:
     src: settings.js.j2
-    dest: "{{ nodered_settings_location }}"
+    dest: "{{ nodered_install_folder }}/{{ nodered_settings_file }}"
     owner: root
     group: root
     mode: 0644
