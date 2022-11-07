@@ -61,8 +61,8 @@
       client_id: node-red-admin
       grant_type: password
       scope: "*"
-      username: {{ nodered_username }}
-      password: {{ nodered_password }}
+      username: "{{ nodered_username }}"
+      password: "{{ nodered_password }}"
     body_format: json
     status_code: 200
     register: get_nodered_auth_output
