@@ -65,7 +65,7 @@
       password: "{{ nodered_password }}"
     body_format: json
     status_code: 200
-    register: get_nodered_auth_output
+  register: get_nodered_auth_output
 
 - set_fact: nodered_admin_token="{{ get_nodered_auth_output.json.access_token }}"
 
