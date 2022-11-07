@@ -7,6 +7,7 @@
       Content-Type: application/json
       Node-RED-API-Version: v1
       Node-RED-Deployment-Type: reload
+      Authorization: Bearer {{ nodered_admin_token }}
     body:
       flows: [{}]
     body_format: json
