@@ -51,6 +51,19 @@
     - set_nodered_state is success
     - set_nodered_state.status.ActiveState == "active"
 
+- name: Wait for NodeRed service to start
+  uri:
+    url: http://{{ noderedserver_ipv4 }}:1880
+    status_code: 200
+    timeout: 5
+  register: nodered_service_status
+  # Keep trying for 30 seconds in 5 sec intervals
+  retries: 6
+  delay: 5
+  until: >
+     'status' in nodered_service_status and
+     nodered_service_status['status'] == 200
+
 - name: Authenticate to NodeRed Admin API
   uri:
     url: "http://{{ noderedserver_ipv4 }}:1880/auth/token"
