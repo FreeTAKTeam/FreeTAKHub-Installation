@@ -1,4 +1,10 @@
 ---
+#NodeRed username
+nodered_username: "admin"
+
+#NodeRed password
+nodered_password: "password"
+
 # When Node-RED has a flow that connects to an RTSP server, set to true
 nodered_wait_for_videoserver: false
 
