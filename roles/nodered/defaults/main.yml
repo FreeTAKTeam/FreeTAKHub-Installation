@@ -1,4 +1,10 @@
 ---
+#NodeRed username
+nodered_username: "admin"
+
+#NodeRed password
+nodered_password: "password"
+
 # When Node-RED has a flow that connects to an RTSP server, set to true
 nodered_wait_for_videoserver: false
 
@@ -7,6 +13,12 @@ nodered_wait_for_videoserver_timeout: 600
 
 # generate a random token
 noderedserver_token: "{{ lookup('password', '/dev/null chars=ascii,digits length=16') }}"
+
+#Location of the NodeRed installation path
+nodered_install_folder: "/root/.node-red"
+
+#Location of the NodeRed settings file
+nodered_settings_file: "settings.js"
 
 # system information
 noderedserver_ipv4: 0.0.0.0
