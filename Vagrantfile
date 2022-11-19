@@ -49,14 +49,3 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     provider.monitoring = false
    end
   end
-
-  config.vm.synced_folder ".", "/vagrant", disabled: true
-
-  $script = <<-SCRIPT
-  echo Updating APT Packages...
-  sudo apt update -y && sudo apt upgrade -y
-  SCRIPT
-
-  config.vm.provision "shell", inline: $script
-
-end
