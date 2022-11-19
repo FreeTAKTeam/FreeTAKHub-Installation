@@ -24,17 +24,21 @@ jobs:
         distros:
           - ubuntu/focal64
     steps:
-
       - name: Check out the codebase
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Cache Vagrant boxes
-        uses: actions/cache@v2
-        with:
-          path: ~/.vagrant.d/boxes
-          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
-          restore-keys: |
-            ${{ runner.os }}-vagrant-
+      - name: Install Vagrant
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install vagrant -y
+
+#      - name: Cache Vagrant boxes
+#        uses: actions/cache@v2
+#        with:
+#          path: ~/.vagrant.d/boxes
+#          key: ${{ runner.os }}-vagrant-${{ hashFiles('Vagrantfile') }}
+#          restore-keys: |
+#            ${{ runner.os }}-vagrant-
 
       - name: Run vagrant up
         run: |
