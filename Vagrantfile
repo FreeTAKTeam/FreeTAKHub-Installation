@@ -49,3 +49,4 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     provider.monitoring = false
    end
   end
+ end
