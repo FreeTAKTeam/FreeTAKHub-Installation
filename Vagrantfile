@@ -11,6 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider :virtualbox do |v|
     v.memory = 4096
     v.cpus = 2
+    end
   config.vm.provider :linode do |provider, override|
     override.ssh.private_key_path =  ENV["SSH_KEY"]
     #override.vm.box = 'linode/ubuntu2004'
@@ -32,6 +33,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # provider.stackscript = <string> # Not Supported Yet
     # provider.stackscriptid = <int> # Not Supported Yet
     # provider.distributionid = <int>
+    end
   config.vm.provider :digital_ocean do |provider, override|
     override.ssh.private_key_path = ENV["SSH_KEY"]
     provider.ssh_key_name = ENV["DO_SSH_KEY_NAME"]
@@ -47,6 +49,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     provider.private_networking = false
     provider.ipv6 = false
     provider.monitoring = false
-   end
+    end
   end
- end
+end
