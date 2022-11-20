@@ -112,7 +112,7 @@
           Authorization: Bearer {{ nodered_admin_token }}
         body: "{{ nodered_post_flow_salute }}"
         body_format: json
-        status_code: 204
+        status_code: 200
 
     - name: Import Node-RED Videochecker flow via HTTP POST
       uri:
@@ -125,7 +125,7 @@
           Authorization: Bearer {{ nodered_admin_token }}
         body: "{{ nodered_post_flow_videochecker }}"
         body_format: json
-        status_code: 204
+        status_code: 200
 
     - name: Import Node-RED Videochecker flow via HTTP POST
       uri:
@@ -138,7 +138,7 @@
           Authorization: Bearer {{ nodered_admin_token }}
         body: "{{ nodered_post_flow_webmap }}"
         body_format: json
-        status_code: 204
+        status_code: 200
 
 - name: Ensure reachable connection to Video Server
   block:
