@@ -14,6 +14,9 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
 BRANCH="main"
 
+OS_REQD="Ubuntu"
+OS_VER_REQD="22.04"
+INSTALL_TYPE=""
 ###############################################################################
 # Print out helpful message.
 # Outputs:
@@ -191,6 +194,8 @@ function do_checks() {
       REPO="https://github.com/janseptaugust/FreeTAKHub-Installation.git"
   fi
 
+
+[[ -z $INSTALL_TYPE ]] INSTALL_TYPE="stable"
 }
 
 ###############################################################################
@@ -218,6 +223,11 @@ function check_root() {
 ###############################################################################
 function check_os() {
 
+  which apt-get >/dev/null
+  if [[ $? -ne 0 ]]; then
+    die "Could not locate apt... this installation method will not work"
+  fi
+
   echo -e -n "${BLUE}Checking for supported OS...${NOFORMAT}"
 
   # freedesktop.org and systemd
@@ -225,8 +235,8 @@ function check_os() {
 
     . /etc/os-release
 
-    OS=${NAME}
-    VER=${VERSION_ID}
+    OS=${NAME:-unknown}
+    VER=${VERSION_ID:-unknown}
 
   # linuxbase.org
   elif type lsb_release >/dev/null 2>&1; then
@@ -241,6 +251,7 @@ function check_os() {
 
     OS=${DISTRIB_ID}
     VER=${DISTRIB_RELEASE}
+
 
   # older Debian-based distros
   elif [[ -f /etc/debian_version ]]; then
@@ -257,10 +268,10 @@ function check_os() {
   fi
 
   # check for supported OS and version and warn if not supported
-  if [[ "${OS}" != "Ubuntu" ]] || [[ "${VER}" != "20.04" ]]; then
+  if [[ "${OS}" != "${OS_REQD}" ]] || [[ "${VER}" != "${OS_VER_REQD}" ]]; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
-    echo "FreeTAKServer has only been tested on ${GREEN}Ubuntu 20.04${NOFORMAT}."
+    echo "FreeTAKServer has only been tested on ${GREEN}${OS_REQD} ${OS_VER_REQD}${NOFORMAT}."
     echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}"
     echo "Errors may arise during installation or execution."
 
@@ -296,7 +307,7 @@ function check_architecture() {
   echo -e -n "${BLUE}Checking for supported architecture...${NOFORMAT}"
 
   # check for non-Intel-based architecture here
-  arch=$(uname --hardware-platform) # uname is non-portable, but we only target Ubuntu 20.04
+  arch=$(uname --hardware-platform) # uname is non-portable, but we only target Ubuntu 20.04/22.04
   if ! grep --ignore-case x86 <<<"${arch}" >/dev/null; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
@@ -336,6 +347,11 @@ function download_dependencies() {
   echo -e "${BLUE}Downloading dependencies...${NOFORMAT}"
 
   echo -e "${BLUE}Adding the Ansible Personal Package Archive (PPA)...${NOFORMAT}"
+
+  # Some Ubuntu installations do not have the software-properties-common 
+  # package by default, so install it if not installed
+  which apt-add-repository >/dev/null || apt-get --yes install software-properties-common
+  
   sudo apt-add-repository -y ppa:ansible/ansible
 
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
@@ -375,7 +391,8 @@ function handle_git_repository() {
 
     cd ~/FreeTAKHub-Installation
 
-    echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
+    echo -e \
+      "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
     git pull
     git checkout ${BRANCH}
 
@@ -388,7 +405,8 @@ function handle_git_repository() {
 ###############################################################################
 function add_passwordless_ansible_execution() {
 
-  echo -e "${BLUE}Adding passwordless Ansible execution for the current user...${NOFORMAT}"
+  echo -e \
+    "${BLUE}Adding passwordless Ansible execution for the current user...${NOFORMAT}"
 
   # line to add
   LINE="${USER} ALL=(ALL) NOPASSWD:/usr/bin/ansible-playbook"
@@ -406,14 +424,13 @@ function add_passwordless_ansible_execution() {
 ###############################################################################
 function generate_key_pair() {
 
-  echo -e "${BLUE}Creating a public and private keys if non-existent...${NOFORMAT}"
+  echo -e \
+    "${BLUE}Creating a public and private keys if non-existent...${NOFORMAT}"
 
   # check for public and private keys
   if [[ ! -e ${HOME}/.ssh/id_rsa.pub ]]; then
-
     # generate keys
     ssh-keygen -t rsa -f "${HOME}/.ssh/id_rsa" -N ""
-
   fi
 
 }
@@ -426,9 +443,11 @@ function run_playbook() {
   echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
 
   if [[ -n "${CORE-}" ]]; then
-    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
+    ansible-playbook -u root -i localhost, --connection=local \
+      ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
   else
-    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
+    ansible-playbook -u root -i localhost, --connection=local \
+      ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
   fi
 
 
@@ -442,6 +461,8 @@ setup_colors
 do_checks
 download_dependencies
 handle_git_repository
+exit 1
 add_passwordless_ansible_execution
 generate_key_pair
+
 run_playbook
