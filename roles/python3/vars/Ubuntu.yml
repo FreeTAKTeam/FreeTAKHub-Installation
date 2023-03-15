@@ -5,4 +5,4 @@ pip3_packages:
 python3_apt_packages:
   - python3-pip
   - python3-distutils
-  - "python{{ python3_version }}"
+  # - "python{{ python3_version }}"

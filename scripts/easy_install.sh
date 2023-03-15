@@ -16,7 +16,15 @@ BRANCH="main"
 
 OS_REQD="Ubuntu"
 OS_VER_REQD="22.04"
-INSTALL_TYPE=""
+PY3_VER=""
+PY3_VER_LEGACY="3.8"
+PY3_VER_CURRENT="3.11"
+DEFAULT_INSTALL_TYPE="current"
+INSTALL_TYPE="${INSTVER-$DEFAULT_INSTALL_TYPE}"
+
+echo $INSTALL_TYPE
+
+
 ###############################################################################
 # Print out helpful message.
 # Outputs:
@@ -145,6 +153,21 @@ function parse_params() {
 
 }
 
+
+function set_versions() {
+  case $INSTALL_TYPE in 
+    legacy) 
+      export PY3_VER=$PY3_VER_LEGACY
+      break ;;
+    current)
+      export PY3_VER=$PY3_VER_CURRENT
+      break ;;
+    *)
+      die "Unsupport install type: $INSTALL_TYPE"
+      break ;;
+  esac
+
+}
 ###############################################################################
 # Add coloration to output for highlighting or emphasizing words
 ###############################################################################
@@ -195,7 +218,7 @@ function do_checks() {
   fi
 
 
-[[ -z $INSTALL_TYPE ]] && INSTALL_TYPE="stable"
+[[ -z $INSTALL_TYPE ]] && INSTALL_TYPE="$DEFAULT_INSTALL_TYPE"
 }
 
 ###############################################################################
@@ -444,6 +467,7 @@ function run_playbook() {
   [[ -n "${CORE-}" ]] && pb=installl_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   ansible-playbook -u root -i localhost, --connection=local \
+      --extra-vars="py3_ver=$PY3_VER" \
       ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
   # if [[ -n "${CORE-}" ]]; then
   #   ansible-playbook -u root -i localhost, --connection=local \
@@ -460,11 +484,12 @@ function run_playbook() {
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
 parse_params "${@}"
+set_versions
 setup_colors
 # do_checks
-# download_dependencies
-# handle_git_repository
-# add_passwordless_ansible_execution
-# generate_key_pair
+download_dependencies
+handle_git_repository
+add_passwordless_ansible_execution
+generate_key_pair
 
 run_playbook
