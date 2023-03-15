@@ -195,7 +195,7 @@ function do_checks() {
   fi
 
 
-[[ -z $INSTALL_TYPE ]] INSTALL_TYPE="stable"
+[[ -z $INSTALL_TYPE ]] && INSTALL_TYPE="stable"
 }
 
 ###############################################################################
@@ -440,15 +440,18 @@ function generate_key_pair() {
 ###############################################################################
 function run_playbook() {
 
-  echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
 
-  if [[ -n "${CORE-}" ]]; then
-    ansible-playbook -u root -i localhost, --connection=local \
-      ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
-  else
-    ansible-playbook -u root -i localhost, --connection=local \
-      ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
-  fi
+  [[ -n "${CORE-}" ]] && pb=installl_mainserver || pb=install_all
+  echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
+  ansible-playbook -u root -i localhost, --connection=local \
+      ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
+  # if [[ -n "${CORE-}" ]]; then
+  #   ansible-playbook -u root -i localhost, --connection=local \
+  #     ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
+  # else
+  #   ansible-playbook -u root -i localhost, --connection=local \
+  #     ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
+  # fi
 
 
 }
@@ -458,11 +461,10 @@ function run_playbook() {
 ###############################################################################
 parse_params "${@}"
 setup_colors
-do_checks
-download_dependencies
-handle_git_repository
-exit 1
-add_passwordless_ansible_execution
-generate_key_pair
+# do_checks
+# download_dependencies
+# handle_git_repository
+# add_passwordless_ansible_execution
+# generate_key_pair
 
 run_playbook
