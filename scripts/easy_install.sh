@@ -12,7 +12,7 @@ set -o pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
-BRANCH="main"
+BRANCH="up-installer-to-v2"
 
 OS_REQD="Ubuntu"
 OS_VER_REQD="22.04"
