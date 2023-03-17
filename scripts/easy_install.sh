@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 #: Free TAK Server Installation Script
 #: Author: John
-#: Maintainer: Sypher
+#: Maintainers: 
+#: - Sypher
+#: - nailshard
 
 # enforce failfast
 set -o errexit
@@ -13,27 +15,59 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
 BRANCH="up-installer-to-v2"
+CBRANCH=""
 
-OS_REQD="Ubuntu"
-OS_VER_REQD="22.04"
-DEFAULT_CODENAME="jammy"
-CODENAME=$DEFAULT_CODENAME
-
+STABLE_OS_REQD="Ubuntu"
+STABLE_OS_VER_REQD="22.04"
+STABLE_CODENAME_REQD="jammy"
+LEGACY_OS_REQD="Ubuntu" 
+LEGACY_OS_VER_REQD="20.04"
+LEGACY_CODENAME_REQD="focal"
 
 # the specific versions will be set later based on INSTALL_TYPE
 DEFAULT_INSTALL_TYPE="stable"
 INSTALL_TYPE="${INSTALL_TYPE:-$DEFAULT_INSTALL_TYPE}"
 
-PY3_VER=""
 PY3_VER_LEGACY="3.8"
 PY3_VER_STABLE="3.11"
 
-FTS_VERSION=""
 STABLE_FTS_VERSION="0.2.0.13"
 LEGACY_FTS_VERSION="1.9.9.6"
 
+DRY_RUN=0
 
-echo $INSTALL_TYPE
+hsep="*********************"
+#
+###############################################################################
+# Add coloration to output for highlighting or emphasizing words
+###############################################################################
+function setup_colors() {
+
+  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
+
+    NOFORMAT='\033[0m'
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    # ORANGE='\033[0;33m' # unused
+    BLUE='\033[0;34m'
+    # PURPLE='\033[0;35m' # unused
+    # CYAN='\033[0;36m' # unused
+    YELLOW='\033[1;33m'
+
+  else
+
+    NOFORMAT=''
+    RED=''
+    GREEN=''
+    # ORANGE='' # unused
+    BLUE=''
+    # PURPLE='' # unused
+    # CYAN='' # unused
+    YELLOW=''
+
+  fi
+
+}
 
 
 ###############################################################################
@@ -53,8 +87,11 @@ Available options:
 -v, --verbose    Print script debug info
 -c, --check      Check for compatibility issues while installing
     --core       Install FreeTAKServer, UI, and Web Map
+-s, --stable     [DEFAULT] Install latest stable version (v$STABLE_FTS_VERSION) 
+-l, --legacy     Install legacy version (v$LEGACY_FTS_VERSION) 
     --branch     Use specified ZT Installer repository
     --dev-test   Sets TEST Envar to 1
+    --dry-run    Sets up dependencies but exits before running any playbooks
 USAGE_TEXT
   exit
 }
@@ -85,12 +122,12 @@ function msg() {
 function die() {
 
   local msg=$1
+  local code=${2-1}
   msg "$msg"
 
-  echo -e "Exiting. Installation NOT successful."
+  [[ $code -eq 0 ]] || echo -e "Exiting. Installation NOT successful."
 
   # default exit status 1
-  local code=${2-1}
   exit "$code"
 
 }
@@ -136,6 +173,29 @@ function parse_params() {
       shift
       ;;
 
+    --stable | -s)
+      INSTALL_TYPE="stable"
+      shift
+      ;;
+
+    --legacy | -l)
+      INSTALL_TYPE="legacy"
+      shift
+      ;;
+  
+    -B)
+      echo "${RED}${hsep}${hsep}${hsep}"
+      echo "This option is not supported for public use."
+      echo "It will alter the version of this installer, which means:"
+      echo "  1. it may make breaking system alterations"
+      echo "  2. use at your own risk"
+      echo "It is highly recommended that you do not continue"
+      echo "unless you've selected this option for a specific reason"
+      echo "${hsep}${hsep}${hsep}${NOFORMAT}"
+      CBRANCH=$2
+      shift 2
+      ;;
+
     --branch)
       BRANCH="67-nodered-default-password"
       shift
@@ -145,6 +205,12 @@ function parse_params() {
       TEST=1
       shift
       ;;
+
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+
 
     --no-color)
       NO_COLOR=1
@@ -165,17 +231,26 @@ function parse_params() {
 }
 
 
+###############################################################################
+# Update variables from defaults, user inputs or implied values
+###############################################################################
 function set_versions() {
   case $INSTALL_TYPE in 
     legacy) 
       export PY3_VER=$PY3_VER_LEGACY
       export FTS_VERSION=$LEGACY_FTS_VERSION
       export CFG_RPATH="controllers/configuration"
+      export OS_REQD=$LEGACY_OS_REQD
+      export OS_VER_REQD=$LEGACY_OS_VER_REQD
+      export CODENAME=$LEGACY_CODENAME_REQD
       ;;
     stable)
       export PY3_VER=$PY3_VER_STABLE
       export FTS_VERSION=$STABLE_FTS_VERSION
       export CFG_RPATH="core/configuration"
+      export OS_REQD=$STABLE_OS_REQD
+      export OS_VER_REQD=$STABLE_OS_VER_REQD
+      export CODENAME=$STABLE_CODENAME_REQD
       ;;
     *)
       die "Unsupport install type: $INSTALL_TYPE"
@@ -183,37 +258,6 @@ function set_versions() {
   esac
 
 }
-###############################################################################
-# Add coloration to output for highlighting or emphasizing words
-###############################################################################
-function setup_colors() {
-
-  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-
-    NOFORMAT='\033[0m'
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    # ORANGE='\033[0;33m' # unused
-    BLUE='\033[0;34m'
-    # PURPLE='\033[0;35m' # unused
-    # CYAN='\033[0;36m' # unused
-    YELLOW='\033[1;33m'
-
-  else
-
-    NOFORMAT=''
-    RED=''
-    GREEN=''
-    # ORANGE='' # unused
-    BLUE=''
-    # PURPLE='' # unused
-    # CYAN='' # unused
-    YELLOW=''
-
-  fi
-
-}
-
 ###############################################################################
 # Do checks or skip unnecessary ones if non-interactive
 ###############################################################################
@@ -232,8 +276,6 @@ function do_checks() {
       REPO="https://github.com/janseptaugust/FreeTAKHub-Installation.git"
   fi
 
-
-[[ -z $INSTALL_TYPE ]] && INSTALL_TYPE="$DEFAULT_INSTALL_TYPE"
 }
 
 ###############################################################################
@@ -408,7 +450,7 @@ function download_dependencies() {
 
 ###############################################################################
 # We can install the python interpretter here. This is necessary for at least
-# v0.2.0.0 since there's a circular requirement for Ansible needing a certain
+# v0.2.0.13 since there's a circular requirement for Ansible needing a certain
 # version of jinja2. Apt will ignore any subsequent attempts to install any
 # packages done here
 ###############################################################################
@@ -436,6 +478,7 @@ function handle_git_repository() {
 
   cd ~
 
+  [[ -n $CBRANCH ]] && BRANCH=$CBRANCH
   # check for FreeTAKHub-Installation repository
   if [[ ! -d ~/FreeTAKHub-Installation ]]; then
 
@@ -504,10 +547,10 @@ function run_playbook() {
   export CODENAME
   export INSTALL_TYPE
   export FTS_VERSION
-  [[ -n "${CORE-}" ]] && pb=installl_mainserver || pb=install_all
-  echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE" 
   evars="$evars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH"
+  [[ -n "${CORE-}" ]] && pb=installl_mainserver || pb=install_all
+  echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   ansible-playbook -u root -i localhost, --connection=local \
       --extra-vars="$evars" \
       ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
@@ -516,9 +559,10 @@ function run_playbook() {
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
+setup_colors
 parse_params "${@}"
 set_versions
-setup_colors
+check_os
 # do_checks
 download_dependencies
 [[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_early
@@ -526,4 +570,5 @@ handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair
 
+[[ 0 -eq $DRY_RUN ]] || die "Dry run complete. Not running Ansible" 0
 run_playbook
