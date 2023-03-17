@@ -6,7 +6,7 @@ sudo apt-get update
 sudo apt-get install -y python3-pip python${PY3_VER}-venv python3-setuptools
 update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10
 update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11
-update-alternatives  --set python /usr/bin/python3.11
+update-alternatives  --set python3 /usr/bin/python3.11
 
 
 python${PY3_VER} -m venv $HOME/.env

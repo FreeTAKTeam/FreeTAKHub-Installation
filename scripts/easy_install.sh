@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/USr/bin/env bash
 #: Free TAK Server Installation Script
 #: Author: John
 #: Maintainer: Sypher
@@ -158,13 +158,10 @@ function set_versions() {
   case $INSTALL_TYPE in 
     legacy) 
       export PY3_VER=$PY3_VER_LEGACY
-      break ;;
     current)
       export PY3_VER=$PY3_VER_CURRENT
-      break ;;
     *)
       die "Unsupport install type: $INSTALL_TYPE"
-      break ;;
   esac
 
 }
@@ -391,6 +388,26 @@ function download_dependencies() {
 }
 
 ###############################################################################
+# We can install the python interpretter here. This is necessary for at least
+# v0.2.0.0 since there's a circular requirement for Ansible needing a certain
+# version of jinja2. Apt will ignore any subsequent attempts to install any
+# packages done here
+###############################################################################
+function install_python_early() {
+  sudo apt-get update
+  sudo apt-get install -y python3-pip python${PY3_VER}-venv python3-setuptools
+  p=10 # <-- priority value... totally arbitrary and we'll be overriding it
+  for pypath in $(ls /usr/bin/python3* | grep -P '3.[0-9]+$'); do 
+    echo $pypath
+    update-alternatives --install /usr/bin/python3 python3 $pypath $p
+    p=$((p+1))
+  done
+  # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$PY3_VER
+  update-alternatives  --set python3 /usr/bin/python$PY3_VER
+
+
+}
+###############################################################################
 # Handle git repository
 ###############################################################################
 function handle_git_repository() {
@@ -488,6 +505,7 @@ set_versions
 setup_colors
 # do_checks
 download_dependencies
+[[ "#DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_early
 handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair
