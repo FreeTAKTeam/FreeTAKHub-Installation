@@ -170,10 +170,12 @@ function set_versions() {
     legacy) 
       export PY3_VER=$PY3_VER_LEGACY
       export FTS_VERSION=$LEGACY_FTS_VERSION
+      export CFG_RPATH="controllers/configuration"
       ;;
     stable)
       export PY3_VER=$PY3_VER_STABLE
-      export FTS_VERSION=$LEGACY_FTS_VERSION
+      export FTS_VERSION=$STABLE_FTS_VERSION
+      export CFG_RPATH="core/configuration"
       ;;
     *)
       die "Unsupport install type: $INSTALL_TYPE"
@@ -421,7 +423,8 @@ function install_python_early() {
   done
   # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$PY3_VER
   update-alternatives  --set python3 /usr/bin/python$PY3_VER
-  pip install --upgrade jinja2
+  pip install --force-reinstall jinja2
+  pip install --force-reinstall pyyaml
 
 }
 ###############################################################################
@@ -450,7 +453,8 @@ function handle_git_repository() {
 
     echo -e \
       "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git pull
+    # FIXME temporarily disabling for testing
+    # git pull
     git checkout ${BRANCH}
 
   fi
@@ -503,19 +507,10 @@ function run_playbook() {
   [[ -n "${CORE-}" ]] && pb=installl_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE" 
-  evars="$evars fts_version=$FTS_VERSION"
+  evars="$evars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH"
   ansible-playbook -u root -i localhost, --connection=local \
       --extra-vars="$evars" \
       ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
-  # if [[ -n "${CORE-}" ]]; then
-  #   ansible-playbook -u root -i localhost, --connection=local \
-  #     ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
-  # else
-  #   ansible-playbook -u root -i localhost, --connection=local \
-  #     ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
-  # fi
-
-
 }
 
 ###############################################################################
