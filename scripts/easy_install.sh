@@ -10,6 +10,9 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# This disables Apt's "restart services" interactive dialog
+export DEBIAN_FRONTEND=noninteractive
+
 # trap or catch signals and direct execution to cleanup
 trap cleanup SIGINT SIGTERM ERR EXIT
 
