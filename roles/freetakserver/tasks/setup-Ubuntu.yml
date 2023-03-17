@@ -10,10 +10,10 @@
   apt:
     name: "{{ fts_apt_dependencies | list }}"
 
-- name: "Install {{ fts_pip_package_name }} from local source"
-  shell: /root/FreeTAKHub-Installation/scripts/install_fts_from_source.sh {{ itype }}
+# - name: "Install {{ fts_pip_package_name }} from local source"
+#   shell: /root/FreeTAKHub-Installation/scripts/install_fts_from_source.sh {{ itype }}
     
-# - name: "Install {{ fts_pip_package_name }}"
-#   pip:
-#     name: "{{ fts_pip_package_name }}"
-#     executable: "pip3"
+- name: "Install {{ fts_pip_package_name }}"
+  pip:
+    name: "{{ fts_pip_package_name }}=={{ fts_version }}"
+    executable: "pip3"

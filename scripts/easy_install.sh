@@ -16,13 +16,22 @@ BRANCH="up-installer-to-v2"
 
 OS_REQD="Ubuntu"
 OS_VER_REQD="22.04"
-PY3_VER=""
-PY3_VER_LEGACY="3.8"
-PY3_VER_CURRENT="3.11"
-DEFAULT_INSTALL_TYPE="current"
 DEFAULT_CODENAME="jammy"
 CODENAME=$DEFAULT_CODENAME
-INSTALL_TYPE="${INSTVER-$DEFAULT_INSTALL_TYPE}"
+
+
+# the specific versions will be set later based on INSTALL_TYPE
+DEFAULT_INSTALL_TYPE="stable"
+[[ -z $INSTALL_TYPE ]] && INSTALL_TYPE="${$DEFAULT_INSTALL_TYPE}"
+
+PY3_VER=""
+PY3_VER_LEGACY="3.8"
+PY3_VER_STABLE="3.11"
+
+FTS_VERSION=""
+STABLE_FTS_VERSION="0.2.0.13"
+LEGACY_FTS_VERSION="1.9.9.6"
+
 
 echo $INSTALL_TYPE
 
@@ -160,9 +169,11 @@ function set_versions() {
   case $INSTALL_TYPE in 
     legacy) 
       export PY3_VER=$PY3_VER_LEGACY
+      export FTS_VERSION=$LEGACY_FTS_VERSION
       ;;
-    current)
-      export PY3_VER=$PY3_VER_CURRENT
+    stable)
+      export PY3_VER=$PY3_VER_STABLE
+      export FTS_VERSION=$LEGACY_FTS_VERSION
       ;;
     *)
       die "Unsupport install type: $INSTALL_TYPE"
@@ -486,13 +497,15 @@ function generate_key_pair() {
 ###############################################################################
 function run_playbook() {
 
-  export $CODENAME
-  export $INSTALL_TYPE
-
+  export CODENAME
+  export INSTALL_TYPE
+  export FTS_VERSION
   [[ -n "${CORE-}" ]] && pb=installl_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
+  evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE" 
+  evars="$evars fts_version=$FTS_VERSION"
   ansible-playbook -u root -i localhost, --connection=local \
-      --extra-vars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE" \
+      --extra-vars="$evars" \
       ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
   # if [[ -n "${CORE-}" ]]; then
   #   ansible-playbook -u root -i localhost, --connection=local \
