@@ -1,4 +1,4 @@
-#!/USr/bin/env bash
+#!/usr/bin/env bash
 #: Free TAK Server Installation Script
 #: Author: John
 #: Maintainer: Sypher
@@ -158,10 +158,13 @@ function set_versions() {
   case $INSTALL_TYPE in 
     legacy) 
       export PY3_VER=$PY3_VER_LEGACY
+      ;;
     current)
       export PY3_VER=$PY3_VER_CURRENT
+      ;;
     *)
       die "Unsupport install type: $INSTALL_TYPE"
+      ;;
   esac
 
 }
@@ -404,7 +407,7 @@ function install_python_early() {
   done
   # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$PY3_VER
   update-alternatives  --set python3 /usr/bin/python$PY3_VER
-
+  pip install jinja2
 
 }
 ###############################################################################
@@ -505,7 +508,7 @@ set_versions
 setup_colors
 # do_checks
 download_dependencies
-[[ "#DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_early
+[[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_early
 handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair
