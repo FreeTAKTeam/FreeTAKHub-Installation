@@ -11,9 +11,9 @@
     name: "{{ fts_apt_dependencies | list }}"
 
 - name: "Install {{ fts_pip_package_name }} from local source"
-  bash:
-    name: "{{ fts_pip_package_name }}"
-    executable: "bash"
+  shell: install_fts_from_source.sh
+  args:
+    chdir: /root/FreeTAKHub-Installation/scripts
     
 # - name: "Install {{ fts_pip_package_name }}"
 #   pip:
