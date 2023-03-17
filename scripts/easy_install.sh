@@ -12,6 +12,8 @@ set -o pipefail
 
 # This disables Apt's "restart services" interactive dialog
 export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_SUSPEND=1
+NEEDRESTART=0
 
 # trap or catch signals and direct execution to cleanup
 trap cleanup SIGINT SIGTERM ERR EXIT
@@ -431,11 +433,29 @@ function download_dependencies() {
   echo -e "${BLUE}Downloading dependencies...${NOFORMAT}"
 
   echo -e "${BLUE}Adding the Ansible Personal Package Archive (PPA)...${NOFORMAT}"
+  
+  # dpkg --list | grep -q needrestart && NEEDRESTART=1
+  # [[ 0 -eq $NEEDRESTART ]] || apt-get remove --yes needrestart
+  x=$(find /etc/apt/apt.conf.d -name "*needrestart*")
+  if [[ -f $x ]]; then
+    NEEDRESTART=$x
+    mv $x $HOME/nr-conf-temp
+  fi
+
+  # Some programs need predictable names for certain libraries, so symlink
+  x="pkg inst"
+  for y in $x; do  
+	  z=$(find /usr/lib -name apt_${y}.so)
+	  if [[ -z $z ]]; then
+		  z=$(find /usr/lib -name "apt_${y}.cpython*.so")
+		  ln -sf $z $(dirname $z)/apt_${y}.so
+	  fi
+  done
 
   # Some Ubuntu installations do not have the software-properties-common 
   # package by default, so install it if not installed
   which apt-add-repository >/dev/null || apt-get --yes install software-properties-common
-  
+
   sudo apt-add-repository -y ppa:ansible/ansible
 
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
@@ -499,8 +519,7 @@ function handle_git_repository() {
 
     echo -e \
       "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
-    # FIXME temporarily disabling for testing
-    # git pull
+    git pull
     git checkout ${BRANCH}
 
   fi
@@ -552,16 +571,21 @@ function run_playbook() {
   export FTS_VERSION
   evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE" 
   evars="$evars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH"
-  [[ -n "${CORE-}" ]] && pb=installl_mainserver || pb=install_all
+  [[ -n "${CORE-}" ]] && pb=install_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   ansible-playbook -u root -i localhost, --connection=local \
       --extra-vars="$evars" \
       ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
 }
 
+function cleanup() {
+
+  [[ -n $NEEDRESTART ]] && cp $HOME/nr-conf-temp $NEEDRESTART
+}
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
+
 setup_colors
 parse_params "${@}"
 set_versions
@@ -575,3 +599,4 @@ generate_key_pair
 
 [[ 0 -eq $DRY_RUN ]] || die "Dry run complete. Not running Ansible" 0
 run_playbook
+cleanup
