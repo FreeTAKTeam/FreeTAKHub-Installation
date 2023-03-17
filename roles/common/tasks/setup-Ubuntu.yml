@@ -1,6 +1,6 @@
 ---
 - name: Update apt
-  shell: sudo apt update
+  shell: sudo apt-get update 
   register: apt_update
   retries: 5
   ignore_errors: true
