@@ -10,7 +10,12 @@
   apt:
     name: "{{ fts_apt_dependencies | list }}"
 
-- name: "Install {{ fts_pip_package_name }}"
-  pip:
+- name: "Install {{ fts_pip_package_name }} from local source"
+  bash:
     name: "{{ fts_pip_package_name }}"
-    executable: "pip3"
+    executable: "bash"
+    
+# - name: "Install {{ fts_pip_package_name }}"
+#   pip:
+#     name: "{{ fts_pip_package_name }}"
+#     executable: "pip3"

@@ -12,7 +12,8 @@ galaxy_info:
   platforms:
     - name: Ubuntu
       versions:
-        - focal
+        - {{ codename }}
+        # - focal
   galaxy_tags:
     - freetakserver
     - tak

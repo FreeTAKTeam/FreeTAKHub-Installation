@@ -20,6 +20,8 @@ PY3_VER=""
 PY3_VER_LEGACY="3.8"
 PY3_VER_CURRENT="3.11"
 DEFAULT_INSTALL_TYPE="current"
+DEFAULT_CODENAME="jammy"
+CODENAME=$DEFAULT_CODENAME
 INSTALL_TYPE="${INSTVER-$DEFAULT_INSTALL_TYPE}"
 
 echo $INSTALL_TYPE
@@ -260,6 +262,7 @@ function check_os() {
 
     OS=${NAME:-unknown}
     VER=${VERSION_ID:-unknown}
+    CODENAME=${VERSION_CODENAME}
 
   # linuxbase.org
   elif type lsb_release >/dev/null 2>&1; then
@@ -483,11 +486,13 @@ function generate_key_pair() {
 ###############################################################################
 function run_playbook() {
 
+  export $CODENAME
+  export $INSTALL_TYPE
 
   [[ -n "${CORE-}" ]] && pb=installl_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   ansible-playbook -u root -i localhost, --connection=local \
-      --extra-vars="py3_ver=$PY3_VER" \
+      --extra-vars="py3_ver=$PY3_VER,codename=$CODENAME" \
       ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
   # if [[ -n "${CORE-}" ]]; then
   #   ansible-playbook -u root -i localhost, --connection=local \
