@@ -492,7 +492,7 @@ function run_playbook() {
   [[ -n "${CORE-}" ]] && pb=installl_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   ansible-playbook -u root -i localhost, --connection=local \
-      --extra-vars="py3_ver=$PY3_VER,codename=$CODENAME" \
+      --extra-vars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE" \
       ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
   # if [[ -n "${CORE-}" ]]; then
   #   ansible-playbook -u root -i localhost, --connection=local \
