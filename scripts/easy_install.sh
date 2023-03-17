@@ -421,7 +421,7 @@ function install_python_early() {
   done
   # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$PY3_VER
   update-alternatives  --set python3 /usr/bin/python$PY3_VER
-  pip install jinja2
+  pip install --upgrade jinja2
 
 }
 ###############################################################################
