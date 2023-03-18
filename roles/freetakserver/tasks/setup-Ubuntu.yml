@@ -15,7 +15,7 @@
   loop:
     - "git clone https://github.com/FreeTAKTeam/FreeTakServer.git /FreeTakServer"
     - "git -C /FreeTakServer reset --hard 109b674"
-    - "pip install -e /FreeTakServer"
+    - "pip install /FreeTakServer"
 
 #- name: "Install {{ fts_pip_package_name }}"
 #  pip:
