@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #: Free TAK Server Installation Script
 #: Author: John
-#: Maintainers: 
+#: Maintainers:
 #: - Sypher
 #: - nailshard
 
@@ -25,7 +25,7 @@ CBRANCH=""
 STABLE_OS_REQD="Ubuntu"
 STABLE_OS_VER_REQD="22.04"
 STABLE_CODENAME_REQD="jammy"
-LEGACY_OS_REQD="Ubuntu" 
+LEGACY_OS_REQD="Ubuntu"
 LEGACY_OS_VER_REQD="20.04"
 LEGACY_CODENAME_REQD="focal"
 
@@ -92,8 +92,8 @@ Available options:
 -v, --verbose    Print script debug info
 -c, --check      Check for compatibility issues while installing
     --core       Install FreeTAKServer, UI, and Web Map
--s, --stable     [DEFAULT] Install latest stable version (v$STABLE_FTS_VERSION) 
--l, --legacy     Install legacy version (v$LEGACY_FTS_VERSION) 
+-s, --stable     [DEFAULT] Install latest stable version (v$STABLE_FTS_VERSION)
+-l, --legacy     Install legacy version (v$LEGACY_FTS_VERSION)
     --branch     Use specified ZT Installer repository
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
@@ -187,7 +187,7 @@ function parse_params() {
       INSTALL_TYPE="legacy"
       shift
       ;;
-  
+
     -B)
       echo "${RED}${hsep}${hsep}${hsep}"
       echo "This option is not supported for public use."
@@ -240,8 +240,8 @@ function parse_params() {
 # Update variables from defaults, user inputs or implied values
 ###############################################################################
 function set_versions() {
-  case $INSTALL_TYPE in 
-    legacy) 
+  case $INSTALL_TYPE in
+    legacy)
       export PY3_VER=$PY3_VER_LEGACY
       export FTS_VERSION=$LEGACY_FTS_VERSION
       export CFG_RPATH="controllers/configuration"
@@ -433,7 +433,7 @@ function download_dependencies() {
   echo -e "${BLUE}Downloading dependencies...${NOFORMAT}"
 
   echo -e "${BLUE}Adding the Ansible Personal Package Archive (PPA)...${NOFORMAT}"
-  
+
   # dpkg --list | grep -q needrestart && NEEDRESTART=1
   # [[ 0 -eq $NEEDRESTART ]] || apt-get remove --yes needrestart
   x=$(find /etc/apt/apt.conf.d -name "*needrestart*")
@@ -444,7 +444,7 @@ function download_dependencies() {
 
   # Some programs need predictable names for certain libraries, so symlink
   x="pkg inst"
-  for y in $x; do  
+  for y in $x; do
 	  z=$(find /usr/lib -name apt_${y}.so)
 	  if [[ -z $z ]]; then
 		  z=$(find /usr/lib -name "apt_${y}.cpython*.so")
@@ -452,21 +452,21 @@ function download_dependencies() {
 	  fi
   done
 
-  # Some Ubuntu installations do not have the software-properties-common 
+  # Some Ubuntu installations do not have the software-properties-common
   # package by default, so install it if not installed
   which apt-add-repository >/dev/null || apt-get --yes install software-properties-common
 
-  sudo apt-add-repository -y ppa:ansible/ansible
+  apt-add-repository -y ppa:ansible/ansible
 
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
 
-  sudo apt-get -y ${APT_VERBOSITY--qq} update
+  apt-get -y ${APT_VERBOSITY--qq} update
 
   echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY--qq} install ansible
+  apt-get -y ${APT_VERBOSITY--qq} install ansible
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY--qq} install git
+  apt-get -y ${APT_VERBOSITY--qq} install git
 
 
 }
@@ -478,10 +478,10 @@ function download_dependencies() {
 # packages done here
 ###############################################################################
 function install_python_early() {
-  sudo apt-get update
-  sudo apt-get install -y python3-pip python${PY3_VER}-venv python3-setuptools
+  apt-get update
+  apt-get install -y python3-pip python${PY3_VER}-venv python3-setuptools
   p=10 # <-- priority value... totally arbitrary and we'll be overriding it
-  for pypath in $(ls /usr/bin/python3* | grep -P '3.[0-9]+$'); do 
+  for pypath in $(ls /usr/bin/python3* | grep -P '3.[0-9]+$'); do
     echo $pypath
     update-alternatives --install /usr/bin/python3 python3 $pypath $p
     p=$((p+1))
@@ -569,7 +569,7 @@ function run_playbook() {
   export CODENAME
   export INSTALL_TYPE
   export FTS_VERSION
-  evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE" 
+  evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
   evars="$evars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH"
   [[ -n "${CORE-}" ]] && pb=install_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
