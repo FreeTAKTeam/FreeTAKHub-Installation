@@ -9,7 +9,8 @@
 
 - name: Change FirstStart to False in MainConfig.py
   lineinfile:
-    path: "{{ fts_install_path }}/controllers/configuration/MainConfig.py"
+    # path: "{{ fts_install_path }}/controllers/configuration/MainConfig.py"
+    path: "{{ fts_install_path }}/{{ cfg_rpath }}/MainConfig.py"
     regexp: '(\s+)first_start = True'
     line: '\1first_start = False'
     backrefs: true

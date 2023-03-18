@@ -10,3 +10,4 @@
   pip:
     name: "{{ pip3_packages }}"
     executable: pip3
+    # extra_args: --force-reinstall

@@ -1,18 +1,79 @@
 #!/usr/bin/env bash
 #: Free TAK Server Installation Script
 #: Author: John
-#: Maintainer: Sypher
+#: Maintainers:
+#: - Sypher
+#: - nailshard
 
 # enforce failfast
 set -o errexit
 set -o nounset
 set -o pipefail
 
+# This disables Apt's "restart services" interactive dialog
+export DEBIAN_FRONTEND=noninteractive
+export NEEDRESTART_SUSPEND=1
+NEEDRESTART=0
+
 # trap or catch signals and direct execution to cleanup
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
-BRANCH="main"
+BRANCH="up-installer-to-v2"
+CBRANCH=""
+
+STABLE_OS_REQD="Ubuntu"
+STABLE_OS_VER_REQD="22.04"
+STABLE_CODENAME_REQD="jammy"
+LEGACY_OS_REQD="Ubuntu"
+LEGACY_OS_VER_REQD="20.04"
+LEGACY_CODENAME_REQD="focal"
+
+# the specific versions will be set later based on INSTALL_TYPE
+DEFAULT_INSTALL_TYPE="stable"
+INSTALL_TYPE="${INSTALL_TYPE:-$DEFAULT_INSTALL_TYPE}"
+
+PY3_VER_LEGACY="3.8"
+PY3_VER_STABLE="3.11"
+
+STABLE_FTS_VERSION="2.0.21"
+LEGACY_FTS_VERSION="1.9.9.6"
+
+DRY_RUN=0
+
+hsep="*********************"
+#
+###############################################################################
+# Add coloration to output for highlighting or emphasizing words
+###############################################################################
+function setup_colors() {
+
+  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
+
+    NOFORMAT='\033[0m'
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    # ORANGE='\033[0;33m' # unused
+    BLUE='\033[0;34m'
+    # PURPLE='\033[0;35m' # unused
+    # CYAN='\033[0;36m' # unused
+    YELLOW='\033[1;33m'
+
+  else
+
+    NOFORMAT=''
+    RED=''
+    GREEN=''
+    # ORANGE='' # unused
+    BLUE=''
+    # PURPLE='' # unused
+    # CYAN='' # unused
+    YELLOW=''
+
+  fi
+
+}
+
 
 ###############################################################################
 # Print out helpful message.
@@ -31,8 +92,11 @@ Available options:
 -v, --verbose    Print script debug info
 -c, --check      Check for compatibility issues while installing
     --core       Install FreeTAKServer, UI, and Web Map
+-s, --stable     [DEFAULT] Install latest stable version (v$STABLE_FTS_VERSION)
+-l, --legacy     Install legacy version (v$LEGACY_FTS_VERSION)
     --branch     Use specified ZT Installer repository
     --dev-test   Sets TEST Envar to 1
+    --dry-run    Sets up dependencies but exits before running any playbooks
 USAGE_TEXT
   exit
 }
@@ -63,12 +127,12 @@ function msg() {
 function die() {
 
   local msg=$1
+  local code=${2-1}
   msg "$msg"
 
-  echo -e "Exiting. Installation NOT successful."
+  [[ $code -eq 0 ]] || echo -e "Exiting. Installation NOT successful."
 
   # default exit status 1
-  local code=${2-1}
   exit "$code"
 
 }
@@ -114,6 +178,29 @@ function parse_params() {
       shift
       ;;
 
+    --stable | -s)
+      INSTALL_TYPE="stable"
+      shift
+      ;;
+
+    --legacy | -l)
+      INSTALL_TYPE="legacy"
+      shift
+      ;;
+
+    -B)
+      echo "${RED}${hsep}${hsep}${hsep}"
+      echo "This option is not supported for public use."
+      echo "It will alter the version of this installer, which means:"
+      echo "  1. it may make breaking system alterations"
+      echo "  2. use at your own risk"
+      echo "It is highly recommended that you do not continue"
+      echo "unless you've selected this option for a specific reason"
+      echo "${hsep}${hsep}${hsep}${NOFORMAT}"
+      CBRANCH=$2
+      shift 2
+      ;;
+
     --branch)
       BRANCH="67-nodered-default-password"
       shift
@@ -123,6 +210,12 @@ function parse_params() {
       TEST=1
       shift
       ;;
+
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+
 
     --no-color)
       NO_COLOR=1
@@ -142,37 +235,34 @@ function parse_params() {
 
 }
 
+
 ###############################################################################
-# Add coloration to output for highlighting or emphasizing words
+# Update variables from defaults, user inputs or implied values
 ###############################################################################
-function setup_colors() {
-
-  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
-
-    NOFORMAT='\033[0m'
-    RED='\033[0;31m'
-    GREEN='\033[0;32m'
-    # ORANGE='\033[0;33m' # unused
-    BLUE='\033[0;34m'
-    # PURPLE='\033[0;35m' # unused
-    # CYAN='\033[0;36m' # unused
-    YELLOW='\033[1;33m'
-
-  else
-
-    NOFORMAT=''
-    RED=''
-    GREEN=''
-    # ORANGE='' # unused
-    BLUE=''
-    # PURPLE='' # unused
-    # CYAN='' # unused
-    YELLOW=''
-
-  fi
+function set_versions() {
+  case $INSTALL_TYPE in
+    legacy)
+      export PY3_VER=$PY3_VER_LEGACY
+      export FTS_VERSION=$LEGACY_FTS_VERSION
+      export CFG_RPATH="controllers/configuration"
+      export OS_REQD=$LEGACY_OS_REQD
+      export OS_VER_REQD=$LEGACY_OS_VER_REQD
+      export CODENAME=$LEGACY_CODENAME_REQD
+      ;;
+    stable)
+      export PY3_VER=$PY3_VER_STABLE
+      export FTS_VERSION=$STABLE_FTS_VERSION
+      export CFG_RPATH="core/configuration"
+      export OS_REQD=$STABLE_OS_REQD
+      export OS_VER_REQD=$STABLE_OS_VER_REQD
+      export CODENAME=$STABLE_CODENAME_REQD
+      ;;
+    *)
+      die "Unsupport install type: $INSTALL_TYPE"
+      ;;
+  esac
 
 }
-
 ###############################################################################
 # Do checks or skip unnecessary ones if non-interactive
 ###############################################################################
@@ -218,6 +308,11 @@ function check_root() {
 ###############################################################################
 function check_os() {
 
+  which apt-get >/dev/null
+  if [[ $? -ne 0 ]]; then
+    die "Could not locate apt... this installation method will not work"
+  fi
+
   echo -e -n "${BLUE}Checking for supported OS...${NOFORMAT}"
 
   # freedesktop.org and systemd
@@ -225,8 +320,9 @@ function check_os() {
 
     . /etc/os-release
 
-    OS=${NAME}
-    VER=${VERSION_ID}
+    OS=${NAME:-unknown}
+    VER=${VERSION_ID:-unknown}
+    CODENAME=${VERSION_CODENAME}
 
   # linuxbase.org
   elif type lsb_release >/dev/null 2>&1; then
@@ -241,6 +337,7 @@ function check_os() {
 
     OS=${DISTRIB_ID}
     VER=${DISTRIB_RELEASE}
+
 
   # older Debian-based distros
   elif [[ -f /etc/debian_version ]]; then
@@ -257,10 +354,10 @@ function check_os() {
   fi
 
   # check for supported OS and version and warn if not supported
-  if [[ "${OS}" != "Ubuntu" ]] || [[ "${VER}" != "20.04" ]]; then
+  if [[ "${OS}" != "${OS_REQD}" ]] || [[ "${VER}" != "${OS_VER_REQD}" ]]; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
-    echo "FreeTAKServer has only been tested on ${GREEN}Ubuntu 20.04${NOFORMAT}."
+    echo "FreeTAKServer has only been tested on ${GREEN}${OS_REQD} ${OS_VER_REQD}${NOFORMAT}."
     echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}"
     echo "Errors may arise during installation or execution."
 
@@ -296,7 +393,7 @@ function check_architecture() {
   echo -e -n "${BLUE}Checking for supported architecture...${NOFORMAT}"
 
   # check for non-Intel-based architecture here
-  arch=$(uname --hardware-platform) # uname is non-portable, but we only target Ubuntu 20.04
+  arch=$(uname --hardware-platform) # uname is non-portable, but we only target Ubuntu 20.04/22.04
   if ! grep --ignore-case x86 <<<"${arch}" >/dev/null; then
 
     echo -e "${YELLOW}WARNING${NOFORMAT}"
@@ -336,21 +433,65 @@ function download_dependencies() {
   echo -e "${BLUE}Downloading dependencies...${NOFORMAT}"
 
   echo -e "${BLUE}Adding the Ansible Personal Package Archive (PPA)...${NOFORMAT}"
-  sudo apt-add-repository -y ppa:ansible/ansible
+
+  # dpkg --list | grep -q needrestart && NEEDRESTART=1
+  # [[ 0 -eq $NEEDRESTART ]] || apt-get remove --yes needrestart
+  x=$(find /etc/apt/apt.conf.d -name "*needrestart*")
+  if [[ -f $x ]]; then
+    NEEDRESTART=$x
+    mv $x $HOME/nr-conf-temp
+  fi
+
+  # Some programs need predictable names for certain libraries, so symlink
+  x="pkg inst"
+  for y in $x; do
+	  z=$(find /usr/lib -name apt_${y}.so)
+	  if [[ -z $z ]]; then
+		  z=$(find /usr/lib -name "apt_${y}.cpython*.so")
+		  ln -sf $z $(dirname $z)/apt_${y}.so
+	  fi
+  done
+
+  # Some Ubuntu installations do not have the software-properties-common
+  # package by default, so install it if not installed
+  which apt-add-repository >/dev/null || apt-get --yes install software-properties-common
+
+  apt-add-repository -y ppa:ansible/ansible
 
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
 
-  sudo apt-get -y ${APT_VERBOSITY--qq} update
+  apt-get -y ${APT_VERBOSITY--qq} update
 
   echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY--qq} install ansible
+  apt-get -y ${APT_VERBOSITY--qq} install ansible
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
-  sudo apt-get -y ${APT_VERBOSITY--qq} install git
+  apt-get -y ${APT_VERBOSITY--qq} install git
 
 
 }
 
+###############################################################################
+# We can install the python interpretter here. This is necessary for at least
+# v0.2.0.13 since there's a circular requirement for Ansible needing a certain
+# version of jinja2. Apt will ignore any subsequent attempts to install any
+# packages done here
+###############################################################################
+function install_python_early() {
+  apt-get update
+  apt-get install -y python3-pip python${PY3_VER}-venv python3-setuptools
+  p=10 # <-- priority value... totally arbitrary and we'll be overriding it
+  for pypath in $(ls /usr/bin/python3* | grep -P '3.[0-9]+$'); do
+    echo $pypath
+    update-alternatives --install /usr/bin/python3 python3 $pypath $p
+    p=$((p+1))
+  done
+  # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$PY3_VER
+  update-alternatives  --set python3 /usr/bin/python$PY3_VER
+  pip install --force-reinstall jinja2
+  pip install --force-reinstall pyyaml
+
+}
 ###############################################################################
 # Handle git repository
 ###############################################################################
@@ -360,6 +501,7 @@ function handle_git_repository() {
 
   cd ~
 
+  [[ -n $CBRANCH ]] && BRANCH=$CBRANCH
   # check for FreeTAKHub-Installation repository
   if [[ ! -d ~/FreeTAKHub-Installation ]]; then
 
@@ -375,7 +517,8 @@ function handle_git_repository() {
 
     cd ~/FreeTAKHub-Installation
 
-    echo -e "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
+    echo -e \
+      "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
     git pull
     git checkout ${BRANCH}
 
@@ -388,7 +531,8 @@ function handle_git_repository() {
 ###############################################################################
 function add_passwordless_ansible_execution() {
 
-  echo -e "${BLUE}Adding passwordless Ansible execution for the current user...${NOFORMAT}"
+  echo -e \
+    "${BLUE}Adding passwordless Ansible execution for the current user...${NOFORMAT}"
 
   # line to add
   LINE="${USER} ALL=(ALL) NOPASSWD:/usr/bin/ansible-playbook"
@@ -406,14 +550,13 @@ function add_passwordless_ansible_execution() {
 ###############################################################################
 function generate_key_pair() {
 
-  echo -e "${BLUE}Creating a public and private keys if non-existent...${NOFORMAT}"
+  echo -e \
+    "${BLUE}Creating a public and private keys if non-existent...${NOFORMAT}"
 
   # check for public and private keys
   if [[ ! -e ${HOME}/.ssh/id_rsa.pub ]]; then
-
     # generate keys
     ssh-keygen -t rsa -f "${HOME}/.ssh/id_rsa" -N ""
-
   fi
 
 }
@@ -423,25 +566,37 @@ function generate_key_pair() {
 ###############################################################################
 function run_playbook() {
 
-  echo -e "${BLUE}Running Ansible Playbook...${NOFORMAT}"
-
-  if [[ -n "${CORE-}" ]]; then
-    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_mainserver.yml ${ANSIBLE_VERBOSITY-}
-  else
-    ansible-playbook -u root -i localhost, --connection=local ${WEBMAP_FORCE_INSTALL-} install_all.yml ${ANSIBLE_VERBOSITY-}
-  fi
-
-
+  export CODENAME
+  export INSTALL_TYPE
+  export FTS_VERSION
+  evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
+  evars="$evars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH"
+  [[ -n "${CORE-}" ]] && pb=install_mainserver || pb=install_all
+  echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
+  ansible-playbook -u root -i localhost, --connection=local \
+      --extra-vars="$evars" \
+      ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
 }
 
+function cleanup() {
+
+  [[ -n $NEEDRESTART ]] && cp $HOME/nr-conf-temp $NEEDRESTART
+}
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
-parse_params "${@}"
+
 setup_colors
-do_checks
+parse_params "${@}"
+set_versions
+check_os
+# do_checks
 download_dependencies
+[[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_early
 handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair
+
+[[ 0 -eq $DRY_RUN ]] || die "Dry run complete. Not running Ansible" 0
 run_playbook
+cleanup

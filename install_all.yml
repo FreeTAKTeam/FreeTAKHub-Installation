@@ -17,6 +17,7 @@
 
     # Max seconds Node-RED Server will wait
     nodered_wait_for_videoserver_timeout: 600
+    python3_version: "{{ py3_ver }}"
 
   pre_tasks:
     - name: Cleanup

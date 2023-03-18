@@ -13,5 +13,5 @@
 
   roles:
     - freetakserver
-    - freetakserver_ui
-    - webmap
+    # - freetakserver_ui
+    # - webmap

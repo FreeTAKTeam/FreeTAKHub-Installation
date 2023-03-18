@@ -9,6 +9,7 @@ Restart=always
 RestartSec=1
 StandardOutput=append:/var/log/{{ fts_service_name }}/{{ fts_service_name }}-stdout.log
 StandardError=append:/var/log/{{ fts_service_name }}/{{ fts_service_name }}-stderr.log
+Environment="FTS_FIRST_START=false"
 ExecStart={{ python3 }} -m FreeTAKServer.controllers.services.FTS
 
 [Install]
