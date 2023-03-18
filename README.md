@@ -1,10 +1,10 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/zerotouch.yml/badge.svg)
 
-# Quick Install (Run On New **Ubuntu 20.04** Image)
+# Quick Install (Run On New **Ubuntu 22.04** Image)
 
-Use a clean Ubuntu **20.04** image when installing.
+Use a clean Ubuntu **22.04** image when installing.
 
-Download Ubuntu 20.04 here: <https://ubuntu.com/download/desktop>
+Download Ubuntu [22.04](https://ubuntu.com/download/server)
 
 FreeTAKTeam is currently testing on other Operating Systems and distributions.
 
