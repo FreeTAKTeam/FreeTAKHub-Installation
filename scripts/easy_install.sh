@@ -19,8 +19,9 @@ NEEDRESTART=0
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
-BRANCH="up-installer-to-v2"
-CBRANCH=""
+DEFAULT_BRANCH="main"
+BRANCH=${BRANCH:-$DEFAULT_BRANCH}
+CBRANCH=${CBRANCH:-}
 
 STABLE_OS_REQD="Ubuntu"
 STABLE_OS_VER_REQD="22.04"
