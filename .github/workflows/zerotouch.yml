@@ -21,6 +21,7 @@ jobs:
       matrix:
         architecture: ['x64', 'arm64']
         region: ['nyc1', 'sfo3']
+    steps:
 
     - name: Set up doctl
       uses: digitalocean/action-doctl@v2
