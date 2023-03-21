@@ -55,3 +55,11 @@ terraform.rc
 # ansible
 ansible_log.rb
 ansible.cfg
+/.vagrant/bundler/global.sol
+/.vagrant/machines/default/digital_ocean/action_provision
+/.vagrant/machines/default/digital_ocean/creator_uid
+/.vagrant/machines/default/digital_ocean/id
+/.vagrant/machines/default/digital_ocean/index_uuid
+/.vagrant/machines/default/digital_ocean/synced_folders
+/.vagrant/machines/default/digital_ocean/vagrant_cwd
+/.vagrant/rgloader/loader.rb
