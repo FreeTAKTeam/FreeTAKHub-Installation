@@ -7,6 +7,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = ENV["IMAGE_DISTRO"]
   config.vm.hostname = ENV["VAGRANTBOX"]
+  config.vm.synced_folder ".", "/vagrant", disabled: true
   config.vm.boot_timeout = 1800 #30 minutes
   config.vm.provider :virtualbox do |v|
     v.memory = 4096
@@ -39,8 +40,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     provider.ssh_key_name = ENV["DO_SSH_KEY_NAME"]
     #override.vm.box = 'digital_ocean'
     #override.vm.box_url = "https://github.com/devopsgroup-io/vagrant-digitalocean/raw/master/box/digital_ocean.box"
-    override.nfs.functional = false
-    override.vm.allowed_synced_folder_types = :rsync
+    #override.nfs.functional = false
+    #override.vm.allowed_synced_folder_types = :rsync
     provider.token = ENV["DO_API_KEY"]
     provider.image = 'ubuntu-20-04-x64'
     provider.region = 'nyc1'
