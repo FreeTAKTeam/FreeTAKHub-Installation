@@ -23,34 +23,34 @@ jobs:
         region: ['nyc1', 'sfo3']
     steps:
 
-    - name: Set up doctl
-      uses: digitalocean/action-doctl@v2
-      with:
-        token: ${{ secrets.DO_API_TOKEN }}
+      - name: Set up doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_API_TOKEN }}
 
-    - name: Create a new droplet
-      id: create_droplet
-      run: |
-        droplet_info=$(doctl compute droplet create my-droplet \
-          --image ubuntu-20-04-x64 \
-          --size s-1vcpu-1gb \
-          --region ${{ matrix.region }} \
-          --ssh-keys your_ssh_key_id \
-          --format ID,PublicIPv4 \
-          --no-header \
-          --wait)
-        echo "::set-output name=droplet_id::$(echo "$droplet_info" | awk '{print $1}')"
-        echo "::set-output name=droplet_ip::$(echo "$droplet_info" | awk '{print $2}')"
-   - name: Wait for SSH
-     run: |
-       until nc -zv ${{ steps.create_droplet.outputs.droplet_ip }} 22; do
-         sleep 5
-       done
+      - name: Create a new droplet
+        id: create_droplet
+        run: |
+          droplet_info=$(doctl compute droplet create my-droplet \
+            --image ubuntu-20-04-x64 \
+            --size s-1vcpu-1gb \
+            --region ${{ matrix.region }} \
+            --ssh-keys your_ssh_key_id \
+            --format ID,PublicIPv4 \
+            --no-header \
+            --wait)
+          echo "::set-output name=droplet_id::$(echo "$droplet_info" | awk '{print $1}')"
+          echo "::set-output name=droplet_ip::$(echo "$droplet_info" | awk '{print $2}')"
+     - name: Wait for SSH
+       run: |
+         until nc -zv ${{ steps.create_droplet.outputs.droplet_ip }} 22; do
+           sleep 5
+         done
 
-   - name: Copy installer to droplet
-     run: |
-       scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-         path/to/your/installer.deb root@${{ steps.create_droplet.outputs.droplet_ip }}:/tmp/
+     - name: Copy installer to droplet
+       run: |
+         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+           path/to/your/installer.deb root@${{ steps.create_droplet.outputs.droplet_ip }}:/tmp/
 
      - name: Checkout the git repository
        run: |
@@ -61,20 +61,20 @@ jobs:
          ENDSSH
 
 
-   - name: Install and test the software
-     run: |
-       ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-         root@${{ steps.create_droplet.outputs.droplet_ip }} "bash -s" <<- 'ENDSSH'
-         # Commands to install the .deb package
-         ~/FreeTAKHub-Installation/scripts/easy_install.sh
+     - name: Install and test the software
+       run: |
+         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+           root@${{ steps.create_droplet.outputs.droplet_ip }} "bash -s" <<- 'ENDSSH'
+           # Commands to install the .deb package
+           ~/FreeTAKHub-Installation/scripts/easy_install.sh
 
-         # Commands to test the installation
-         # Replace 'my_command' with the actual command or test script
-         until nc -zv ${{ steps.create_droplet.outputs.droplet_ip }} 8087; do
-           sleep 5
-         done
-       ENDSSH
+           # Commands to test the installation
+           # Replace 'my_command' with the actual command or test script
+           until nc -zv ${{ steps.create_droplet.outputs.droplet_ip }} 8087; do
+             sleep 5
+           done
+         ENDSSH
 
-   - name: Destroy droplet
-     if: always()
-     run: doctl compute droplet delete -f ${{ steps.create_droplet.outputs.droplet_id }}
+     - name: Destroy droplet
+       if: always()
+       run: doctl compute droplet delete -f ${{ steps.create_droplet.outputs.droplet_id }}
