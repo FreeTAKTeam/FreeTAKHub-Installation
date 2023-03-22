@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy_and_test:
+  deploy-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
