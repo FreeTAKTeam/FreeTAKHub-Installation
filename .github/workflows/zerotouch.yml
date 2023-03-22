@@ -19,9 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        architecture: ['x64', 'arm64']
-        region: ['nyc1', 'sfo3']
+        architecture: ['x64']
+        region: ['nyc1']
     steps:
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.DO_SSH_KEY }}" > private_key
+          chmod 600 private_key
+          echo "${{ secrets.DO_SSH_KEY_PUB }}" > public_key
+          chmod 600 public_key
 
       - name: Set up doctl
         uses: digitalocean/action-doctl@v2
@@ -31,11 +37,11 @@ jobs:
       - name: Create a new droplet
         id: create_droplet
         run: |
-          droplet_info=$(doctl compute droplet create my-droplet \
+          droplet_info=$(doctl compute droplet create ${{ github.repository }}-${{ github.workflow }}-${{ github.job }}-${{ github.run_id }} \
             --image ubuntu-20-04-x64 \
             --size s-1vcpu-1gb \
             --region ${{ matrix.region }} \
-            --ssh-keys your_ssh_key_id \
+            --ssh-keys ${{ secrets.DO_SSH_KEY_PUB }} \
             --format ID,PublicIPv4 \
             --no-header \
             --wait)
@@ -45,25 +51,17 @@ jobs:
         run: |
           until nc -zv ${{ steps.create_droplet.outputs.droplet_ip }} 22; do
             sleep 5
-          done
-
-      - name: Copy installer to droplet
-        run: |
-          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            path/to/your/installer.deb root@${{ steps.create_droplet.outputs.droplet_ip }}:/tmp/
-
+           done
       - name: Checkout the git repository
         run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
             root@${{ steps.create_droplet.outputs.droplet_ip }} "bash -s" <<- 'ENDSSH'
             # Commands to install the .deb package
             git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
-          ENDSSH
-
-
+           ENDSSH
       - name: Install and test the software
         run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
             root@${{ steps.create_droplet.outputs.droplet_ip }} "bash -s" <<- 'ENDSSH'
             # Commands to install the .deb package
             ~/FreeTAKHub-Installation/scripts/easy_install.sh
