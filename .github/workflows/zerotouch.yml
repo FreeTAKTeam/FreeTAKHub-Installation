@@ -39,7 +39,7 @@ jobs:
         run: |
           DROPLET_NAME="${{ github.workflow }}-${{ github.job }}-${{ github.run_id }}"
           DROPLET_JSON=$(doctl compute droplet create $DROPLET_NAME \
-            --image ubuntu-20-04-x64 \
+            --image ubuntu-22-04-x64 \
             --size s-1vcpu-1gb \
             --region ${{ matrix.region }} \
             --ssh-keys ${{ secrets.DO_SSH_FINGERPRINT }} \
