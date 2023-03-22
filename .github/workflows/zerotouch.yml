@@ -59,18 +59,17 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
             root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
-            # Commands to install the .deb package
             git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
           ENDSSH
       - name: Install and test the software
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
             root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
-            # Commands to install the .deb package
+            # Adding sleep timer due to background apt-get updates
+            sleep 600
+            # Execute Zerotouch Script
             ~/FreeTAKHub-Installation/scripts/easy_install.sh
-
-            # Commands to test the installation
-            # Replace 'my_command' with the actual command or test script
+            # Test if core services sockets are available
             until nc -zv $DROPLET_IP 8087; do
               sleep 5
             done
