@@ -45,36 +45,37 @@ jobs:
             --ssh-keys ${{ secrets.DO_SSH_FINGERPRINT }} \
             --format ID,PublicIPv4 \
             --no-header \
-            --wait)
+            --wait \
+            --format json)
           echo "$DROPLET_JSON"
-          echo "::set-output name=droplet_id::$(echo "$DROPLET_JSON" | jq '.[].id')"
-          echo "::set-output name=droplet_ip::$(echo "$DROPLET_JSON" | jq -r '.[].networks.v4[0].ip_address')"
+          echo "DROPLET_ID=$(echo "$DROPLET_JSON" | jq '.[].id')" >> $GITHUB_ENV
+          echo "DROPLET_IP=$(echo "$DROPLET_JSON" | jq -r '.[].networks.v4[0].ip_address')" >> $GITHUB_ENV
       - name: Wait for SSH
         run: |
-          until nc -zv ${{ steps.create_droplet.outputs.droplet_ip }} 22; do
+          until nc -zv $DROPLET_IP 22; do
             sleep 5
            done
       - name: Checkout the git repository
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
-            root@${{ steps.create_droplet.outputs.droplet_ip }} "bash -s" <<- 'ENDSSH'
+            root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
             # Commands to install the .deb package
             git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
           ENDSSH
       - name: Install and test the software
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
-            root@${{ steps.create_droplet.outputs.droplet_ip }} "bash -s" <<- 'ENDSSH'
+            root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
             # Commands to install the .deb package
             ~/FreeTAKHub-Installation/scripts/easy_install.sh
 
             # Commands to test the installation
             # Replace 'my_command' with the actual command or test script
-            until nc -zv ${{ steps.create_droplet.outputs.droplet_ip }} 8087; do
+            until nc -zv $DROPLET_IP 8087; do
               sleep 5
             done
           ENDSSH
 
       - name: Destroy droplet
         if: always()
-        run: doctl compute droplet delete -f ${{ steps.create_droplet.outputs.droplet_id }}
+        run: doctl compute droplet delete -f $DROPLET_ID
