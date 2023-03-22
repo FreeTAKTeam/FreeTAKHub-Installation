@@ -37,7 +37,7 @@ jobs:
       - name: Create a new droplet
         id: create_droplet
         run: |
-          droplet_info=$(doctl compute droplet create ${{ github.repository }}-${{ github.workflow }}-${{ github.job }}-${{ github.run_id }} \
+          droplet_info=$(doctl compute droplet create ${{ github.workflow }}-${{ github.job }}-${{ github.run_id }} \
             --image ubuntu-20-04-x64 \
             --size s-1vcpu-1gb \
             --region ${{ matrix.region }} \
