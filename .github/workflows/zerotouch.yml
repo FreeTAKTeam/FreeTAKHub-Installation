@@ -46,7 +46,7 @@ jobs:
             --format ID,PublicIPv4 \
             --no-header \
             --wait \
-            --format json)
+            --output json)
           echo "$DROPLET_JSON"
           echo "DROPLET_ID=$(echo "$DROPLET_JSON" | jq '.[].id')" >> $GITHUB_ENV
           echo "DROPLET_IP=$(echo "$DROPLET_JSON" | jq -r '.[].networks.v4[0].ip_address')" >> $GITHUB_ENV
