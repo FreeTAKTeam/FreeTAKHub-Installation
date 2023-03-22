@@ -1,5 +1,5 @@
 ---
-name: Zero Touch
+name: ZeroTouch
 
 "on":
   pull_request:
