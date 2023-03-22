@@ -41,7 +41,7 @@ jobs:
             --image ubuntu-20-04-x64 \
             --size s-1vcpu-1gb \
             --region ${{ matrix.region }} \
-            --ssh-keys ${{ secrets.DO_SSH_KEY_PUB }} \
+            --ssh-keys ${{ secrets.DO_SSH_FINGERPRINT }} \
             --format ID,PublicIPv4 \
             --no-header \
             --wait)
