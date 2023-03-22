@@ -37,7 +37,8 @@ jobs:
       - name: Create a new droplet
         id: create_droplet
         run: |
-          droplet_info=$(doctl compute droplet create ${{ github.workflow }}-${{ github.job }}-${{ github.run_id }} \
+          DROPLET_NAME="${{ github.workflow }}-${{ github.job }}-${{ github.run_id }}"
+          DROPLET_JSON=$(doctl compute droplet create $DROPLET_NAME \
             --image ubuntu-20-04-x64 \
             --size s-1vcpu-1gb \
             --region ${{ matrix.region }} \
@@ -45,8 +46,9 @@ jobs:
             --format ID,PublicIPv4 \
             --no-header \
             --wait)
-          echo "::set-output name=droplet_id::$(echo "$droplet_info" | awk '{print $1}')"
-          echo "::set-output name=droplet_ip::$(echo "$droplet_info" | awk '{print $2}')"
+          echo "$DROPLET_JSON"
+          echo "::set-output name=droplet_id::$(echo "$DROPLET_JSON" | jq '.[].id')"
+          echo "::set-output name=droplet_ip::$(echo "$DROPLET_JSON" | jq -r '.[].networks.v4[0].ip_address')"
       - name: Wait for SSH
         run: |
           until nc -zv ${{ steps.create_droplet.outputs.droplet_ip }} 22; do
@@ -58,7 +60,7 @@ jobs:
             root@${{ steps.create_droplet.outputs.droplet_ip }} "bash -s" <<- 'ENDSSH'
             # Commands to install the .deb package
             git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
-           ENDSSH
+          ENDSSH
       - name: Install and test the software
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
