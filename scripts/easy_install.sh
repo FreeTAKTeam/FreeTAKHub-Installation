@@ -191,12 +191,12 @@ function parse_params() {
 
     -B)
       echo "${RED}${hsep}${hsep}${hsep}"
-      echo "This option is not supported for public use."
-      echo "It will alter the version of this installer, which means:"
-      echo "  1. it may make breaking system alterations"
-      echo "  2. use at your own risk"
-      echo "It is highly recommended that you do not continue"
-      echo "unless you've selected this option for a specific reason"
+      echo -e "This option is not supported for public use.\n\
+      It will alter the version of this installer, which means:\n\
+      1. it may make breaking system alterations\n\
+      2. use at your own risk\n\
+      It is highly recommended that you do not continue\n\
+      unless you've selected this option for a specific reason"
       echo "${hsep}${hsep}${hsep}${NOFORMAT}"
       CBRANCH=$2
       shift 2
