@@ -57,7 +57,7 @@ jobs:
           while [ $COUNT -lt $RETRIES ]
             do
               echo "Attempting to connect to $DROPLET_IP as root (attempt $(($COUNT + 1))/$RETRIES)..."
-              ssh -q -o "BatchMode=yes" -o "StrictHostKeyChecking=no" -o "ConnectTimeout=5" "root@$REMOTE_HOST" 'echo SSH_READY' && break
+              ssh -q -o "BatchMode=yes" -o "StrictHostKeyChecking=no" -o "ConnectTimeout=5" "root@$DROPLET_IP" 'echo SSH_READY' && break
               COUNT=$(($COUNT + 1))
               sleep 15
             done
