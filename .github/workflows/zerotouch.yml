@@ -76,7 +76,7 @@ jobs:
           ENDSSH
       - name: Install and test the software
         run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
+          ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=12 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
             root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
             # Adding sleep timer due to background apt-get updates
             sleep 600
