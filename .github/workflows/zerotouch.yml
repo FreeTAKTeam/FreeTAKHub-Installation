@@ -52,9 +52,22 @@ jobs:
           echo "DROPLET_IP=$(echo "$DROPLET_JSON" | jq -r '.[].networks.v4[0].ip_address')" >> $GITHUB_ENV
       - name: Wait for SSH
         run: |
-          until nc -zv $DROPLET_IP 22; do
-            sleep 5
-           done
+          COUNT=0
+          RETRIES=40
+          while [ $COUNT -lt $RETRIES ]
+            do
+              echo "Attempting to connect to $DROPLET_IP as root (attempt $(($COUNT + 1))/$RETRIES)..."
+              ssh -q -o "BatchMode=yes" -o "StrictHostKeyChecking=no" -o "ConnectTimeout=5" "root@$REMOTE_HOST" 'echo SSH_READY' && break
+              count=$(($count + 1))
+              sleep 15
+            done
+          if [ $count -lt $RETRIES ]; then
+            echo "SSH is ready on $DROPLET_IP"
+            exit 0
+          else
+            echo "Failed to establish an SSH connection to $DROPLET_IP after $RETRIES attempts"
+            exit 1
+          fi
       - name: Checkout the git repository
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
