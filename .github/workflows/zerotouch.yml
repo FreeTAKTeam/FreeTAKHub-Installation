@@ -61,7 +61,7 @@ jobs:
               COUNT=$(($COUNT + 1))
               sleep 15
             done
-          if [ $count -lt $RETRIES ]; then
+          if [ $COUNT -lt $RETRIES ]; then
             echo "SSH is ready on $DROPLET_IP"
             exit 0
           else
