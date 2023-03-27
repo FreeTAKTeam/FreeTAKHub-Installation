@@ -15,7 +15,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy-and-test:
+#  aws:
+#    runs-on: ubuntu-latest
+#  mythic-beasts:
+#    runs-on: ubuntu-latest
+  digitalocean:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -83,6 +87,30 @@ jobs:
             # Execute Zerotouch Script
             ~/FreeTAKHub-Installation/scripts/easy_install.sh
           ENDSSH
+
+      - name: Test TAK Port 8087
+        run: |
+          until nc -zv $DROPLET_IP 8087; do
+              sleep 5
+            done
+
+      - name: Test TAK Port 8089
+        run: |
+          until nc -zv $DROPLET_IP 8089; do
+              sleep 5
+            done
+
+      - name: Test REST API Port 19023
+        run: |
+          until nc -zv $DROPLET_IP 19023; do
+              sleep 5
+            done
+
+      - name: Test Web UI Port 5000
+        run: |
+          until nc -zv $DROPLET_IP 5000; do
+              sleep 5
+            done
 
       - name: Destroy droplet
         if: always()
