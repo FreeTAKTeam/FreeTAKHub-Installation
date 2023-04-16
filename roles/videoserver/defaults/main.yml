@@ -1,15 +1,17 @@
 ---
 videoserver_ipv4: 0.0.0.0
 
-videoserver_api_url: https://api.github.com/repos/aler9/rtsp-simple-server/releases/latest
-videoserver_package: rtsp-simple-server.tar.gz
-videoserver_executable: rtsp-simple-server
-videoserver_config_file: rtsp-simple-server.yml
+videoserver_api_url: https://api.github.com/repos/aler9/mediamtx/releases/latest
+videoserver_package: mediamtx.gz
+videoserver_executable: mediamtx
+videoserver_config_file: mediamtx.yml
 
-videoserver_service_name: rtsp-simple-server
+videoserver_service_name: mediamtx
 
 # Set initial service state. Recommended values: `started` or `stopped`.
 videoserver_state: started
 
 # Enable service.
 videoserver_enabled: true
+
+
