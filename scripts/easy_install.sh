@@ -13,7 +13,7 @@ set -o pipefail
 # This disables Apt's "restart services" interactive dialog
 export DEBIAN_FRONTEND=noninteractive
 export NEEDRESTART_SUSPEND=1
-NEEDRESTART=0
+NEEDRESTART=
 
 # trap or catch signals and direct execution to cleanup
 trap cleanup SIGINT SIGTERM ERR EXIT
@@ -580,8 +580,10 @@ function run_playbook() {
 }
 
 function cleanup() {
-
-  [[ -n $NEEDRESTART ]] && cp $HOME/nr-conf-temp $NEEDRESTART
+  if [[ -n $NEEDRESTART ]]
+  then
+      cp $HOME/nr-conf-temp $NEEDRESTART
+  fi
 }
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
