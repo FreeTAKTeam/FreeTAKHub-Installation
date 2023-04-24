@@ -26,6 +26,10 @@ jobs:
         architecture: ['x64']
         region: ['nyc1']
     steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Set up SSH key
         run: |
           echo "${{ secrets.DO_SSH_KEY }}" > private_key
