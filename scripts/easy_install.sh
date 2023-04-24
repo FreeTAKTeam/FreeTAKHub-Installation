@@ -203,7 +203,7 @@ function parse_params() {
       ;;
 
     --branch)
-      BRANCH="67-nodered-default-password"
+      BRANCH=$2
       shift
       ;;
 
