@@ -11,12 +11,6 @@ RestartSec=1
 StandardOutput=append:/var/log/{{ fts_service_name }}/{{ fts_service_name }}-stdout.log
 StandardError=append:/var/log/{{ fts_service_name }}/{{ fts_service_name }}-stderr.log
 ExecStart={{ python3 }} {{ exec_start }}
-{% if exec_reload %}
-ExecReload={{ exec_reload }}
-{% endif %}
-{% if pid_file %}
-PIDFile={{ pid_file }}
-{% endif %}
 {% if envvar %}
 Environment={{ envvar }}
 {% endif %}
