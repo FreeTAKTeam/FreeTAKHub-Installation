@@ -11,7 +11,7 @@ fts_state: started
 fts_enabled: true
 
 #  Systemd Unit Values
-description: "FreeTAKServer is a feature-rch Python3 implementation of a TAK Server"
+description: "FreeTAKServer is a feature-rich Python3 implementation of a TAK Server"
 documentation: "man:fts(1)"
 after: "network.target"
 exec_start: "-m FreeTAKServer.controllers.services.FTS"
