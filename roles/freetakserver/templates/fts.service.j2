@@ -1,16 +1,7 @@
 [Unit]
 Description={{ description }}
-{% if documentation %}
-Documentation={{ documentation }}
-{% endif %}
 {% if after %}
 After={{ after }}
-{% endif %}
-{% if slb %}
-StartLimitBurst={{ slb }}
-{% endif %}
-{% if slis %}
-StartLimitIntervalSec={{ slis }}
 {% endif %}
 
 [Service]
@@ -26,8 +17,8 @@ ExecReload={{ exec_reload }}
 {% if pid_file %}
 PIDFile={{ pid_file }}
 {% endif %}
-{% if environment %}
-Environment={{ environment }}
+{% if envvar %}
+Environment={{ envvar }}
 {% endif %}
 {% if user %}
 User={{ user }}

@@ -26,4 +26,4 @@ wanted_by: "multi-user.target"
 #  slis: "5min"
 #  Sysrtemd parameter StartLimitBurst
 #  slb: "4"
-environment: "FTS_FIRST_START=false"
+envvar: "FTS_FIRST_START=false"
