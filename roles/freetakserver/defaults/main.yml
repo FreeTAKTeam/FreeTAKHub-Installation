@@ -1,13 +1,26 @@
 ---
-# system information
+#  system information
 fts_ipv4: 0.0.0.0
-
 fts_pip_package_name: FreeTAKServer
-
 fts_service_name: fts
 
-# Set initial service state. Recommended values: `started` or `stopped`.
+#  Set initial service state. Recommended values: `started` or `stopped`.
 fts_state: started
 
-# Enable service. Recommended values: `true` or `false`
+#  Enable service. Recommended values: `true` or `false`
 fts_enabled: true
+
+#  Systemd Unit Values
+description: "FreeTAKServer is a feature-rch Python3 implementation of a TAK Server"
+documentation: "man:fts(1)"
+after: "network.target"
+exec_start: "-m FreeTAKServer.controllers.services.FTS"
+exec_reload: "/bin/kill -s HUP $MAINPID"
+exec_stop: "/bin/kill -s TERM $MAINPID"
+user: "root"
+group: "root"
+pid_file: "/run/fts.pid"
+wanted_by: "multi-user.target"
+slis: "5min"
+slb: "4"
+environment: "FTS_FIRST_START=false"

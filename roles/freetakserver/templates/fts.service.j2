@@ -1,7 +1,14 @@
 [Unit]
-Description=FreeTAKServer service
-After=network.target
-StartLimitIntervalSec=0
+Description={{ description }}
+{% if documentation %}
+Documentation={{ documentation }}
+{% endif %}
+{% if after %}
+After={{ after }}
+{% endif %}
+After={{ after }}
+StartLimitIntervalSec={{ slis }}
+StartLimitBurst={{ slb }}
 
 [Service]
 Type=simple
@@ -9,8 +16,24 @@ Restart=always
 RestartSec=1
 StandardOutput=append:/var/log/{{ fts_service_name }}/{{ fts_service_name }}-stdout.log
 StandardError=append:/var/log/{{ fts_service_name }}/{{ fts_service_name }}-stderr.log
-Environment="FTS_FIRST_START=false"
-ExecStart={{ python3 }} -m FreeTAKServer.controllers.services.FTS
+ExecStart={{ python3 }} {{ exec_start }}
+{% if exec_reload %}
+ExecReload={{ exec_reload }}
+{% endif %}
+{% if pid_file %}
+PIDFile={{ pid_file }}
+{% endif %}
+{% if environment %}
+Environment={{ environment }}
+{% endif %}
+{% if user %}
+User={{ user }}
+{% endif %}
+{% if group %}
+Group={{ group }}
+{% endif %}
 
 [Install]
-WantedBy=multi-user.target
+{% if wanted_by %}
+WantedBy={{ wanted_by }}
+{% endif %}
