@@ -6,8 +6,12 @@ Documentation={{ documentation }}
 {% if after %}
 After={{ after }}
 {% endif %}
-StartLimitIntervalSec={{ slis }}
+{% if slb %}
 StartLimitBurst={{ slb }}
+{% endif %}
+{% if slis %}
+StartLimitIntervalSec={{ slis }}
+{% endif %}
 
 [Service]
 Type=simple

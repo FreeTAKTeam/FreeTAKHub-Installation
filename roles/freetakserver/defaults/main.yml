@@ -12,7 +12,7 @@ fts_enabled: true
 
 #  Systemd Unit Values
 description: "FreeTAKServer is a feature-rich Python3 implementation of a TAK Server"
-#  Systemd Parameter for man page
+#  Systemd parameter for man page
 #  documentation: "man:fts(1)"
 after: "network.target"
 exec_start: "-m FreeTAKServer.controllers.services.FTS"
@@ -22,6 +22,8 @@ user: "root"
 group: "root"
 pid_file: "/run/fts.pid"
 wanted_by: "multi-user.target"
-slis: "5min"
-slb: "4"
+#  Systemd parameter StartLimitIntervalSec
+#  slis: "5min"
+#  Sysrtemd parameter StartLimitBurst
+#  slb: "4"
 environment: "FTS_FIRST_START=false"
