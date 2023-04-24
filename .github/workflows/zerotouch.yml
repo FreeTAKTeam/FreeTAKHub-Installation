@@ -38,6 +38,11 @@ jobs:
         with:
           token: ${{ secrets.DO_API_TOKEN }}
 
+      - name: Extract branch name
+        run: |
+          branch_name=$(git symbolic-ref --short HEAD)
+          echo "BRANCH_NAME=${branch_name}" >> $GITHUB_ENV
+
       - name: Create a new droplet
         id: create_droplet
         run: |
@@ -72,12 +77,22 @@ jobs:
             echo "Failed to establish an SSH connection to $DROPLET_IP after $RETRIES attempts"
             exit 1
           fi
-      - name: Checkout the git repository
+      - name: Checkout the git repository (Main Branch)
+        if: github.ref == 'refs/heads/main'
         run: |
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
             root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
             git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
           ENDSSH
+      - name: Checkout the git repository (Development Branches)
+        if: github.ref != 'refs/heads/main'
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
+            root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
+            git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
+            git checkout ${{ env.BRANCH_NAME }}
+          ENDSSH
+
       - name: Install the software
         run: |
           ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=12 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
