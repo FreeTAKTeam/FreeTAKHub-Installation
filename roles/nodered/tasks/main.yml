@@ -10,6 +10,16 @@
   debug:
     msg: "noderedserver_ipv4 = {{ noderedserver_ipv4 }}"
 
+- name: Get public IPv4
+  uri:
+    url: http://ifconfig.me/ip
+    return_content: true
+  register: ip_response
+
+- name: Set public IPv4
+  set_fact:
+    true_web_ipv4: "{{ ip_response.content }}"
+
 - name: Install
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 
