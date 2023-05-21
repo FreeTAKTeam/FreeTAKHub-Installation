@@ -16,7 +16,8 @@
     owner: root
     group: root
     mode: 0755
-  when: videoserver_response.status == 302
+  register: download_result
+  changed_when: download_result.status == 200
 
 - name: "Unarchive {{ videoserver_package }} to /tmp"
   unarchive:
@@ -26,6 +27,7 @@
     group: root
     mode: 0755
     remote_src: true
+  when: download_result is defined and download_result.status == 200
 
 - name: "Copy /tmp/{{ videoserver_executable }} to {{ videoserver_executable_location }}"
   copy:
