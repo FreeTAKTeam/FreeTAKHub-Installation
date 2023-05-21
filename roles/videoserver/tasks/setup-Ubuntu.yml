@@ -10,7 +10,6 @@
     videoserver_download_url: "{{ videoserver_response.json.assets[videoserver_download_index].browser_download_url }}"
 
 - name: Download rtsp-simple-server
-  hosts: localhost
   tasks:
     - name: Download rtsp-simple-server package to /tmp
       get_url:
