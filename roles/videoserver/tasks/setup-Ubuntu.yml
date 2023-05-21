@@ -1,4 +1,13 @@
 ---
+- name: Determine CPU architecture
+  set_fact:
+    videoserver_architecture: "{{ ansible_architecture }}"
+
+- name: Translate CPU architecture if x86_64
+  set_fact:
+    videoserver_architecture: "amd64"
+  when: videoserver_architecture == "x86_64"
+
 - name: Get RTSP Simple Server release information with GitHub API
   uri:
     url: "{{ videoserver_api_url }}"
@@ -16,7 +25,6 @@
     owner: root
     group: root
     mode: 0755
-
 
 - name: "Unarchive {{ videoserver_package }} to /tmp"
   unarchive:
