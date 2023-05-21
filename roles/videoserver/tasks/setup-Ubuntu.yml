@@ -16,7 +16,7 @@
     owner: root
     group: root
     mode: 0755
-    when: videoserver_response.status == 302
+  when: videoserver_response.status == 302
 
 - name: "Unarchive {{ videoserver_package }} to /tmp"
   unarchive:
