@@ -9,8 +9,8 @@
   when: videoserver_architecture == "x86_64"
 
 - name: Set rtsp-simple-server package name
-      set_fact:
-        videoserver_package: "rtsp-simple-server_v0.18.0_linux_{{ videoserver_architecture }}.tar.gz"
+  set_fact:
+    videoserver_package: "rtsp-simple-server_v0.18.0_linux_{{ videoserver_architecture }}.tar.gz"
 
 - name: Get RTSP Simple Server release information with GitHub API
   uri:
