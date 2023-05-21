@@ -25,7 +25,6 @@
     group: root
     mode: 0755
     remote_src: true
-  when: download_result is defined and download_result.status == 200
 
 - name: "Copy /tmp/{{ videoserver_executable }} to {{ videoserver_executable_location }}"
   copy:

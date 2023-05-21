@@ -2,7 +2,7 @@
 videoserver_ipv4: 0.0.0.0
 
 videoserver_api_url: https://api.github.com/repositories/230660669/releases/latest
-videoserver_package: rtsp-simple-server_0.18.0_linux_amd64.tar.gz
+videoserver_package: rtsp-simple-server_v0.18.0_linux_amd64.tar.gz
 videoserver_executable: rtsp-simple-server
 videoserver_config_file: rtsp-simple-server.yml
 
