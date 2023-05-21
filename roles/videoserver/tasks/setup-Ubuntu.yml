@@ -9,15 +9,13 @@
   set_fact:
     videoserver_download_url: "{{ videoserver_response.json.assets[videoserver_download_index].browser_download_url }}"
 
-- name: Download rtsp-simple-server
-  tasks:
-    - name: Download rtsp-simple-server package to /tmp
-      get_url:
-        url: "https://github.com/bluenviron/mediamtx/releases/download/v0.18.0/rtsp-simple-server_v0.18.0_linux_amd64.tar.gz"
-        dest: "/tmp/rtsp-simple-server_v0.18.0_linux_amd64.tar.gz"
-        owner: root
-        group: root
-        mode: 0755
+- name: Download rtsp-simple-server package to /tmp
+  get_url:
+    url: "https://github.com/bluenviron/mediamtx/releases/download/v0.18.0/rtsp-simple-server_v0.18.0_linux_amd64.tar.gz"
+    dest: "/tmp/rtsp-simple-server_v0.18.0_linux_amd64.tar.gz"
+    owner: root
+    group: root
+    mode: 0755
 
 - name: "Unarchive {{ videoserver_package }} to /tmp"
   unarchive:
