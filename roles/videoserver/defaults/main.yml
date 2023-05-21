@@ -2,11 +2,18 @@
 videoserver_ipv4: 0.0.0.0
 
 videoserver_api_url: https://api.github.com/repositories/230660669/releases/latest
-videoserver_package: rtsp-simple-server_v0.18.0_linux_amd64.tar.gz
 videoserver_executable: rtsp-simple-server
 videoserver_config_file: rtsp-simple-server.yml
 
 videoserver_service_name: rtsp-simple-server
+
+videoserver_architecture: ""
+
+videoserver_download_links:
+  armv6: "https://github.com/bluenviron/mediamtx/releases/download/v0.18.0/rtsp-simple-server_v0.18.0_linux_armv6.tar.gz"
+  armv7: "https://github.com/bluenviron/mediamtx/releases/download/v0.18.0/rtsp-simple-server_v0.18.0_linux_armv7.tar.gz"
+  arm64v8: "https://github.com/bluenviron/mediamtx/releases/download/v0.18.0/rtsp-simple-server_v0.18.0_linux_arm64v8.tar.gz"
+  amd64: "https://github.com/bluenviron/mediamtx/releases/download/v0.18.0/rtsp-simple-server_v0.18.0_linux_amd64.tar.gz"
 
 # Set initial service state. Recommended values: `started` or `stopped`.
 videoserver_state: started

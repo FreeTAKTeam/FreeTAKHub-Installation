@@ -11,11 +11,12 @@
 
 - name: Download rtsp-simple-server package to /tmp
   get_url:
-    url: "https://github.com/bluenviron/mediamtx/releases/download/v0.18.0/rtsp-simple-server_v0.18.0_linux_amd64.tar.gz"
-    dest: "/tmp/rtsp-simple-server_v0.18.0_linux_amd64.tar.gz"
+    url: "{{ videoserver_download_links[videoserver_architecture] }}"
+    dest: "/tmp/rtsp-simple-server_v0.18.0_linux_{{ videoserver_architecture }}.tar.gz"
     owner: root
     group: root
     mode: 0755
+
 
 - name: "Unarchive {{ videoserver_package }} to /tmp"
   unarchive:

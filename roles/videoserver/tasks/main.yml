@@ -27,6 +27,10 @@
   # armv7l: armhf
   # aarch64: arm64
 
+- name: Determine CPU architecture
+  set_fact:
+    videoserver_architecture: "{{ ansible_architecture }}"
+
 - name: "Include {{ ansible_architecture }}-specific variables"
   include_vars: "{{ ansible_architecture }}.yml"
 
