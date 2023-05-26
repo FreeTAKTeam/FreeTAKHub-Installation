@@ -11,3 +11,5 @@ fts_state: started
 
 # Enable service. Recommended values: `true` or `false`
 fts_enabled: true
+
+cfg_rpath: "core/configuration"
