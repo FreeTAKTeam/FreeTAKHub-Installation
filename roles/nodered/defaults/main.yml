@@ -23,6 +23,8 @@ nodered_settings_file: "settings.js"
 # system information
 noderedserver_ipv4: 0.0.0.0
 
+noderedserver_port: 1880
+
 nodered_npm_packages:
   - node-red
   - node-red-admin

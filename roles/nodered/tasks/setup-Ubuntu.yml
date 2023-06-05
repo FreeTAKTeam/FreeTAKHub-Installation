@@ -30,6 +30,43 @@
     state: directory
     mode: 0755
 
+- name: Template unit file
+  template:
+    src: nodered.service.j2
+    dest: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
+    owner: root
+    group: root
+    mode: 0644
+
+
+- name: Enable service
+  service:
+    name: "{{ nodered_service_name }}"
+    enabled: true
+    use: systemd
+  register: enable_nodered_state
+  retries: 20
+  until: enable_nodered_state is success
+
+- name: Template settings file
+  template:
+    src: settings.js.j2
+    dest: "{{ nodered_install_folder }}/{{ nodered_settings_file }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Set service state
+  service:
+    name: "{{ nodered_service_name }}"
+    state: restarted
+    use: systemd
+  register: set_nodered_state
+  retries: 20
+  until:
+    - set_nodered_state is success
+    - set_nodered_state.status.ActiveState == "active"
+
 - name: "Template backup Node-RED flows"
   template:
     src: "{{ item }}.j2"

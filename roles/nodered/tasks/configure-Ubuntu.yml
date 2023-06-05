@@ -9,51 +9,14 @@
     name: nodered
     group: nodered
 
-- name: Template unit file
-  template:
-    src: nodered.service.j2
-    dest: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Template settings file
-  template:
-    src: settings.js.j2
-    dest: "{{ nodered_install_folder }}/{{ nodered_settings_file }}"
-    owner: root
-    group: root
-    mode: 0644
-
-
 - name: Kill any currently running processes
   include_tasks: ../../common/tasks/kill.yml
   vars:
     process: "node-red"
 
-- name: Enable service
-  service:
-    name: "{{ nodered_service_name }}"
-    enabled: true
-    use: systemd
-  register: enable_nodered_state
-  retries: 20
-  until: enable_nodered_state is success
-
-- name: Set service state
-  service:
-    name: "{{ nodered_service_name }}"
-    state: restarted
-    use: systemd
-  register: set_nodered_state
-  retries: 20
-  until:
-    - set_nodered_state is success
-    - set_nodered_state.status.ActiveState == "active"
-
 - name: Wait for NodeRed service to start
   uri:
-    url: http://{{ noderedserver_ipv4 }}:1880
+    url: http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}
     status_code: 200
     timeout: 5
   register: nodered_service_status
@@ -66,7 +29,7 @@
 
 - name: Authenticate to NodeRed Admin API
   uri:
-    url: "http://{{ noderedserver_ipv4 }}:1880/auth/token"
+    url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/auth/token"
     method: POST
     headers:
       Content-Type: application/json
@@ -86,11 +49,11 @@
   block:
     - name: Wait until Node-RED import port is open
       wait_for:
-        port: 1880
+        port: {{ noderedserver_port }}
 
     - name: Import Node-RED flows via HTTP POST
       uri:
-        url: "http://{{ noderedserver_ipv4 }}:1880/flows"
+        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flows"
         method: POST
         headers:
           Content-Type: application/json
@@ -103,7 +66,7 @@
 
 #    - name: Import Node-RED SALUTE flow via HTTP POST
 #      uri:
-#        url: "http://{{ noderedserver_ipv4 }}:1880/flow"
+#        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
 #        method: POST
 #        headers:
 #          Content-Type: application/json
@@ -116,7 +79,7 @@
 #
 #    - name: Import Node-RED Videochecker flow via HTTP POST
 #      uri:
-#        url: "http://{{ noderedserver_ipv4 }}:1880/flow"
+#        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
 #        method: POST
 #        headers:
 #          Content-Type: application/json
@@ -129,7 +92,7 @@
 #
 #    - name: Import Node-RED Videochecker flow via HTTP POST
 #      uri:
-#        url: "http://{{ noderedserver_ipv4 }}:1880/flow"
+#        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
 #        method: POST
 #        headers:
 #          Content-Type: application/json
@@ -150,7 +113,7 @@
 
     - name: Reload Node-RED flows
       uri:
-        url: "http://{{ noderedserver_ipv4 }}:1880/flows"
+        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flows"
         method: POST
         headers:
           Content-Type: application/json
