@@ -9,10 +9,16 @@
     name: nodered
     group: nodered
 
-- name: Kill any currently running processes
-  include_tasks: ../../common/tasks/kill.yml
-  vars:
-    process: "node-red"
+#- name: Kill any currently running processes
+#  include_tasks: ../../common/tasks/kill.yml
+#  vars:
+#    process: "node-red"
+
+- name: Restart NodeRed Unit
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: true
+    name: nodered
 
 - name: Wait for NodeRed service to start
   uri:
