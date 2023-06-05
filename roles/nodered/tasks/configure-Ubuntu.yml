@@ -49,7 +49,7 @@
   block:
     - name: Wait until Node-RED import port is open
       wait_for:
-        port: {{ noderedserver_port }}
+        port: "{{ noderedserver_port }}"
 
     - name: Import Node-RED flows via HTTP POST
       uri:
