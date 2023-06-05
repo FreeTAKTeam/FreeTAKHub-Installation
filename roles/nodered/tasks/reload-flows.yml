@@ -1,7 +1,7 @@
 ---
 - name: reload nodered flows
   uri:
-    url: "http://{{ noderedserver_ipv4 }}:1880/flows"
+    url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flows"
     method: POST
     headers:
       Content-Type: application/json
