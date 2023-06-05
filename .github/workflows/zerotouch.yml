@@ -94,6 +94,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
             root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
             git clone https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git
+            cd ~/FreeTAKHub-Installation
             git checkout ${{ env.BRANCH_NAME }}
           ENDSSH
 
