@@ -103,9 +103,9 @@ jobs:
           ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=12 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i private_key \
             root@$DROPLET_IP "bash -s" <<- 'ENDSSH'
             # Adding sleep timer due to background apt-get updates
-            sleep 600
-            # Execute Zerotouch Script
-            ~/FreeTAKHub-Installation/scripts/easy_install.sh
+            sleep 540
+            # Execute Zerotouch Installer
+            ~/FreeTAKHub-Installation/scripts/easy_install.sh --branch ${{ env.BRANCH_NAME }}
           ENDSSH
 
       - name: Test TAK Port 8087
