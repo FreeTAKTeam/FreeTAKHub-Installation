@@ -59,18 +59,18 @@
       wait_for:
         port: "{{ noderedserver_port }}"
 
-    - name: Import Node-RED flows via HTTP POST
-      uri:
-        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flows"
-        method: POST
-        headers:
-          Content-Type: application/json
-          Node-RED-API-Version: v1
-          Node-RED-Deployment-Type: full
-          Authorization: Bearer {{ nodered_admin_token }}
-        body: "{{ nodered_post_flows_body }}"
-        body_format: json
-        status_code: 204
+#    - name: Import Node-RED flows via HTTP POST
+#      uri:
+#        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flows"
+#        method: POST
+#        headers:
+#          Content-Type: application/json
+#          Node-RED-API-Version: v1
+#          Node-RED-Deployment-Type: full
+#          Authorization: Bearer {{ nodered_admin_token }}
+#        body: "{{ nodered_post_flows_body }}"
+#        body_format: json
+#        status_code: 204
 
 #    - name: Import Node-RED SALUTE flow via HTTP POST
 #      uri:
