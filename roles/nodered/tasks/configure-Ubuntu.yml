@@ -9,11 +9,6 @@
     name: nodered
     group: nodered
 
-#- name: Kill any currently running processes
-#  include_tasks: ../../common/tasks/kill.yml
-#  vars:
-#    process: "node-red"
-
 - name: Restart NodeRed Unit
   ansible.builtin.systemd:
     state: restarted
@@ -32,6 +27,12 @@
   until: >
      'status' in nodered_service_status and
      nodered_service_status['status'] == 200
+
+- name: Clone FreeTAKHub_VideoChecker repository
+  git:
+    repo: 'https://github.com/FreeTAKTeam/FreeTAKHub_VideoChecker.git'
+    clone: yes
+    update: yes
 
 - name: Authenticate to NodeRed Admin API
   uri:
@@ -82,20 +83,20 @@
 #        body: "{{ nodered_post_flow_salute }}"
 #        body_format: json
 #        status_code: 200
-#
-#    - name: Import Node-RED Videochecker flow via HTTP POST
-#      uri:
-#        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
-#        method: POST
-#        headers:
-#          Content-Type: application/json
-#          Node-RED-API-Version: v1
-#          Node-RED-Deployment-Type: full
-#          Authorization: Bearer {{ nodered_admin_token }}
-#        body: "{{ nodered_post_flow_videochecker }}"
-#        body_format: json
-#        status_code: 200
-#
+
+- name: Import Node-RED Videochecker flow via HTTP POST
+  uri:
+    url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Node-RED-API-Version: v1
+      Node-RED-Deployment-Type: full
+      Authorization: Bearer {{ nodered_admin_token }}
+    body: "{{ nodered_post_flow_videochecker }}"
+    body_format: json
+    status_code: 200
+
 #    - name: Import Node-RED Videochecker flow via HTTP POST
 #      uri:
 #        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
