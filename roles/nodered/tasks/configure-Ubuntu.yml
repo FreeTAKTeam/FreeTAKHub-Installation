@@ -94,7 +94,7 @@
           Node-RED-API-Version: v1
           Node-RED-Deployment-Type: full
           Authorization: Bearer {{ nodered_admin_token }}
-        body: "{{ nodered_post_flow_videochecker }}"
+        body: "{{ lookup('file', playbook_dir + '/FreeTAKHub_VideoChecker/FreeTAKHub VideoChecker.json') }}"
         body_format: json
         status_code: 200
 
