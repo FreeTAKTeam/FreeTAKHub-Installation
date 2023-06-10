@@ -31,6 +31,7 @@
 - name: Clone FreeTAKHub_VideoChecker repository
   git:
     repo: 'https://github.com/FreeTAKTeam/FreeTAKHub_VideoChecker.git'
+    dest: '{{ playbook_dir }}'
     clone: yes
     update: yes
 
@@ -84,18 +85,18 @@
 #        body_format: json
 #        status_code: 200
 
-- name: Import Node-RED Videochecker flow via HTTP POST
-  uri:
-    url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
-    method: POST
-    headers:
-      Content-Type: application/json
-      Node-RED-API-Version: v1
-      Node-RED-Deployment-Type: full
-      Authorization: Bearer {{ nodered_admin_token }}
-    body: "{{ nodered_post_flow_videochecker }}"
-    body_format: json
-    status_code: 200
+    - name: Import Node-RED Videochecker flow via HTTP POST
+      uri:
+        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
+        method: POST
+        headers:
+          Content-Type: application/json
+          Node-RED-API-Version: v1
+          Node-RED-Deployment-Type: full
+          Authorization: Bearer {{ nodered_admin_token }}
+        body: "{{ nodered_post_flow_videochecker }}"
+        body_format: json
+        status_code: 200
 
 #    - name: Import Node-RED Videochecker flow via HTTP POST
 #      uri:
