@@ -32,6 +32,7 @@
   git:
     repo: 'https://github.com/FreeTAKTeam/FreeTAKHub_VideoChecker.git'
     dest: '{{ playbook_dir }}'
+    force: true
     clone: yes
     update: yes
 
