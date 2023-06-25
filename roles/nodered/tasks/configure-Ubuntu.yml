@@ -58,7 +58,9 @@
     status_code: 200
   register: get_nodered_auth_output
 
-- set_fact: nodered_admin_token="{{ get_nodered_auth_output.json.access_token }}"
+- name: Make available NodeRed Admin Token
+  tags: nodered
+  set_fact: nodered_admin_token="{{ get_nodered_auth_output.json.access_token }}"
 
 - name: Import Node-RED flows
   tags: nodered
