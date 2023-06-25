@@ -120,7 +120,7 @@
         body_format: json
         status_code: 200
 
-    - name: Import Node-RED Videochecker flow via HTTP POST
+    - name: Import Node-RED SALUTE flow via HTTP POST
       uri:
         url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
         method: POST
@@ -133,7 +133,7 @@
         body_format: json
         status_code: 200
 
-    - name: Import Node-RED Videochecker flow via HTTP POST
+    - name: Import Node-RED Webmap flow via HTTP POST
       uri:
         url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
         method: POST
