@@ -34,7 +34,7 @@
 
 - name: Clone FreeTAKHub_VideoChecker repository
   tags: nodered
-  shell: git clone https://github.com/HeroesLament/FreeTAKHub_VideoChecker.git "{{ playbook_dir }}"
+  shell: git clone https://github.com/HeroesLament/FreeTAKHub_VideoChecker.git
 
 # - name: Clone FreeTAKHub_VideoChecker repository
 #   tags: nodered
