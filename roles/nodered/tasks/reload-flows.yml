@@ -1,5 +1,6 @@
 ---
 - name: reload nodered flows
+  tags: nodered
   uri:
     url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flows"
     method: POST

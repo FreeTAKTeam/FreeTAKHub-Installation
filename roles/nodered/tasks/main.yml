@@ -1,32 +1,40 @@
 ---
 - name: "Include {{ ansible_distribution }}-specific variables"
+  tags: nodered
   include_vars: "{{ ansible_distribution }}.yml"
 
 - name: Set IPv4
+  tags: nodered
   set_fact:
     noderedserver_ipv4: 127.0.0.1
 
 - name: Print IPv4
+  tags: nodered
   debug:
     msg: "noderedserver_ipv4 = {{ noderedserver_ipv4 }}"
 
 - name: Get public IPv4
+  tags: nodered
   uri:
     url: http://ifconfig.me/ip
     return_content: true
   register: ip_response
 
 - name: Set public IPv4
+  tags: nodered
   set_fact:
     true_web_ipv4: "{{ ip_response.content }}"
 
 - name: Install
+  tags: nodered
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 
 - name: Configure
+  tags: nodered
   include_tasks: "configure-{{ ansible_distribution }}.yml"
 
 - name: Notify handlers to print at the end
+  tags: nodered
   shell: ":"
   notify:
     - print nodered url

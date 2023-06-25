@@ -1,16 +1,19 @@
 ---
 - name: Stop service
+  tags: nodered
   service:
     name: "{{ nodered_service_name }}"
     state: stopped
   ignore_errors: true
 
 - name: Remove unit file
+  tags: nodered
   file:
     path: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
     state: absent
 
 - name: Uninstall
+  tags: nodered
   npm:
     name: node-red
     state: absent

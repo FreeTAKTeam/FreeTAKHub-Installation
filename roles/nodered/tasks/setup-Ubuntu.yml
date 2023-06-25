@@ -1,5 +1,6 @@
 ---
 - name: wait for lock-frontend release
+  tags: nodered
   shell: >
     while fuser /var/lib/dpkg/lock-frontend >
     /dev/null 2>&1;
@@ -7,11 +8,13 @@
   changed_when: false
 
 - name: Install apt dependencies
+  tags: nodered
   apt:
     name: "{{ item }}"
   loop: "{{ nodered_apt_dependencies | list }}"
 
 - name: Install packages with npm
+  tags: nodered
   npm:
     name: "{{ item }}"
     global: true
@@ -19,18 +22,21 @@
   loop: "{{ nodered_npm_packages | list }}"
 
 - name: Install Node-RED nodes with npm
+  tags: nodered
   npm:
     name: "{{ item }}"
     path: "{{ nodered_install_folder }}"
   loop: "{{ nodered_nodes | list }}"
 
 - name: Create flows directory
+  tags: nodered
   file:
     path: "{{ nodered_install_folder }}/lib/flows"
     state: directory
     mode: 0755
 
 - name: Template unit file
+  tags: nodered
   template:
     src: nodered.service.j2
     dest: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
@@ -40,6 +46,7 @@
 
 
 - name: Enable service
+  tags: nodered
   service:
     name: "{{ nodered_service_name }}"
     enabled: true
@@ -49,6 +56,7 @@
   until: enable_nodered_state is success
 
 - name: Template settings file
+  tags: nodered
   template:
     src: settings.js.j2
     dest: "{{ nodered_install_folder }}/{{ nodered_settings_file }}"
@@ -57,6 +65,7 @@
     mode: 0644
 
 - name: Set service state
+  tags: nodered
   service:
     name: "{{ nodered_service_name }}"
     state: restarted
@@ -68,6 +77,7 @@
     - set_nodered_state.status.ActiveState == "active"
 
 - name: "Template backup Node-RED flows"
+  tags: nodered
   template:
     src: "{{ item }}.j2"
     dest: "{{ nodered_install_folder }}/lib/flows/{{ item }}"
@@ -77,6 +87,7 @@
   loop: "{{ nodered_flows }}"
 
 - name: "Template flows.json to /tmp/flows.json"
+  tags: nodered
   template:
     src: "flows.json.j2"
     dest: "/tmp/flows.json"

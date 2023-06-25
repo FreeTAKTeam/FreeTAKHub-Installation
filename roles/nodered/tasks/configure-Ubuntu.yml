@@ -1,21 +1,25 @@
 ---
 - name: Ensure nodered group exists
+  tags: nodered
   group:
     name: nodered
     state: present
 
 - name: Ensure nodered user is in nodered group
+  tags: nodered
   user:
     name: nodered
     group: nodered
 
 - name: Restart NodeRed Unit
+  tags: nodered
   ansible.builtin.systemd:
     state: restarted
     daemon_reload: true
     name: nodered
 
 - name: Wait for NodeRed service to start
+  tags: nodered
   uri:
     url: http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}
     status_code: 200
@@ -29,6 +33,7 @@
      nodered_service_status['status'] == 200
 
 - name: Clone FreeTAKHub_VideoChecker repository
+  tags: nodered
   git:
     repo: 'https://github.com/FreeTAKTeam/FreeTAKHub_VideoChecker.git'
     dest: '{{ playbook_dir }}'
@@ -37,6 +42,7 @@
     update: yes
 
 - name: Authenticate to NodeRed Admin API
+  tags: nodered
   uri:
     url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/auth/token"
     method: POST
@@ -55,6 +61,7 @@
 - set_fact: nodered_admin_token="{{ get_nodered_auth_output.json.access_token }}"
 
 - name: Import Node-RED flows
+  tags: nodered
   block:
     - name: Wait until Node-RED import port is open
       wait_for:
@@ -113,6 +120,7 @@
 #        status_code: 200
 
 - name: Ensure reachable connection to Video Server
+  tags: nodered
   block:
     - name: Wait for Video Server to be available
       wait_for:
