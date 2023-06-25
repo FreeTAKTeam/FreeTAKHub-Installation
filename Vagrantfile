@@ -7,6 +7,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = ENV["IMAGE_DISTRO"] || "ubuntu/jammy64"
   config.vm.hostname = ENV["VAGRANTBOX"] || "default-hostname"
   config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.vm.network "forwarded_port", guest: 8087, host: 8087
+  config.vm.network "forwarded_port", guest: 8089, host: 8089
+  config.vm.network "forwarded_port", guest: 19023, host: 19023
+  config.vm.network "forwarded_port", guest: 5000, host: 5000
+  config.vm.network "forwarded_port", guest: 8554, host: 8554
+  config.vm.network "forwarded_port", guest: 9997, host: 9997
+  config.vm.network "forwarded_port", guest: 1880, host: 1880
+  
   config.vm.boot_timeout = 1800 #30 minutes
   config.vm.provider :virtualbox do |vb, override|
     vb.memory = 4096
