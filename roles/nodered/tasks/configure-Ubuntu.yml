@@ -33,7 +33,7 @@
      nodered_service_status['status'] == 200
 
 - name: Clone FreeTAKHub_VideoChecker repository
-  tage: nodered
+  tags: nodered
   shell: git clone https://github.com/HeroesLament/FreeTAKHub_VideoChecker.git "{{ playbook_dir }}"
 
 # - name: Clone FreeTAKHub_VideoChecker repository
