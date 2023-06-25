@@ -4,3 +4,5 @@ nodered_install_folder: "/root/.node-red"
 nodered_apt_dependencies:
   - npm
   - nodejs
+
+unit_files_location: /etc/systemd/system
