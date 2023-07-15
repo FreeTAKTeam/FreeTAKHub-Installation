@@ -34,15 +34,15 @@
 
 - name: Clone FreeTAKHub_VideoChecker repository
   tags: nodered
-  shell: git clone https://github.com/HeroesLament/FreeTAKHub_VideoChecker.git
+  shell: git clone https://github.com/FreeTAKTeam/FreeTAKHub_VideoChecker.git
 
 - name: Clone FreeTAKHub_SALUTE repository
   tags: nodered
-  shell: git clone https://github.com/HeroesLament/FreeTAKHub_Forms_SALUTE.git
+  shell: git clone https://github.com/FreeTAKTeam/FreeTAKHub_Forms_SALUTE.git
 
 - name: Clone FreeTAKHub_Webmap repository
   tags: nodered
-  shell: git clone https://github.com/HeroesLament/FreeTAKHub-Webmap.git
+  shell: git clone https://github.com/FreeTAKTeam/FreeTAKHub-Webmap.git
 
 # - name: Clone FreeTAKHub_VideoChecker repository
 #   tags: nodered
