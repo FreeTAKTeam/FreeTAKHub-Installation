@@ -64,5 +64,3 @@ ansible.cfg
 /.vagrant/machines/default/digital_ocean/vagrant_cwd
 /.vagrant/rgloader/loader.rb
 /.vagrant/*
-.byebug_history
-docs/DEV.md
