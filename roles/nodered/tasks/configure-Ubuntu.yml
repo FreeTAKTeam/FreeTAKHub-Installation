@@ -34,15 +34,15 @@
 
 - name: Clone FreeTAKHub_VideoChecker repository
   tags: nodered
-  shell: git clone https://github.com/HeroesLament/FreeTAKHub_VideoChecker.git
+  shell: git clone https://github.com/FreeTAKTeam/FreeTAKHub_VideoChecker.git
 
 - name: Clone FreeTAKHub_SALUTE repository
   tags: nodered
-  shell: git clone https://github.com/HeroesLament/FreeTAKHub_Forms_SALUTE.git
+  shell: git clone https://github.com/FreeTAKTeam/FreeTAKHub_Forms_SALUTE.git
 
 - name: Clone FreeTAKHub_Webmap repository
   tags: nodered
-  shell: git clone https://github.com/HeroesLament/FreeTAKHub-Webmap.git
+  shell: git clone https://github.com/FreeTAKTeam/FreeTAKHub-Webmap.git
 
 # - name: Clone FreeTAKHub_VideoChecker repository
 #   tags: nodered
@@ -107,7 +107,20 @@
 #        body_format: json
 #        status_code: 200
 
-    - name: Import Node-RED Videochecker flow via HTTP POST
+    - name: Import Node-RED FTH Config flow via HTTP POST
+      uri:
+        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
+        method: POST
+        headers:
+          Content-Type: application/json
+          Node-RED-API-Version: v1
+          Node-RED-Deployment-Type: full
+          Authorization: Bearer {{ nodered_admin_token }}
+        body: "{{ lookup('file', playbook_dir + '/FreeTAKHub-Webmap/freetakhub_config.json') }}"
+        body_format: json
+        status_code: 200
+
+    - name: Import FTH Videochecker flow via HTTP POST
       uri:
         url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
         method: POST
@@ -120,7 +133,7 @@
         body_format: json
         status_code: 200
 
-    - name: Import Node-RED Videochecker flow via HTTP POST
+    - name: Import FTH SALUTE flow via HTTP POST
       uri:
         url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
         method: POST
@@ -133,7 +146,7 @@
         body_format: json
         status_code: 200
 
-    - name: Import Node-RED Videochecker flow via HTTP POST
+    - name: Import FTH Webmap flow via HTTP POST
       uri:
         url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
         method: POST
