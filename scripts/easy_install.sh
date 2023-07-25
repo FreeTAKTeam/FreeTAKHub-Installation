@@ -31,7 +31,7 @@ LEGACY_OS_VER_REQD="20.04"
 LEGACY_CODENAME_REQD="focal"
 
 # the specific versions will be set later based on INSTALL_TYPE
-DEFAULT_INSTALL_TYPE="stable"
+DEFAULT_INSTALL_TYPE="latest"
 INSTALL_TYPE="${INSTALL_TYPE:-$DEFAULT_INSTALL_TYPE}"
 
 PY3_VER_LEGACY="3.8"
@@ -39,6 +39,7 @@ PY3_VER_STABLE="3.11"
 
 STABLE_FTS_VERSION="2.0.66"
 LEGACY_FTS_VERSION="1.9.9.6"
+LATEST_FTS_VERSION=$(curl -s https://pypi.org/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
 
 DRY_RUN=0
 
@@ -242,6 +243,14 @@ function parse_params() {
 ###############################################################################
 function set_versions() {
   case $INSTALL_TYPE in
+    latest)
+      export PY3_VER=$PY3_VER_STABLE
+      export FTS_VERSION=$LATEST_FTS_VERSION
+      export CFG_RPATH="core/configuration"
+      export OS_REQD=$STABLE_OS_REQD
+      export OS_VER_REQD=$STABLE_OS_VER_REQD
+      export CODENAME=$STABLE_CODENAME_REQD
+      ;;
     legacy)
       export PY3_VER=$PY3_VER_LEGACY
       export FTS_VERSION=$LEGACY_FTS_VERSION
@@ -381,6 +390,7 @@ function check_os() {
 
     echo -e "${GREEN}Success!${NOFORMAT}"
     echo -e "This machine is currently running: ${GREEN}${OS} ${VER}${NOFORMAT}"
+    echo -e "Selected install type is: ${GREEN}${DEFAULT_INSTALL_TYPE}"
 
   fi
 
