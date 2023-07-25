@@ -390,7 +390,7 @@ function check_os() {
 
     echo -e "${GREEN}Success!${NOFORMAT}"
     echo -e "This machine is currently running: ${GREEN}${OS} ${VER}${NOFORMAT}"
-    echo -e "Selected install type is: ${DEFAULT_INSTALL_TYPE}"
+    echo -e "Selected install type is: ${GREEN}${DEFAULT_INSTALL_TYPE}"
 
   fi
 
