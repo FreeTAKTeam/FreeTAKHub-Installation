@@ -370,6 +370,7 @@ function check_os() {
     echo "FreeTAKServer has only been tested on ${GREEN}${OS_REQD} ${OS_VER_REQD}${NOFORMAT}."
     echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}"
     echo "Errors may arise during installation or execution."
+    echo -e "Selected install type is: ${DEFAULT_INSTALL_TYPE}"
 
     read -r -e -p "Do you want to continue? [y/n]: " PROCEED
 
