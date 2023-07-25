@@ -37,7 +37,7 @@ INSTALL_TYPE="${INSTALL_TYPE:-$DEFAULT_INSTALL_TYPE}"
 PY3_VER_LEGACY="3.8"
 PY3_VER_STABLE="3.11"
 
-STABLE_FTS_VERSION="2.0.69"
+STABLE_FTS_VERSION="2.0.66"
 LEGACY_FTS_VERSION="1.9.9.6"
 LATEST_FTS_VERSION=$(curl -s https://pypi.org/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
 
