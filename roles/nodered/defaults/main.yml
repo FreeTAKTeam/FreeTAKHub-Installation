@@ -26,7 +26,7 @@ noderedserver_ipv4: 0.0.0.0
 noderedserver_port: 1880
 
 nodered_npm_packages:
-  - node-red
+  - node-red@v2-maintenance
   - node-red-admin
   - node-red-contrib-web-worldmap
 
