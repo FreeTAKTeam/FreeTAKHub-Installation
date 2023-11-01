@@ -1,5 +1,5 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/zerotouch.yml/badge.svg)
-
+this page is not maintained. please refers to the [official documentation ](https://freetakteam.github.io/FreeTAKServer-User-Docs/)
 # Quick Install (Run On New **Ubuntu 22.04** Image)
 
 Use a clean Ubuntu **22.04** image when installing.
@@ -11,7 +11,7 @@ FreeTAKTeam is currently testing on other Operating Systems and distributions.
 ## Zero Touch Deployment
 
 ```console
-wget -qO - bit.ly/ftszerotouch | sudo bash
+wget -qO - bit.ly/freetakhub2 | sudo bash
 ```
 
 ```console
