@@ -2,6 +2,7 @@
 """
 License: MIT
 Copyright (c) 2019 - present AppSeed.us
+Copyright (c) 2023 FreeTAKTeam
 """
 
 import os
@@ -31,11 +32,17 @@ class Config(object):
     # Port the  UI uses to communicate with the API
     PORT = '19023'
 
+    # Protocol the UI uses to communicate with the API
+    PROTOCOL = 'http'
+
     # the public IP your server is exposing
     APPIP = '0.0.0.0'
 
     # The IP the Web UI service will use to access the Webmap service
     WEBMAPIP = '{{ fts_public_ipv4 }}'
+
+    # webmap protocol
+    WEBMAPPROTOCOL = 'http'
 
     # The TCP port the Web UI service will use to access the Webmap service
     WEBMAPPORT = {{ fts_webmap_port }}
