@@ -6,6 +6,8 @@ RUN groupadd -r freetak && useradd -m -r -g freetak freetak
 RUN mkdir /opt/fts ; chown -R freetak:freetak /opt/fts ; chmod 775 /opt/fts ; chmod a+w /var/log
 
 USER freetak
+WORKDIR /home/freetak
+COPY --chown=freetak:freetak --chmod=774 core-run.sh ./
 
 # This needs the trailing slash
 ENV FTS_DATA_PATH = "/opt/fts/"
@@ -14,7 +16,7 @@ ENV FTS_DATA_PATH = "/opt/fts/"
 # ruamel.yaml is very ornery and has to be force-reinstalled alone
 ENV PATH /home/freetak/.local/bin:$PATH
 RUN pip install --upgrade pip ; pip install --force-reinstall "ruamel.yaml<0.18"
-RUN pip install FreeTAKServer==0.2.1a1
+RUN pip install FreeTAKServer
 
 # Provide a way to edit the configuration from outside the container
 # May need to be updated if the base image changes
@@ -40,4 +42,4 @@ EXPOSE 9000
 
 VOLUME /opt/fts
 
-CMD [ "/home/freetak/docker-run.sh" ]
+CMD [ "/home/freetak/core-run.sh" ]

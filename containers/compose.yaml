@@ -7,6 +7,10 @@ services:
       context: .
       dockerfile: core-pypi.Dockerfile
     volumes:
+    # Confused about the Z at the end?
+    # on hosts with selinux, you will need this.
+    # a Z means the volume is not shared
+    # a z means the volume is shared
       - ./base-config/:/opt/fts/:rw,Z
     network_mode: "host"
 
