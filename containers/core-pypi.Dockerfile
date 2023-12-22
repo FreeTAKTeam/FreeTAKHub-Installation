@@ -13,7 +13,7 @@ COPY --chown=freetak:freetak --chmod=774 core-run.sh ./
 ENV FTS_DATA_PATH = "/opt/fts/"
 
 # Install pre-reqs then the base FTS
-# ruamel.yaml is very ornery and has to be force-reinstalled alone
+# ruamel.yaml is very ornery and has to be force-reinstalled alone until the pip deps are updated
 ENV PATH /home/freetak/.local/bin:$PATH
 RUN pip install --upgrade pip ; pip install --force-reinstall "ruamel.yaml<0.18"
 RUN pip install FreeTAKServer
@@ -21,24 +21,6 @@ RUN pip install FreeTAKServer
 # Provide a way to edit the configuration from outside the container
 # May need to be updated if the base image changes
 RUN cp $(python -m site --user-site)/FreeTAKServer/core/configuration/MainConfig.py $(python -m site --user-site)/FreeTAKServer/core/configuration/MainConfig.bak
-RUN mv $(python -m site --user-site)/FreeTAKServer/core/configuration/MainConfig.py /opt/fts/MainConfig.py
-RUN ln -s /opt/fts/MainConfig.py $(python -m site --user-site)/FreeTAKServer/core/configuration/MainConfig.py
-
-# Open ports
-# note: docker compose documentation suggests that communication between
-#       core and ui doesn't need a port explicitly exposed
-# DataPackagePort
-EXPOSE 8080
-# CoTPort
-EXPOSE 8087
-# SSLCoTPort
-EXPOSE 8089
-# SSLDataPackagePort
-EXPOSE 8443
-# FederationPort
-EXPOSE 9000
-# APIPort - Don't expose by default
-#EXPOSE 19023
 
 VOLUME /opt/fts
 
