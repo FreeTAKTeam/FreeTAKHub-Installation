@@ -524,7 +524,7 @@ function handle_git_repository() {
   # check for FreeTAKHub-Installation repository
   if [[ ! -d ~/FreeTAKHub-Installation ]]; then
 
-    echo -e "NOT FOUND"
+    echo -e "local working git repository NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
     git clone --branch "${BRANCH}" ${REPO}
 
