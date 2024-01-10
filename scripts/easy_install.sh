@@ -18,7 +18,8 @@ NEEDRESTART=
 # trap or catch signals and direct execution to cleanup
 trap cleanup SIGINT SIGTERM ERR EXIT
 
-REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+DEFAULT_REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+REPO=${REPO:-$DEFAULT_REPO}
 DEFAULT_BRANCH="main"
 BRANCH=${BRANCH:-$DEFAULT_BRANCH}
 CBRANCH=${CBRANCH:-}
@@ -96,7 +97,8 @@ Available options:
     --core       Install FreeTAKServer, UI, and Web Map
 -s, --stable     [DEFAULT] Install latest stable version (v$STABLE_FTS_VERSION)
 -l, --legacy     Install legacy version (v$LEGACY_FTS_VERSION)
-    --branch     Use specified ZT Installer repository
+    --repo       Use specified ZT Installer repository
+    --branch     Use specified ZT Installer repository branch
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
 USAGE_TEXT
@@ -201,6 +203,11 @@ function parse_params() {
       echo "${hsep}${hsep}${hsep}${NOFORMAT}"
       CBRANCH=$2
       shift 2
+      ;;
+
+    --repo)
+      REPO=$2
+      shift
       ;;
 
     --branch)
@@ -510,6 +517,7 @@ function handle_git_repository() {
 
   echo -e -n "${BLUE}Checking for FreeTAKHub-Installation in home directory..."
 
+  echo -e "Repository ${REPO} ${BRANCH}"
   cd ~
 
   [[ -n $CBRANCH ]] && BRANCH=$CBRANCH
@@ -518,7 +526,7 @@ function handle_git_repository() {
 
     echo -e "NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone --branch ${BRANCH} ${REPO}
+    git clone --branch "${BRANCH}" ${REPO}
 
     cd ~/FreeTAKHub-Installation
 
@@ -531,7 +539,7 @@ function handle_git_repository() {
     echo -e \
       "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
     git pull
-    git checkout ${BRANCH}
+    git checkout "${BRANCH}"
 
   fi
 
