@@ -8,6 +8,11 @@
     videoserver_architecture: "amd64"
   when: videoserver_architecture == "x86_64"
 
+- name: Translate CPU architecture if x86_64
+  set_fact:
+    videoserver_architecture: "arm64v8"
+  when: videoserver_architecture == "aarch64"
+
 - name: Set rtsp-simple-server package name
   set_fact:
     videoserver_package: "rtsp-simple-server_v0.18.0_linux_{{ videoserver_architecture }}.tar.gz"
