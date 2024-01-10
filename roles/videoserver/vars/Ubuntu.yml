@@ -1,4 +1,4 @@
 ---
-videoserver_package_location: "/tmp/{{ videoserver_package }}"
+videoserver_package_location: "/tmp/{{ videoserver_package_names[videoserver_architecture] }}"
 videoserver_config_location: "/opt/{{ videoserver_config_file }}"
 videoserver_executable_location: "/usr/local/bin/{{ videoserver_executable }}"

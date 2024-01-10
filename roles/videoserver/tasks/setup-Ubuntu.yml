@@ -31,7 +31,7 @@
     group: root
     mode: 0755
 
-- name: "Unarchive {{ videoserver_package }} to /tmp"
+- name: "Unarchive {{  videoserver_package_names[videoserver_architecture] }} to /tmp"
   unarchive:
     src: "/tmp/{{ videoserver_package_names[videoserver_architecture] }}"
     dest: /tmp
