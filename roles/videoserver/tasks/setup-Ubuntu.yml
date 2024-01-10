@@ -13,10 +13,6 @@
     videoserver_architecture: "arm64v8"
   when: videoserver_architecture == "aarch64"
 
-- name: Set rtsp-simple-server package name
-  set_fact:
-    videoserver_package: "rtsp-simple-server_v0.18.0_linux_{{ videoserver_architecture }}.tar.gz"
-
 - name: Get RTSP Simple Server release information with GitHub API
   uri:
     url: "{{ videoserver_api_url }}"
@@ -27,17 +23,17 @@
   set_fact:
     videoserver_download_url: "{{ videoserver_response.json.assets[videoserver_download_index].browser_download_url }}"
 
-- name: Download rtsp-simple-server package to /tmp
+- name: Download video-server package to /tmp
   get_url:
     url: "{{ videoserver_download_links[videoserver_architecture] }}"
-    dest: "/tmp/rtsp-simple-server_v0.18.0_linux_{{ videoserver_architecture }}.tar.gz"
+    dest: "/tmp/{{ videoserver_package_names[videoserver_architecture] }}"
     owner: root
     group: root
     mode: 0755
 
 - name: "Unarchive {{ videoserver_package }} to /tmp"
   unarchive:
-    src: "/tmp/{{ videoserver_package }}"
+    src: "/tmp/{{ videoserver_package_names[videoserver_architecture] }}"
     dest: /tmp
     owner: root
     group: root
