@@ -95,7 +95,8 @@ Available options:
 -v, --verbose    Print script debug info
 -c, --check      Check for compatibility issues while installing
     --core       Install FreeTAKServer, UI, and Web Map
--s, --stable     [DEFAULT] Install latest stable version (v$STABLE_FTS_VERSION)
+-s, --stable     Install latest stable version (v$STABLE_FTS_VERSION)
+    --latest     [DEFAULT] Install latest version (v$LATEST_FTS_VERSION)
 -l, --legacy     Install legacy version (v$LEGACY_FTS_VERSION)
     --repo       Use specified ZT Installer repository
     --branch     Use specified ZT Installer repository branch
@@ -168,6 +169,7 @@ function parse_params() {
       GIT_SSH_COMMAND="ssh -vvv"
       unset APT_VERBOSITY # verbose is the default
       ANSIBLE_VERBOSITY="-vvvvv"
+      echo " VERBOSITY SET"
 
       shift
       ;;
@@ -184,6 +186,11 @@ function parse_params() {
 
     --stable | -s)
       INSTALL_TYPE="stable"
+      shift
+      ;;
+
+    --latest)
+      INSTALL_TYPE="latest"
       shift
       ;;
 
@@ -207,12 +214,12 @@ function parse_params() {
 
     --repo)
       REPO=$2
-      shift
+      shift 2
       ;;
 
     --branch)
       BRANCH=$2
-      shift
+      shift 2
       ;;
 
     --dev-test)
