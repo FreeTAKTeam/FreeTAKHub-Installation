@@ -490,7 +490,7 @@ function download_dependencies() {
 }
 
 ###############################################################################
-# We can install the python interpretter here. This is necessary for at least
+# We can install the python interpreter here. This is necessary for at least
 # v0.2.0.13 since there's a circular requirement for Ansible needing a certain
 # version of jinja2. Apt will ignore any subsequent attempts to install any
 # packages done here
