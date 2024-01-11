@@ -6,6 +6,19 @@ services:
     build:
       context: .
       dockerfile: core-pypi.Dockerfile
+    ports:
+        # DataPackagePort
+        - 8080:8080
+        # CoTPort
+        - 8087:8087
+        # SSLCoTPort
+        - 8089:8089
+        # SSLDataPackagePort
+        - 8443:8443
+        # FederationPort
+        #- 9000:9000
+        # APIPort - Don't expose by default
+        #- 19023:19023
     volumes:
     # Confused about the Z at the end?
     # on hosts with selinux, you will need this.
@@ -21,7 +34,10 @@ services:
       context: .
       dockerfile: ui-pypi.Dockerfile
     ports:
+      # Web interface port
       - 5000:5000
+      # API Port - probably don't need to expose if UI and Core are on same container network
+      #- 19023:19023
     volumes:
       - ./ui-config:/home/freetak/data:rw,Z
     network_mode: "host"

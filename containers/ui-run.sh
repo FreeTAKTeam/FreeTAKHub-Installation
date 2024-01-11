@@ -1,4 +1,5 @@
 #!/bin/bash
+
 PYTHON_USER_SITE=$(python -m site --user-site)
 # Detect and navigate to the python user site packages
 # Some systems use `python3` instead of `python` so this is not entirely portable
