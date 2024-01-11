@@ -95,10 +95,10 @@ Available options:
 -v, --verbose    Print script debug info
 -c, --check      Check for compatibility issues while installing
     --core       Install FreeTAKServer, UI, and Web Map
--s, --stable     Install latest stable version (v$STABLE_FTS_VERSION)
     --latest     [DEFAULT] Install latest version (v$LATEST_FTS_VERSION)
+-s, --stable     Install latest stable version (v$STABLE_FTS_VERSION)
 -l, --legacy     Install legacy version (v$LEGACY_FTS_VERSION)
-    --repo       Use specified ZT Installer repository
+    --repo       Replaces with specified ZT Installer repository
     --branch     Use specified ZT Installer repository branch
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
@@ -161,6 +161,7 @@ function parse_params() {
       ;;
 
     --verbose | -v)
+      echo "Verbose output"
       set -x
 
       NO_COLOR=1
@@ -169,7 +170,6 @@ function parse_params() {
       GIT_SSH_COMMAND="ssh -vvv"
       unset APT_VERBOSITY # verbose is the default
       ANSIBLE_VERBOSITY="-vvvvv"
-      echo " VERBOSITY SET"
 
       shift
       ;;
@@ -215,6 +215,10 @@ function parse_params() {
     --repo)
       REPO=$2
       shift 2
+
+      if [[ -d ~/FreeTAKHub-Installation ]]
+        then rm -rf ~/FreeTAKHub-Installation
+      fi
       ;;
 
     --branch)
@@ -523,8 +527,6 @@ function install_python_early() {
 function handle_git_repository() {
 
   echo -e -n "${BLUE}Checking for FreeTAKHub-Installation in home directory..."
-
-  echo -e "Repository ${REPO} ${BRANCH}"
   cd ~
 
   [[ -n $CBRANCH ]] && BRANCH=$CBRANCH
@@ -533,7 +535,7 @@ function handle_git_repository() {
 
     echo -e "local working git repository NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone --branch "${BRANCH}" ${REPO}
+    git clone --branch "${BRANCH}" ${REPO}  ~/FreeTAKHub-Installation
 
     cd ~/FreeTAKHub-Installation
 
