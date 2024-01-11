@@ -1,12 +1,11 @@
 ---
 - name: Get running processes
-  shell: "ps -ef | grep -v grep | grep -w {{ process | string }} | awk '{print $2}'"
+  shell: "ps -ef | grep -v grep | grep -v '<defunct>' | grep -w {{ process | string }} | awk '{print $2}'"
   register: running_processes
 
 - name: Kill running processes
   shell: "kill {{ item }}"
   with_items: "{{ running_processes.stdout_lines }}"
-  ignore_errors: yes
 
 - wait_for:
     path: "/proc/{{ item }}/status"
