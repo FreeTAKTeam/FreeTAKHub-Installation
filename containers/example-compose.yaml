@@ -1,0 +1,39 @@
+services:
+  fts:
+    image: ghcr.io/freetakteam/freetakserver:latest
+    pull_policy: build
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: core-pypi.Dockerfile
+    ports:
+        # DataPackagePort
+        - 8080:8080
+        # CoTPort
+        - 8087:8087
+        # SSLCoTPort
+        - 8089:8089
+        # SSLDataPackagePort
+        - 8443:8443
+        # FederationPort - Don't expose unless you are trying to federate
+        #- 9000:9000
+        # APIPort - Don't expose unless you host UI and server on separate container networks
+        #- 19023:19023
+    volumes:
+    # Confused about the Z at the end?
+    # on hosts with selinux, you will need this.
+    # a Z means the volume is not shared
+    # a z means the volume is shared
+      - ./base-config/:/opt/fts/:rw,Z
+    network_mode: "host"
+
+  ftsui:
+    image: ghcr.io/freetakteam/ui:latest
+    ports:
+      # Web interface port
+      - 5000:5000
+      # API Port - you probably don't need to expose if UI and Core are on same container network
+      #- 19023:19023
+    volumes:
+      - ./ui-config:/home/freetak/data:rw,Z
+    network_mode: "host"
