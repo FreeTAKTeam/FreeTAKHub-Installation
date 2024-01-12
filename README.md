@@ -35,9 +35,19 @@ pushd  ${HOME}/fth-install
 cat ./scripts/easy_install.sh | sudo bash -s -- --verbose --repo file://$(pwd)/.git
 ```
 
-
-## Testing the ZTI
-
+So long as you are working with the same git repository the `--repo` option could (and should)
+be omitted from subsequent runs as the default is to reuse the clone.
 
 
 ## Regression Testing the ZTI
+
+Smoke testing is documented in
+the [user manual troubleshooting](https://freetakteam.github.io/FreeTAKServer-User-Docs/) section.
+
+* Raspberry Pi
+* Ubuntu Server
+* Digital Ocean Cloud
+
+
+
+
