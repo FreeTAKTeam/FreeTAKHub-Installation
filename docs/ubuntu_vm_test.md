@@ -39,22 +39,26 @@ note: The following steps may be modified to accommodate your situation.
 When testing a change the working copy will be 
 [mounted to the running instance](https://multipass.run/docs/share-data-with-an-instance).
 
+### Mount the Working Repository
+
+Make a mount point on the virtual machine.
+```bash
+multipass exec fts-test -- mkdir fts-zti
+```
+Mount the directory containing the working repository.
+Note: On Windows you will need
+to [enable privileged mounts](https://multipass.run/docs/privileged-mounts).
+```shell
+# multipass set local.privileged-mounts=true
+multipass mount $HOME/fts-installer fts-test:/home/ubuntu/fts-zti
+````
+
+### Run the ZTI
+
 Start the prepared virtual machine.
 ```shell
 multipass shell fts-test
 ```
-
-Make a mount point on the virtual machine.
-```bash
-mkdir fts-zti
-```
-Mount the directory containing the working repository.
-```shell
-multipass mount $HOME/fts-installer fts-test:/home/ubuntu/fts-zti
-````
-note: On Windows you will need
-to [enable privileged mounts](https://multipass.run/docs/privileged-mounts).
-
 Install FTS using the candidate ZTI.
 ```bash
 cat /home/ubuntu/fts-zti/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file:///home/ubuntu/fts-zti/.git
@@ -66,10 +70,9 @@ The official configuration instructions are
 [available in the user guide](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Operation/).
 Those instructions will not be duplicated here.
 
-
 ## Running Installation Tests (smoke test)
 
-[Smoke testing](https://en.wikipedia.org/wiki/Smoke_testing_(software)
+[Smoke testing](https://en.wikipedia.org/wiki/Smoke_testing_(software))
 is performed with the installation validation instructions.
 The official installation validation instructions are
 [available in the user guide](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Troubleshooting/InstallationCheck/).
