@@ -21,6 +21,7 @@ git remote add origin <url-of-fork>
 
 # Running the ZTI locally
 
+You will need some variant of Ubuntu 22.04 on your development machine.
 The following will install FTS on your development machine.
 ```bash
 cat ./scripts/easy_install.sh | sudo bash -s -- --verbose
@@ -41,11 +42,10 @@ be omitted from subsequent runs as the default is to reuse the clone.
 
 ## Regression Testing the ZTI
 
-Smoke testing is documented in
-the [user manual troubleshooting](https://freetakteam.github.io/FreeTAKServer-User-Docs/) section.
+The ZTI is officially supported on the following platforms:
 
 * Raspberry Pi
-* Ubuntu Server
+* [Ubuntu Server](docs/ubuntu_vm_test.md)
 * Digital Ocean Cloud
 
 
