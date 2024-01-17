@@ -508,17 +508,18 @@ function download_dependencies() {
 ###############################################################################
 function install_python_early() {
   apt-get update
-  apt-get install -y python3-pip python${PY3_VER}-venv python3-setuptools
-  p=10 # <-- priority value... totally arbitrary and we'll be overriding it
+  apt-get install -y python3-pip python${PY3_VER} python${PY3_VER}-venv python3-setuptools
+  priority=10 # <-- priority value... totally arbitrary and we'll be overriding it
   for pypath in $(ls /usr/bin/python3* | grep -P '3.[0-9]+$'); do
     echo $pypath
-    update-alternatives --install /usr/bin/python3 python3 $pypath $p
-    p=$((p+1))
+    update-alternatives --install /usr/bin/python3 python3 $pypath $priority
+    priority=$((priority+1))
   done
-  # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$PY3_VER
-  update-alternatives  --set python3 /usr/bin/python$PY3_VER
+  # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PY3_VER}
+  update-alternatives  --set python3 /usr/bin/python${PY3_VER}
   pip install --force-reinstall jinja2
   pip install --force-reinstall pyyaml
+  pip install --force-reinstall psutil
 
 }
 ###############################################################################
