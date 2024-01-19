@@ -98,10 +98,11 @@ Available options:
     --latest     [DEFAULT] Install latest version (v$LATEST_FTS_VERSION)
 -s, --stable     Install latest stable version (v$STABLE_FTS_VERSION)
 -l, --legacy     Install legacy version (v$LEGACY_FTS_VERSION)
-    --repo       Replaces with specified ZT Installer repository
-    --branch     Use specified ZT Installer repository branch
+    --repo       Replaces with specified ZT Installer repository [DEFAULT ${DEFAULT_REPO}]
+    --branch     Use specified ZT Installer repository branch [DEFAULT main]
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
+    --ip-addr    Explicitly set IP address (when http://ifconfig.me/ip is wrong)
 USAGE_TEXT
   exit
 }
@@ -236,6 +237,11 @@ function parse_params() {
       shift
       ;;
 
+    --ip-addr)
+      FTS_IP_CUSTOM=$2
+      shift 2
+      echo "Using the IP of ${FTS_IP_CUSTOM}"
+      ;;
 
     --no-color)
       NO_COLOR=1
@@ -302,7 +308,7 @@ function do_checks() {
     check_os
     # check_architecture
   else
-    WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
+    WEBMAP_FORCE_INSTALL="webmap_force_install=true"
   fi
 
   if [[ -n "${TEST-}" ]]; then
@@ -441,7 +447,7 @@ function check_architecture() {
     if [[ "${FORCE_WEBMAP_INSTALL_INPUT}" != "y" ]]; then
       echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
     else
-      WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
+      WEBMAP_FORCE_INSTALL="webmap_force_install=true"
       echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
     fi
 
@@ -497,7 +503,6 @@ function download_dependencies() {
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
   apt-get -y ${APT_VERBOSITY--qq} install git
 
-
 }
 
 ###############################################################################
@@ -517,9 +522,9 @@ function install_python_early() {
   done
   # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PY3_VER}
   update-alternatives  --set python3 /usr/bin/python${PY3_VER}
-  pip install --force-reinstall jinja2
-  pip install --force-reinstall pyyaml
-  pip install --force-reinstall psutil
+  python3 -m pip install --force-reinstall jinja2
+  python3 -m pip install --force-reinstall pyyaml
+  python3 -m pip install --force-reinstall psutil
 
 }
 ###############################################################################
@@ -534,7 +539,7 @@ function handle_git_repository() {
   # check for FreeTAKHub-Installation repository
   if [[ ! -d ~/FreeTAKHub-Installation ]]; then
 
-    echo -e "local working git repository NOT FOUND"
+    echo -e "local working git tree NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
     git clone --branch "${BRANCH}" ${REPO}  ~/FreeTAKHub-Installation
 
@@ -592,6 +597,7 @@ function generate_key_pair() {
 
 ###############################################################################
 # Run Ansible playbook to install
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html#defining-variables-at-runtime
 ###############################################################################
 function run_playbook() {
 
@@ -600,11 +606,15 @@ function run_playbook() {
   export FTS_VERSION
   evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
   evars="$evars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH"
-  [[ -n "${CORE-}" ]] && pb=install_mainserver || pb=install_all
+  [[ -n "${FTS_IP_CUSTOM:-}" ]] && evars="$evars fts_ip_addr_extra=$FTS_IP_CUSTOM"
+  [[ -n "${WEBMAP_FORCE_INSTALL:-}" ]] && evars="$evars $WEBMAP_FORCE_INSTALL"
+  [[ -n "${CORE:-}" ]] && pb=install_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
-  ansible-playbook -u root -i localhost, --connection=local \
-      --extra-vars="$evars" \
-      ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
+  ansible-playbook -u root  ${pb}.yml \
+      --connection=local \
+      --inventory localhost, \
+      --extra-vars "$evars" \
+      ${ANSIBLE_VERBOSITY-}
 }
 
 function cleanup() {

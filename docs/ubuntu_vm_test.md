@@ -29,7 +29,6 @@ multipass launch 22.04 --name fts-test --memory 4G --disk 10G --cpus 2
 We can verify the image.
 ```shell
 multipass exec fts-test -- lsb_release -a
-multipass info fts-test
 ```
 
 ## Installing Using ZTI
@@ -53,15 +52,34 @@ to [enable privileged mounts](https://multipass.run/docs/privileged-mounts).
 multipass mount $HOME/fts-installer fts-test:/home/ubuntu/fts-zti
 ````
 
+We can verify the mount point on the image.
+```shell
+multipass info fts-test
+```
+
 ### Run the ZTI
 
 Start the prepared virtual machine.
 ```shell
 multipass shell fts-test
 ```
-Install FTS using the candidate ZTI.
+
+Your test will probably need the locally known IP address.
+You may repair this later but it is easiest to handle it here.
 ```bash
-cat /home/ubuntu/fts-zti/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file:///home/ubuntu/fts-zti/.git
+ip addr show
+````
+It is likely you will want interface `eth0`.
+
+Install FTS using the candidate ZTI.
+The `--verbose` is optional.
+
+#### Use a Commited Branch from a Git Repository
+Notice that in the following command the `easy_install.sh` is taken from
+a working tree, while the branch is from the commited repository.
+
+```bash
+cat /home/ubuntu/fts-zti/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file:///home/ubuntu/fts-zti/.git --branch foo --ip-addr 127.0.0.1 
 ```
 
 ### Configuration
@@ -78,3 +96,10 @@ The official installation validation instructions are
 [available in the user guide](https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Troubleshooting/InstallationCheck/).
 Those instructions will not be duplicated here.
 
+## Resetting the `multipass` VM
+
+```shell
+multipass stop fts-test
+multipass delete fts-test
+multipass purge
+```

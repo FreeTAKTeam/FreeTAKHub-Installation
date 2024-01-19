@@ -24,6 +24,12 @@
   tags: nodered
   set_fact:
     true_web_ipv4: "{{ ip_response.content }}"
+  when: fts_ip_addr_extra is undefined
+
+- name: Set public IPv4
+  set_fact:
+    true_web_ipv4: "{{ fts_ip_addr_extra }}"
+  when: fts_ip_addr_extra is defined
 
 - name: Install
   tags: nodered

@@ -14,6 +14,12 @@
 - name: Set public IPv4
   set_fact:
     fts_public_ipv4: "{{ ip_response.content }}"
+  when: fts_ip_addr_extra is undefined
+
+- name: Set public IPv4
+  set_fact:
+    fts_public_ipv4: "{{ fts_ip_addr_extra }}"
+  when: fts_ip_addr_extra is defined
 
 - name: Print IPv4
   debug:
