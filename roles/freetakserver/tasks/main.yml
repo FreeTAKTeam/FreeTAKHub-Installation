@@ -29,17 +29,6 @@
   set_fact:
     fts_ipv4: 127.0.0.1
 
-- name: Check if fts_version is not defined
-  block:
-    - name: Get the latest freetakserver version
-      shell: pip show freetakserver | grep Version | cut -d ' ' -f 2
-      register: pip_output
-
-    - name: Set fts_version
-      set_fact:
-        fts_version: "{{ pip_output.stdout }}"
-  when: fts_version is undefined or fts_version == ''
-
 - name: Setup
   include_tasks: "setup-{{ ansible_distribution }}.yml"
 

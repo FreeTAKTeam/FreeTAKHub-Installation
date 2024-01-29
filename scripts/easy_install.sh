@@ -42,6 +42,8 @@ STABLE_FTS_VERSION="2.0.66"
 LEGACY_FTS_VERSION="1.9.9.6"
 LATEST_FTS_VERSION=$(curl -s https://pypi.org/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
 
+FTS_VENV="${HOME}/fts.venv"
+
 DRY_RUN=0
 
 hsep="*********************"
@@ -506,25 +508,24 @@ function download_dependencies() {
 }
 
 ###############################################################################
-# We can install the python interpreter here. This is necessary for at least
-# v0.2.0.13 since there's a circular requirement for Ansible needing a certain
-# version of jinja2. Apt will ignore any subsequent attempts to install any
-# packages done here
+# We can install the python virtual environment here including the python interpreter.
+# This removes any need to deal with any circular requirement between
+# the installer, Ansible, and its dependencies (e.g. jinja2) and
+# the application being installed, FTS, and its dependencies.
 ###############################################################################
-function install_python_early() {
+function install_python_environment() {
   apt-get update
   apt-get install -y python3-pip python${PY3_VER} python${PY3_VER}-venv python3-setuptools
-  priority=10 # <-- priority value... totally arbitrary and we'll be overriding it
-  for pypath in $(ls /usr/bin/python3* | grep -P '3.[0-9]+$'); do
-    echo $pypath
-    update-alternatives --install /usr/bin/python3 python3 $pypath $priority
-    priority=$((priority+1))
-  done
-  # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PY3_VER}
-  update-alternatives  --set python3 /usr/bin/python${PY3_VER}
+
+  /usr/bin/python${PY3_VER} -m venv ${FTS_VENV}
+  source ${FTS_VENV}/bin/activate
+
+  python3 -m pip install --upgrade pip
   python3 -m pip install --force-reinstall jinja2
   python3 -m pip install --force-reinstall pyyaml
   python3 -m pip install --force-reinstall psutil
+
+  deactivate
 
 }
 ###############################################################################
@@ -604,16 +605,16 @@ function run_playbook() {
   export CODENAME
   export INSTALL_TYPE
   export FTS_VERSION
-  evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
-  evars="$evars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH"
-  [[ -n "${FTS_IP_CUSTOM:-}" ]] && evars="$evars fts_ip_addr_extra=$FTS_IP_CUSTOM"
-  [[ -n "${WEBMAP_FORCE_INSTALL:-}" ]] && evars="$evars $WEBMAP_FORCE_INSTALL"
+  env_vars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
+  env_vars="$env_vars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH fts_venv=${FTS_VENV}"
+  [[ -n "${FTS_IP_CUSTOM:-}" ]] && env_vars="$env_vars fts_ip_addr_extra=$FTS_IP_CUSTOM"
+  [[ -n "${WEBMAP_FORCE_INSTALL:-}" ]] && env_vars="$env_vars $WEBMAP_FORCE_INSTALL"
   [[ -n "${CORE:-}" ]] && pb=install_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   ansible-playbook -u root  ${pb}.yml \
       --connection=local \
       --inventory localhost, \
-      --extra-vars "$evars" \
+      --extra-vars "$env_vars" \
       ${ANSIBLE_VERBOSITY-}
 }
 
@@ -633,7 +634,7 @@ set_versions
 check_os
 # do_checks
 download_dependencies
-[[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_early
+[[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_environment
 handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair

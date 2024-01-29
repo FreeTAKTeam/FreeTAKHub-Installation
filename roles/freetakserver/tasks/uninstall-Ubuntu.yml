@@ -14,7 +14,7 @@
   pip:
     name: "{{ fts_pip_package_name }}"
     state: absent
-    executable: "pip3"
+    virtualenv: "{{ fts_venv }}"
 
 - name: Remove files
   file:

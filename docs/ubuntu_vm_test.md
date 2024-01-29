@@ -40,15 +40,16 @@ When testing a change the working copy will be
 
 ### Mount the Working Repository
 
-Make a mount point on the virtual machine.
-```bash
-multipass exec fts-test -- mkdir fts-zti
-```
-Mount the directory containing the working repository.
 Note: On Windows you will need
 to [enable privileged mounts](https://multipass.run/docs/privileged-mounts).
 ```shell
-# multipass set local.privileged-mounts=true
+multipass set local.privileged-mounts=true
+````
+
+Make a mount point on the virtual machine.
+Mount the directory containing the working repository.
+```shell
+multipass exec fts-test -- mkdir fts-zti
 multipass mount $HOME/fts-installer fts-test:/home/ubuntu/fts-zti
 ````
 
@@ -65,21 +66,22 @@ multipass shell fts-test
 ```
 
 Your test will probably need the locally known IP address.
-You may repair this later but it is easiest to handle it here.
-```bash
-ip addr show
-````
+You may change the configured IP address later,
+but it is easiest to handle it now.
 It is likely you will want interface `eth0`.
+```bash
+export MY_IP=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+````
 
 Install FTS using the candidate ZTI.
 The `--verbose` is optional.
 
-#### Use a Commited Branch from a Git Repository
+#### Use a Committed Branch from a Git Repository
 Notice that in the following command the `easy_install.sh` is taken from
-a working tree, while the branch is from the commited repository.
+a working tree, while the branch is from the committed repository.
 
 ```bash
-cat /home/ubuntu/fts-zti/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file:///home/ubuntu/fts-zti/.git --branch foo --ip-addr 127.0.0.1 
+cat /home/ubuntu/fts-zti/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file:///home/ubuntu/fts-zti/.git --branch main --ip-addr ${MY_IP} 
 ```
 
 ### Configuration

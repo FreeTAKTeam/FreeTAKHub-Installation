@@ -18,7 +18,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + '/opt/FTSServer-UI.db'
 
     # certificates path
-    certpath = "/usr/local/lib/python{{ python3_version }}/dist-packages/FreeTAKServer/certs/"
+    certpath = "{{ fts_python_packages }}/site-packages/FreeTAKServer/certs/"
 
     # crt file path
     crtfilepath = f"{certpath}pubserver.pem"
