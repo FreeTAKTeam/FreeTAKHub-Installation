@@ -1,19 +1,24 @@
 ---
 - name: Get running processes
-  shell: "ps -ef | grep -v grep | grep -w {{ process | string }} | awk '{print $2}'"
-  register: running_processes
+  ansible.builtin.shell: "ps -ef | grep -v grep | grep -w {{ process | string }}"
+  register: running_process_var
+  failed_when: false
+
+- name: Convert running_process variable into a dictionary
+  set_fact:
+    running_process_lists: "{{ running_process_var.stdout_lines | map('split')  }}"
 
 - name: Kill running processes
-  shell: "kill {{ item }}"
-  with_items: "{{ running_processes.stdout_lines }}"
+  ansible.builtin.shell: "if ps -p {{ item[1] }} > /dev/null ; then kill {{ item[1] }} ; else true; fi"
+  loop: "{{ running_process_lists }}"
 
 - wait_for:
-    path: "/proc/{{ item }}/status"
+    path: "/proc/{{ item[1] }}/status"
     state: absent
-  with_items: "{{ running_processes.stdout_lines }}"
+  loop: "{{ running_process_lists }}"
   ignore_errors: true
   register: killed_processes
 
 - name: Force kill stuck processes
-  shell: "kill -9 {{ item }}"
+  ansible.builtin.shell: "kill -9 {{ item }}"
   with_items: "{{ killed_processes.results | select('failed') | map(attribute='item') | list }}"

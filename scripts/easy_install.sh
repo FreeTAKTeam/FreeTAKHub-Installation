@@ -18,7 +18,8 @@ NEEDRESTART=
 # trap or catch signals and direct execution to cleanup
 trap cleanup SIGINT SIGTERM ERR EXIT
 
-REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+DEFAULT_REPO="https://github.com/FreeTAKTeam/FreeTAKHub-Installation.git"
+REPO=${REPO:-$DEFAULT_REPO}
 DEFAULT_BRANCH="main"
 BRANCH=${BRANCH:-$DEFAULT_BRANCH}
 CBRANCH=${CBRANCH:-}
@@ -40,6 +41,8 @@ PY3_VER_STABLE="3.11"
 STABLE_FTS_VERSION="2.0.66"
 LEGACY_FTS_VERSION="1.9.9.6"
 LATEST_FTS_VERSION=$(curl -s https://pypi.org/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
+
+FTS_VENV="${HOME}/fts.venv"
 
 DRY_RUN=0
 
@@ -94,11 +97,14 @@ Available options:
 -v, --verbose    Print script debug info
 -c, --check      Check for compatibility issues while installing
     --core       Install FreeTAKServer, UI, and Web Map
--s, --stable     [DEFAULT] Install latest stable version (v$STABLE_FTS_VERSION)
+    --latest     [DEFAULT] Install latest version (v$LATEST_FTS_VERSION)
+-s, --stable     Install latest stable version (v$STABLE_FTS_VERSION)
 -l, --legacy     Install legacy version (v$LEGACY_FTS_VERSION)
-    --branch     Use specified ZT Installer repository
+    --repo       Replaces with specified ZT Installer repository [DEFAULT ${DEFAULT_REPO}]
+    --branch     Use specified ZT Installer repository branch [DEFAULT main]
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
+    --ip-addr    Explicitly set IP address (when http://ifconfig.me/ip is wrong)
 USAGE_TEXT
   exit
 }
@@ -158,6 +164,7 @@ function parse_params() {
       ;;
 
     --verbose | -v)
+      echo "Verbose output"
       set -x
 
       NO_COLOR=1
@@ -185,6 +192,11 @@ function parse_params() {
       shift
       ;;
 
+    --latest)
+      INSTALL_TYPE="latest"
+      shift
+      ;;
+
     --legacy | -l)
       INSTALL_TYPE="legacy"
       shift
@@ -203,9 +215,18 @@ function parse_params() {
       shift 2
       ;;
 
+    --repo)
+      REPO=$2
+      shift 2
+
+      if [[ -d ~/FreeTAKHub-Installation ]]
+        then rm -rf ~/FreeTAKHub-Installation
+      fi
+      ;;
+
     --branch)
       BRANCH=$2
-      shift
+      shift 2
       ;;
 
     --dev-test)
@@ -218,6 +239,11 @@ function parse_params() {
       shift
       ;;
 
+    --ip-addr)
+      FTS_IP_CUSTOM=$2
+      shift 2
+      echo "Using the IP of ${FTS_IP_CUSTOM}"
+      ;;
 
     --no-color)
       NO_COLOR=1
@@ -284,7 +310,7 @@ function do_checks() {
     check_os
     # check_architecture
   else
-    WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
+    WEBMAP_FORCE_INSTALL="webmap_force_install=true"
   fi
 
   if [[ -n "${TEST-}" ]]; then
@@ -423,7 +449,7 @@ function check_architecture() {
     if [[ "${FORCE_WEBMAP_INSTALL_INPUT}" != "y" ]]; then
       echo -e "${YELLOW}WARNING${NOFORMAT}: installer may skip web map installation."
     else
-      WEBMAP_FORCE_INSTALL="-e webmap_force_install=true"
+      WEBMAP_FORCE_INSTALL="webmap_force_install=true"
       echo -e "${YELLOW}WARNING${NOFORMAT}: forcing web map installation!"
     fi
 
@@ -479,28 +505,28 @@ function download_dependencies() {
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
   apt-get -y ${APT_VERBOSITY--qq} install git
 
-
 }
 
 ###############################################################################
-# We can install the python interpretter here. This is necessary for at least
-# v0.2.0.13 since there's a circular requirement for Ansible needing a certain
-# version of jinja2. Apt will ignore any subsequent attempts to install any
-# packages done here
+# We can install the python virtual environment here including the python interpreter.
+# This removes any need to deal with any circular requirement between
+# the installer, Ansible, and its dependencies (e.g. jinja2) and
+# the application being installed, FTS, and its dependencies.
 ###############################################################################
-function install_python_early() {
+function install_python_environment() {
   apt-get update
-  apt-get install -y python3-pip python${PY3_VER}-venv python3-setuptools
-  p=10 # <-- priority value... totally arbitrary and we'll be overriding it
-  for pypath in $(ls /usr/bin/python3* | grep -P '3.[0-9]+$'); do
-    echo $pypath
-    update-alternatives --install /usr/bin/python3 python3 $pypath $p
-    p=$((p+1))
-  done
-  # update-alternatives --install /usr/bin/python3 python3 /usr/bin/python$PY3_VER
-  update-alternatives  --set python3 /usr/bin/python$PY3_VER
-  pip install --force-reinstall jinja2
-  pip install --force-reinstall pyyaml
+  apt-get install -y python3-pip python3-setuptools
+  apt-get install -y python${PY3_VER}-dev python${PY3_VER}-venv libpython${PY3_VER}-dev
+
+  /usr/bin/python${PY3_VER} -m venv ${FTS_VENV}
+  source ${FTS_VENV}/bin/activate
+
+  python3 -m pip install --upgrade pip
+  python3 -m pip install --force-reinstall jinja2
+  python3 -m pip install --force-reinstall pyyaml
+  python3 -m pip install --force-reinstall psutil
+
+  deactivate
 
 }
 ###############################################################################
@@ -509,16 +535,15 @@ function install_python_early() {
 function handle_git_repository() {
 
   echo -e -n "${BLUE}Checking for FreeTAKHub-Installation in home directory..."
-
   cd ~
 
   [[ -n $CBRANCH ]] && BRANCH=$CBRANCH
   # check for FreeTAKHub-Installation repository
   if [[ ! -d ~/FreeTAKHub-Installation ]]; then
 
-    echo -e "NOT FOUND"
+    echo -e "local working git tree NOT FOUND"
     echo -e "Cloning the FreeTAKHub-Installation repository...${NOFORMAT}"
-    git clone --branch ${BRANCH} ${REPO}
+    git clone --branch "${BRANCH}" ${REPO}  ~/FreeTAKHub-Installation
 
     cd ~/FreeTAKHub-Installation
 
@@ -531,9 +556,11 @@ function handle_git_repository() {
     echo -e \
       "Pulling latest from the FreeTAKHub-Installation repository...${NOFORMAT}"
     git pull
-    git checkout ${BRANCH}
+    git checkout "${BRANCH}"
 
   fi
+
+  git pull
 
 }
 
@@ -574,19 +601,24 @@ function generate_key_pair() {
 
 ###############################################################################
 # Run Ansible playbook to install
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html#defining-variables-at-runtime
 ###############################################################################
 function run_playbook() {
 
   export CODENAME
   export INSTALL_TYPE
   export FTS_VERSION
-  evars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
-  evars="$evars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH"
-  [[ -n "${CORE-}" ]] && pb=install_mainserver || pb=install_all
+  env_vars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
+  env_vars="$env_vars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH fts_venv=${FTS_VENV}"
+  [[ -n "${FTS_IP_CUSTOM:-}" ]] && env_vars="$env_vars fts_ip_addr_extra=$FTS_IP_CUSTOM"
+  [[ -n "${WEBMAP_FORCE_INSTALL:-}" ]] && env_vars="$env_vars $WEBMAP_FORCE_INSTALL"
+  [[ -n "${CORE:-}" ]] && pb=install_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
-  ansible-playbook -u root -i localhost, --connection=local \
-      --extra-vars="$evars" \
-      ${WEBMAP_FORCE_INSTALL-} ${pb}.yml ${ANSIBLE_VERBOSITY-}
+  ansible-playbook -u root  ${pb}.yml \
+      --connection=local \
+      --inventory localhost, \
+      --extra-vars "$env_vars" \
+      ${ANSIBLE_VERBOSITY-}
 }
 
 function cleanup() {
@@ -605,7 +637,7 @@ set_versions
 check_os
 # do_checks
 download_dependencies
-[[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_early
+[[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_environment
 handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair

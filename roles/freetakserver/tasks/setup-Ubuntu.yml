@@ -2,9 +2,8 @@
 - name: Delete PyYAML
   shell: "{{ item }}"
   loop:
-    - "rm -rf /usr/lib/python3/dist-packages/yaml"
-    - "rm -rf /usr/lib/python3/dist-packages/PyYAML-*"
-    - "rm -rf /usr/lib/python{{ python3_version }}/site-packages/PyYAML-*"
+    - "rm -rf {{ fts_python_packages }}/site-packages/yaml"
+    - "rm -rf {{ fts_python_packages }}/site-packages/PyYAML-*"
 
 - name: Install apt dependencies
   apt:
@@ -20,4 +19,4 @@
 - name: "Install {{ fts_pip_package_name }}"
   pip:
     name: "{{ fts_pip_package_name }}=={{ fts_version }}"
-    executable: "pip3"
+    virtualenv: "{{ fts_venv }}"

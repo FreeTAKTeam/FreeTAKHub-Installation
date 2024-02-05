@@ -9,5 +9,5 @@
 - name: "Install pip packages"
   pip:
     name: "{{ pip3_packages }}"
-    executable: pip3
+    virtualenv: "{{ fts_venv }}"
     # extra_args: --force-reinstall

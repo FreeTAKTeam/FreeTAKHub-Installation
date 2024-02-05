@@ -1,0 +1,12 @@
+* text=auto
+
+*.sh eol=lf
+
+*.bat eol=crlf
+*.cmd eol=crlf
+*.ps1 eol=crlf
+*.sln text=auto eol=crlf
+*.vcxproj text=auto eol=crlf
+
+*.png binary
+*.jpg binary
