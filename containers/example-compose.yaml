@@ -27,7 +27,7 @@ services:
       - ./base-config/:/opt/fts/:rw,Z
     network_mode: "host"
 
-  ftsui:
+  free-tak-server-ui:
     image: ghcr.io/freetakteam/ui:latest
     ports:
       # Web interface port
@@ -35,5 +35,18 @@ services:
       # API Port - you probably don't need to expose if UI and Core are on same container network
       #- 19023:19023
     volumes:
-      - ./ui-config:/home/freetak/data:rw,Z
-    network_mode: "host"
+        - free-tak-ui-db:/home/freetak/data/
+    environment:
+      FTS_IP: 'free-tak-server'
+      FTS_API_PORT: 19023
+      FTS_API_PROTO: 'http'
+      FTS_UI_EXPOSED_IP: 'free-tak-server-ui'
+      FTS_MAP_EXPOSED_IP: 'free-tak-server-ui'
+      FTS_MAP_PORT: 8000
+      FTS_MAP_PROTO: 'http'
+      FTS_UI_PORT: 5000
+      FTS_UI_WSKEY: 'YourWebsocketKey'
+      FTS_API_KEY: 'Bearer token'
+      FTS_UI_SQLALCHEMY_DATABASE_URI: 'sqlite:////home/freetak/data/FTSServer-UI.db'
+volumes:
+  free-tak-ui-db:
