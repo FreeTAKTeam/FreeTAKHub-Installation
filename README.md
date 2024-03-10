@@ -1,6 +1,6 @@
 ![CI](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/actions/workflows/zerotouch.yml/badge.svg)
 
-This page is for developers of the Zero Touch Installer.
+This page is for developers of the Zero Touch Installer for [FreeTAKServer](https://github.com/FreeTAKTeam/FreeTakServer).
 Please refer to the [official documentation ](https://freetakteam.github.io/FreeTAKServer-User-Docs/) for usage.
 
 # Configuring the Development Environment
