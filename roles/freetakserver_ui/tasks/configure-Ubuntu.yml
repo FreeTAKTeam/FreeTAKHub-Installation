@@ -7,9 +7,12 @@
     dest: "{{ fts_ui_install_path }}/config.py"
     owner: fts
     group: fts
-    mode: 0664
+    mode: 0644
 
 - name: Template unit file
+  become: true
+  become_user: root
+  ansible.builtin.template:
   become: true
   become_user: root
   ansible.builtin.template:

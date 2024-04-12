@@ -11,23 +11,27 @@ Those instructions will not be duplicated here.
 Use those official instructions to prepare the SD card.
 As mentioned in the official instructions you will need an IP address for the RaspPi.
 It is likely that your RaspPi was assigned an IP address by a DHCP server.
+
 ```bash
 ip addr show
 ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
 ```
+
 Alternatively, you may be on the public internet.
+
 ```bash
 curl ifconfig.me/ip
 ```
 
-#### Install FTS Using `ZTI`
+### Install FTS Using `ZTI`
 
 This example uses a Committed Branch from a `Github` Repository.
-Some care should be taken when running the following command 
+Some care should be taken when running the following command
 to get the `easy_install.sh` from the same repository and branch as the ZTI.
 
 The official GitHub is `FreeTAKTeam`,
 if you are working in a fork you will need to use that.
+
 ```bash
 export MY_IPA=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 export MY_GITHUB=FreeTAKTeam
@@ -38,7 +42,6 @@ export MY_BRANCH=main
 wget -qO - https://raw.githubusercontent.com/${MY_GITHUB}/FreeTAKHub-Installation/${MY_BRANCH}/scripts/easy_install.sh | 
    sudo bash -s -- --verbose --repo https://github.com/${MY_GITHUB}/FreeTAKHub-Installation.git --branch ${MY_BRANCH} --ip-addr ${MY_IPA}
 ```
-
 
 ## Configuration of FTS
 

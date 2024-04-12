@@ -114,7 +114,7 @@ Available options:
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
     --ip-addr    Explicitly set IP address (when https://ifconfig.me/ip is wrong)
-    --pypi       Explicitly set the URL for PYPI repository (e.g. https://test.pypi.org)
+    --pypi       Explicitly set the URL for PYPI repository (e.g. http://test.pypi.org)
 
 The supported checks are:
 - root    is the install being run under root authority
