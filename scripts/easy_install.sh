@@ -24,6 +24,9 @@ DEFAULT_BRANCH="main"
 BRANCH=${BRANCH:-$DEFAULT_BRANCH}
 CBRANCH=${CBRANCH:-}
 
+DEFAULT_PYPI_URL="https://pypi.org"
+TEST_PYPI_URL="https://test.pypi.org"
+
 STABLE_OS_REQD="Ubuntu"
 STABLE_OS_VER_REQD="22.04"
 STABLE_CODENAME_REQD="jammy"
@@ -40,7 +43,11 @@ PY3_VER_STABLE="3.11"
 
 STABLE_FTS_VERSION="2.0.66"
 LEGACY_FTS_VERSION="1.9.9.6"
-LATEST_FTS_VERSION=$(curl -s https://pypi.org/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
+function set_latest_fts_version() {
+     local pypi_url=$1
+     export LATEST_FTS_VERSION=$(curl -s ${pypi_url}/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
+}
+set_latest_fts_version ${DEFAULT_PYPI_URL}
 
 FTS_VENV="/opt/fts.venv"
 
@@ -105,6 +112,7 @@ Available options:
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
     --ip-addr    Explicitly set IP address (when http://ifconfig.me/ip is wrong)
+    --pypi       Explicitly set the URL for PYPI repository (e.g. http://test.pypi.org)
 USAGE_TEXT
   exit
 }
@@ -150,8 +158,8 @@ function die() {
 ###############################################################################
 function parse_params() {
 
-  # The default 'apt verbosity' is verbose. Set it to quiet, since that's what our script assumes
-  # unset this later if we want verbosity
+  # The default 'apt verbosity' is verbose.
+  # Set it to quiet, since that's what our script assumes unset this later if we want verbosity
   APT_VERBOSITY="-qq"
 
   while true; do
@@ -245,6 +253,17 @@ function parse_params() {
       echo "Using the IP of ${FTS_IP_CUSTOM}"
       ;;
 
+    --pypi)
+        # PIP_EXTRA_INDEX_URL is special.
+        # If after pip checks the primary index-url;
+        # it does not find the source,
+        # it will check the extra-index.url repositories.
+      export PIP_EXTRA_INDEX_URL=$2
+      shift 2
+      echo "Using the extra pypi URL of ${PIP_EXTRA_INDEX_URL}"
+      set_latest_fts_version ${PIP_EXTRA_INDEX_URL}
+      ;;
+
     --no-color)
       NO_COLOR=1
       shift
@@ -294,7 +313,7 @@ function set_versions() {
       export CODENAME=$STABLE_CODENAME_REQD
       ;;
     *)
-      die "Unsupport install type: $INSTALL_TYPE"
+      die "Unsupported install type: $INSTALL_TYPE"
       ;;
   esac
 
@@ -611,7 +630,9 @@ function run_playbook() {
   env_vars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
   env_vars="$env_vars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH fts_venv=${FTS_VENV}"
   [[ -n "${FTS_IP_CUSTOM:-}" ]] && env_vars="$env_vars fts_ip_addr_extra=$FTS_IP_CUSTOM"
+  [[ -n "${PYPI_URL:-}" ]] && env_vars="$env_vars pypi_url=$PYPI_URL"
   [[ -n "${WEBMAP_FORCE_INSTALL:-}" ]] && env_vars="$env_vars $WEBMAP_FORCE_INSTALL"
+
   [[ -n "${CORE:-}" ]] && pb=install_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   ansible-playbook -u root  ${pb}.yml \
@@ -627,6 +648,16 @@ function cleanup() {
       cp $HOME/nr-conf-temp $NEEDRESTART
   fi
 }
+
+##########################################
+# Add the current user to the fts group.
+##########################################
+function join_fts_group() {
+    if [ -n "${SUDO_USER}" ]; then
+        adduser $SUDO_USER fts
+    fi
+}
+
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
@@ -644,4 +675,6 @@ generate_key_pair
 
 [[ 0 -eq $DRY_RUN ]] || die "Dry run complete. Not running Ansible" 0
 run_playbook
+
+join_fts_group
 cleanup

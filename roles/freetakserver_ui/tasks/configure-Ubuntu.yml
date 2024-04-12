@@ -1,14 +1,18 @@
 ---
 - name: Template config file
-  template:
+  become: true
+  become_user: fts
+  ansible.builtin.template:
     src: config.py.j2
     dest: "{{ fts_ui_install_path }}/config.py"
-    owner: root
-    group: root
+    owner: fts
+    group: fts
     mode: 0644
 
 - name: Template unit file
-  template:
+  become: true
+  become_user: root
+  ansible.builtin.template:
     src: fts-ui.service.j2
     dest: "{{ unit_files_location }}/{{ fts_ui_service_name }}.service"
     owner: root
@@ -21,6 +25,8 @@
     process: "{{ fts_ui_install_path }}/run.py"
 
 - name: Enable service
+  become: true
+  become_user: root
   service:
     name: "{{ fts_ui_service_name }}"
     enabled: "{{ fts_ui_enabled }}"
@@ -30,6 +36,8 @@
   until: enable_fts_ui is success
 
 - name: Set service state
+  become: true
+  become_user: root
   service:
     name: "{{ fts_ui_service_name }}"
     state: "{{ fts_ui_state }}"
