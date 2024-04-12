@@ -2,6 +2,9 @@
 # system information
 fts_ipv4: 0.0.0.0
 
+# The URL of the python package repository.
+pypi_url: ""
+
 fts_pip_package_name: FreeTAKServer
 
 fts_service_name: fts
@@ -9,7 +12,8 @@ fts_service_name: fts
 # Set initial service state. Recommended values: `started` or `stopped`.
 fts_state: started
 
-# Enable service. Recommended values: `true` or `false`
+# Enable service. Recommended values: `true` or `false`.
 fts_enabled: true
 
+# The relative path to the MainConfig.py file (from the fts_install_path).
 cfg_rpath: "core/configuration"

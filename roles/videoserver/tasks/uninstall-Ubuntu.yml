@@ -6,6 +6,8 @@
   ignore_errors: true
 
 - name: Remove unit file
+  become: true
+  become_user: root
   file:
     path: "{{ unit_files_location }}/{{ videoserver_service_name }}.service"
     state: absent

@@ -8,6 +8,8 @@
     mode: 0644
 
 - name: Template unit file
+  become: true
+  become_user: root
   template:
     src: rtsp-simple-server.service.j2
     dest: "{{ unit_files_location }}/{{ videoserver_service_name }}.service"

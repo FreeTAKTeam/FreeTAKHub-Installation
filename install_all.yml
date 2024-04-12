@@ -24,8 +24,6 @@
     - name: Cleanup
       import_tasks: roles/common/tasks/cleanup.yml
 
-    - name: Create fts user
-      import_tasks: roles/common/tasks/create-fts-user.yml
 
   post_tasks:
     - name: Reload Node-RED Server flows to ensure Video Server connection

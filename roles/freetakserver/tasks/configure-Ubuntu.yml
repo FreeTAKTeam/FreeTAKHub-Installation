@@ -1,21 +1,25 @@
 ---
+
 - name: Template FTSConfig.yaml config file
+  become: true
+  become_user: fts
   template:
     src: FTSConfig.yaml.j2
     dest: "{{ fts_config_path }}"
-    owner: root
-    group: root
-    mode: 0644
+    owner: fts
+    group: fts
+    mode: 0664
 
 - name: Change FirstStart to False in MainConfig.py
   lineinfile:
-    # path: "{{ fts_install_path }}/controllers/configuration/MainConfig.py"
     path: "{{ fts_install_path }}/{{ cfg_rpath }}/MainConfig.py"
     regexp: '(\s+)first_start = True'
     line: '\1first_start = False'
     backrefs: true
 
 - name: Template unit file
+  become: true
+  become_user: root
   template:
     src: fts.service.j2
     dest: "{{ unit_files_location }}/{{ fts_service_name }}.service"
