@@ -6,7 +6,7 @@
     dest: "/var/www/mumble-web/config.local.js"
     owner: www-data
     group: www-data
-    mode: 0644
+    mode: 0664
 
 - name: Template unit file
   become: true
@@ -16,7 +16,7 @@
     dest: "{{ unit_files_location }}/{{ mumble_web_service_name }}.service"
     owner: root
     group: root
-    mode: 0644
+    mode: 0664
 
 - name: Kill any currently running processes
   include_tasks: ../../common/tasks/kill.yml
