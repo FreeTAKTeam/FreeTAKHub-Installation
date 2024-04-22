@@ -7,7 +7,7 @@
     dest: "{{ fts_ui_install_path }}/config.py"
     owner: fts
     group: fts
-    mode: 0644
+    mode: 0664
 
 - name: Template unit file
   become: true
