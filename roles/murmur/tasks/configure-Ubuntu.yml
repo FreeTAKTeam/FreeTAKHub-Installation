@@ -5,7 +5,7 @@
     dest: /etc/mumble-server.ini
     owner: root
     group: mumble-server
-    mode: 0640
+    mode: 0660
 
 - name: Enable and set service
   include_tasks: ../../common/tasks/service.yml
@@ -24,7 +24,7 @@
     dest: /etc/mumble-superuser
     owner: root
     group: root
-    mode: 0600
+    mode: 0660
 
 - name: set superuser password
   command: murmurd -ini /etc/mumble-server.ini -supw "{{ murmur_superuser_password }}"

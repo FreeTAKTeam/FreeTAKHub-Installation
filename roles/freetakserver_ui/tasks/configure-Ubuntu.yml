@@ -7,7 +7,7 @@
     dest: "{{ fts_ui_install_path }}/config.py"
     owner: fts
     group: fts
-    mode: 0644
+    mode: 0664
 
 - name: Template unit file
   become: true
@@ -17,7 +17,7 @@
     dest: "{{ unit_files_location }}/{{ fts_ui_service_name }}.service"
     owner: root
     group: root
-    mode: 0644
+    mode: 0664
 
 - name: Kill any currently running processes
   include_tasks: ../../common/tasks/kill.yml
