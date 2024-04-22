@@ -1,0 +1,21 @@
+description: "a VM for testing FTS"
+version: "24.4.0"
+
+#   see https://doc.qt.io/qt-5/qsysinfo.html#currentCpuArchitecture
+runs-on:
+- x86_64
+
+instances:
+  fts-test:
+    image: 22.04
+    limits:
+      min-cpu: 2
+      min-mem: 4G
+      min-disk: 10G
+#    timeout: <int>         # maximum time for the instance to launch, and separately for cloud-init to complete
+#    cloud-init:
+#      vendor-data: |       # cloud-init vendor data
+#        <string>
+# a health-check shell script ran by integration tests
+health-check: |
+  lsb_release -a
