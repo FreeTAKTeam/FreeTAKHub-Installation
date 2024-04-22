@@ -44,19 +44,26 @@ Note: On Windows you will need
 to [enable privileged mounts](https://multipass.run/docs/privileged-mounts).
 ```shell
 multipass set local.privileged-mounts=true
-````
+```
 
 Make a mount point on the virtual machine.
 Mount the directory containing the working repository.
 ```shell
 multipass exec fts-test -- mkdir fts-zti
 multipass mount $HOME/fts-installer fts-test:/home/ubuntu/fts-zti
-````
+```
 
 We can verify the mount point on the image.
 ```shell
 multipass info fts-test
 ```
+
+Make a snapshot.
+```shell
+multipass stop fts-test
+multipass snapshot fts-test
+```
+This will create a snapshot and provide its name.
 
 ### Run the ZTI
 
@@ -105,8 +112,18 @@ Those instructions will not be duplicated here.
 
 ## Resetting the `multipass` VM
 
+### Hard Reset
+
 ```shell
 multipass stop fts-test
 multipass delete fts-test
 multipass purge
+```
+
+### Soft Reset
+
+The soft reset rolls back to a previous snapshot.
+(You did make a snapshot, right?)
+```shell
+multipass restore fts-test.snapshot1
 ```
