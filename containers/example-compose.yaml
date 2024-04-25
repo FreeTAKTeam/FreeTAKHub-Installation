@@ -1,11 +1,11 @@
 services:
-  freetakserver:
+  fts:
     image: ghcr.io/freetakteam/freetakserver:latest
-    hostname: freetakserver
-    networks:
-        - taknet
-    volumes:
-      - free-tak-core-db:/opt/fts/
+    pull_policy: build
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: core-pypi.Dockerfile
     ports:
         # DataPackagePort
         - 8080:8080
@@ -51,9 +51,6 @@ services:
 
   ftsui:
     image: ghcr.io/freetakteam/ui:latest
-    hostname: freetakserver-ui
-    networks:
-        - taknet
     ports:
       - 5000:5000
     volumes:
