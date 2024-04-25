@@ -51,9 +51,6 @@ services:
 
   ftsui:
     image: ghcr.io/freetakteam/ui:latest
-    hostname: freetakserver-ui
-    networks:
-        - taknet
     ports:
       # Web interface port
       - 5000:5000
