@@ -51,9 +51,6 @@ services:
 
   ftsui:
     image: ghcr.io/freetakteam/ui:latest
-    hostname: freetakserver-ui
-    networks:
-        - taknet
     ports:
       - 5000:5000
     volumes:
@@ -65,7 +62,3 @@ services:
       FTS_UI_EXPOSED_IP: '127.0.0.1'
       FTS_MAP_EXPOSED_IP: '127.0.0.1'
 
-
-networks:
-    taknet:
-        driver: bridge
