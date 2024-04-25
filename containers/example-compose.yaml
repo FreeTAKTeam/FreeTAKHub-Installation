@@ -26,6 +26,28 @@ services:
     # a z means the volume is shared
       - ./base-config/:/opt/fts/:rw,Z
     network_mode: "host"
+    environment:
+        # Change from default if needed
+        #FTS_FED_PASSWORD: "defaultpass"
+        #FTS_CLIENT_CERT_PASSWORD: "password"
+
+        # Change the following 2 lines to the FTS external IP
+        FTS_DP_ADDRESS: 127.0.0.1
+        FTS_USER_ADDRESS: 127.0.0.1
+
+        # Misc Settings. Uncomment if needed
+        #FTS_OPTIMIZE_API: True
+        #FTS_DATA_RECEPTION_BUFFER: 1024
+        #FTS_MAX_RECEPTION_TIME: 4
+        #FTS_NUM_ROUTING_WORKERS: 3
+        #FTS_COT_TO_DB: True
+        # number of milliseconds to wait between each iteration of main loop
+        # decreasing will increase CPU usage and server performance
+        # increasing will decrease CPU usage and server performance
+        #FTS_MAINLOOP_DELAY: 100
+        #FTS_EMERGENCY_RADIUS: 0 # radius of emergency within-which users will receive it
+        #FTS_LOG_LEVEL: "error"
+        #FTS_CONNECTION_MESSAGE: "Welcome to FreeTAKServer"
 
   ftsui:
     image: ghcr.io/freetakteam/ui:latest
@@ -37,3 +59,9 @@ services:
     volumes:
       - ./ui-config:/home/freetak/data:rw,Z
     network_mode: "host"
+    environment:
+      # Change the following 3 lines to the FTS external IP
+      FTS_IP: '127.0.0.1'
+      FTS_UI_EXPOSED_IP: '127.0.0.1'
+      FTS_MAP_EXPOSED_IP: '127.0.0.1'
+
