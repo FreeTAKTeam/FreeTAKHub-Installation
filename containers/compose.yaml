@@ -1,0 +1,71 @@
+services:
+  fts:
+    image: freetakserver:latest
+    pull_policy: build
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: core-pypi.Dockerfile
+    ports:
+        # DataPackagePort
+        - 8080:8080
+        # CoTPort
+        - 8087:8087
+        # SSLCoTPort
+        - 8089:8089
+        # SSLDataPackagePort
+        - 8443:8443
+        # FederationPort
+        #- 9000:9000
+        # APIPort - Don't expose by default
+        #- 19023:19023
+    volumes:
+    # Confused about the Z at the end?
+    # on hosts with selinux, you will need this.
+    # a Z means the volume is not shared
+    # a z means the volume is shared
+      - ./base-config/:/opt/fts/:rw,Z
+    network_mode: "host"
+    environment:
+        # Change from default if needed
+        #FTS_FED_PASSWORD: "defaultpass"
+        #FTS_CLIENT_CERT_PASSWORD: "password"
+
+        # Change the following 2 lines to the FTS external IP
+        FTS_DP_ADDRESS: 127.0.0.1
+        FTS_USER_ADDRESS: 127.0.0.1
+
+        # Misc Settings. Uncomment if needed
+        #FTS_OPTIMIZE_API: True
+        #FTS_DATA_RECEPTION_BUFFER: 1024
+        #FTS_MAX_RECEPTION_TIME: 4
+        #FTS_NUM_ROUTING_WORKERS: 3
+        #FTS_COT_TO_DB: True
+        # number of milliseconds to wait between each iteration of main loop
+        # decreasing will increase CPU usage and server performance
+        # increasing will decrease CPU usage and server performance
+        #FTS_MAINLOOP_DELAY: 100
+        #FTS_EMERGENCY_RADIUS: 0 # radius of emergency within-which users will receive it
+        #FTS_LOG_LEVEL: "error"
+        #FTS_CONNECTION_MESSAGE: "Welcome to FreeTAKServer"
+        
+  ftsui:
+    image: freetakserver-ui:latest
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: ui-pypi.Dockerfile
+    ports:
+      # Web interface port
+      - 5000:5000
+      # API Port - probably don't need to expose if UI and Core are on same container network
+      #- 19023:19023
+    volumes:
+      - ./ui-config:/home/freetak/data:rw,Z
+    network_mode: "host"
+    environment:
+      # Change the following 3 lines to the FTS external IP
+      FTS_IP: '127.0.0.1'
+      FTS_UI_EXPOSED_IP: '127.0.0.1'
+      FTS_MAP_EXPOSED_IP: '127.0.0.1'
+
