@@ -57,11 +57,11 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - free-tak-ui-db:/home/freetak/:Z,rw
+      - ./ui-config:/home/freetak/data:rw,Z
+    network_mode: "host"
     environment:
-      FTS_IP: YOUR EXTERNAL URL HERE
-      FTS_API_PORT: 19023
-      FTS_API_PROTO: 'http'
-      FTS_UI_EXPOSED_IP: 'freetakserver-ui'
+      # Change the following 3 lines to the FTS external IP
+      FTS_IP: '127.0.0.1'
+      FTS_UI_EXPOSED_IP: '127.0.0.1'
       FTS_MAP_EXPOSED_IP: '127.0.0.1'
 
