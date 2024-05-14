@@ -1,6 +1,8 @@
 ---
 - name: Stop service
   tags: nodered
+  become: true
+  become_user: root
   service:
     name: "{{ nodered_service_name }}"
     state: stopped
@@ -8,6 +10,8 @@
 
 - name: Remove unit file
   tags: nodered
+  become: true
+  become_user: root
   file:
     path: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
     state: absent

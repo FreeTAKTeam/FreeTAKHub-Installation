@@ -30,12 +30,12 @@ to get the `easy_install.sh` from the same repository and branch as the ZTI.
 The official GitHub is `FreeTAKTeam`,
 if you are working in a fork you will need to use that.
 ```bash
-export MY_IP=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+export MY_IPA=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 export MY_GITHUB=FreeTAKTeam
 ````
 
 ```bash
-wget -qO - https://raw.githubusercontent.com/${MY_GITHUB}/FreeTAKHub-Installation/main/scripts/easy_install.sh | sudo bash -s -- --verbose --repo https://github.com/${MY_GITHUB}/FreeTAKHub-Installation.git --branch main --ip-addr ${MY_IP}
+wget -qO - https://raw.githubusercontent.com/${MY_GITHUB}/FreeTAKHub-Installation/main/scripts/easy_install.sh | sudo bash -s -- --verbose --repo https://github.com/${MY_GITHUB}/FreeTAKHub-Installation.git --branch main --ip-addr ${MY_IPA}
 ```
 
 

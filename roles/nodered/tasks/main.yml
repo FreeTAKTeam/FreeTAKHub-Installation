@@ -16,7 +16,7 @@
 - name: Get public IPv4
   tags: nodered
   uri:
-    url: http://ifconfig.me/ip
+    url: https://ifconfig.me/ip
     return_content: true
   register: ip_response
 

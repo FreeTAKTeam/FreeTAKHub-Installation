@@ -1,2 +1,4 @@
 ---
-unit_files_location: /etc/systemd/system
+unit_files_location: "/etc/systemd/system"
+
+fts_base_path: "/opt/fts"

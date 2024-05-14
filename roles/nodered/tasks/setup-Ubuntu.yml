@@ -37,16 +37,20 @@
 
 - name: Template unit file
   tags: nodered
+  become: true
+  become_user: root
   template:
     src: nodered.service.j2
     dest: "{{ unit_files_location }}/{{ nodered_service_name }}.service"
     owner: root
     group: root
-    mode: 0644
+    mode: 0664
 
 
 - name: Enable service
   tags: nodered
+  become: true
+  become_user: root
   service:
     name: "{{ nodered_service_name }}"
     enabled: true
@@ -62,7 +66,7 @@
     dest: "{{ nodered_install_folder }}/{{ nodered_settings_file }}"
     owner: root
     group: root
-    mode: 0644
+    mode: 0664
 
 - name: Set service state
   tags: nodered
@@ -83,7 +87,7 @@
     dest: "{{ nodered_install_folder }}/lib/flows/{{ item }}"
     owner: root
     group: root
-    mode: 0644
+    mode: 0664
   loop: "{{ nodered_flows }}"
 
 - name: "Template flows.json to /tmp/flows.json"
@@ -93,4 +97,4 @@
     dest: "/tmp/flows.json"
     owner: root
     group: root
-    mode: 0644
+    mode: 0664

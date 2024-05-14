@@ -1,11 +1,15 @@
 ---
 - name: Stop service
+  become: true
+  become_user: root
   service:
     name: "{{ webmap_service_name }}"
     state: stopped
   ignore_errors: true
 
 - name: Remove unit file
+  become: true
+  become_user: root
   file:
     path: "{{ unit_files_location }}/{{ webmap_service_name }}.service"
     state: absent
