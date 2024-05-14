@@ -102,7 +102,9 @@ Available options:
 
 -h, --help       Print help
 -v, --verbose    Print script debug info
--c, --check      Check for compatibility issues while installing
+-c, --check      Check for compatibility issues while installing [DEFAULT 'os'], may be repeated
+    --no-check   Suppress check for compatibility issues while installing, may be repeated
+-w, --warn       Convert errors into warnings
     --core       Install FreeTAKServer, UI, and Web Map
     --latest     [DEFAULT] Install latest version (v$LATEST_FTS_VERSION)
 -s, --stable     Install latest stable version (v$STABLE_FTS_VERSION)
@@ -111,8 +113,14 @@ Available options:
     --branch     Use specified ZT Installer repository branch [DEFAULT main]
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
-    --ip-addr    Explicitly set IP address (when http://ifconfig.me/ip is wrong)
-    --pypi       Explicitly set the URL for PYPI repository (e.g. http://test.pypi.org)
+    --ip-addr    Explicitly set IP address (when https://ifconfig.me/ip is wrong)
+    --pypi       Explicitly set the URL for PYPI repository (e.g. https://test.pypi.org)
+
+The supported checks are:
+- root    is the install being run under root authority
+- os      is a recommended operating system being used
+- arch    is this a supported hardware architecture
+
 USAGE_TEXT
   exit
 }
@@ -154,8 +162,26 @@ function die() {
 }
 
 ###############################################################################
+# If the situation is dire then panic.
+###############################################################################
+function panic() {
+
+    if [[ "${WARN_LEVEL:-0}" -eq 1 ]]; then
+        echo $1
+    else
+        die $@
+    fi
+}
+
+###############################################################################
 # Parse parameters
 ###############################################################################
+
+WARN_LEVEL=0
+CHECK_OS=1
+CHECK_ROOT=0
+CHECK_ARCH=0
+
 function parse_params() {
 
   # The default 'apt verbosity' is verbose.
@@ -186,7 +212,43 @@ function parse_params() {
       ;;
 
     --check | -c)
-      CHECK=1
+      case "${2-}" in
+        'os')
+            CHECK_OS=1
+            ;;
+        'root')
+            CHECK_ROOT=1
+            ;;
+        'arch')
+            CHECK_ARCH=1
+            ;;
+        *)
+            echo "Invalid check type: $2"
+            ;;
+      esac
+      shift 2
+      ;;
+
+    --no-check)
+      case "${2-}" in
+        'os')
+            CHECK_OS=0
+            ;;
+        'root')
+            CHECK_ROOT=0
+            ;;
+        'arch')
+            CHECK_ARCH=0
+            ;;
+        *)
+            echo "Invalid check type: $2"
+            ;;
+      esac
+      shift 2
+      ;;
+
+    --warn | -w)
+      WARN_LEVEL=1
       shift
       ;;
 
@@ -323,17 +385,18 @@ function set_versions() {
 ###############################################################################
 function do_checks() {
 
-  check_root
+  if [[ "${CHECK_ROOT:-0}" -eq 1 ]]; then
+    check_root
+  fi
 
-  if [[ -n "${CHECK-}" ]]; then
+  if [[ "${CHECK_OS:-0}" -eq 1 ]]; then
     check_os
-    # check_architecture
   else
     WEBMAP_FORCE_INSTALL="webmap_force_install=true"
   fi
 
-  if [[ -n "${TEST-}" ]]; then
-      REPO="https://github.com/janseptaugust/FreeTAKHub-Installation.git"
+  if [[ "${CHECK_ARCH:-0}" -eq 1 ]]; then
+    check_architecture
   fi
 
 }
@@ -349,7 +412,7 @@ function check_root() {
   if [[ "$EUID" -ne 0 ]]; then
 
     echo -e "${RED}ERROR${NOFORMAT}"
-    die "This script requires running as root. Use sudo before the command."
+    panic "This script requires running as root. Use sudo before the command."
 
   else
 
@@ -365,7 +428,7 @@ function check_os() {
 
   which apt-get >/dev/null
   if [[ $? -ne 0 ]]; then
-    die "Could not locate apt... this installation method will not work"
+      panic "Could not locate apt... this installation method will not work"
   fi
 
   echo -e -n "${BLUE}Checking for supported OS...${NOFORMAT}"
@@ -426,7 +489,7 @@ function check_os() {
 
     # Check user input to proceed or not.
     if [[ "${PROCEED}" != "y" ]]; then
-      die "Answer was not y. Not proceeding."
+      panic "Answer was not y. Not proceeding."
     else
       echo -e "${GREEN}Proceeding...${NOFORMAT}"
     fi
@@ -665,8 +728,8 @@ function join_fts_group() {
 setup_colors
 parse_params "${@}"
 set_versions
-check_os
-# do_checks
+
+do_checks
 download_dependencies
 [[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_environment
 handle_git_repository
