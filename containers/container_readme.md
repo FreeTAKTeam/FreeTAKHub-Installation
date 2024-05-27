@@ -1,35 +1,36 @@
 # Containers
 ## Full Documentation
-WIP
+**WIP**
+
 For full instructions see: https://freetakteam.github.io/FreeTAKServer-User-Docs/Installation/Docker/overview/
-WIP
+
+**WIP**
 
 ## Podman
 These containers were designed under the podman runtime, and are fully compatible with being run as rootless.
 
-If you are familiar with container infrastructure, you can simply copy this entire directory and modify the compose.yaml
-to fit your needs.
+
+## Docker
+These containers are likely to work perfectly well in docker.
+
+Please consider running rootless for extra security.
 
 ## Quick Instructions
+1. Copy the [`example-compose.yaml`](https://github.com/FreeTAKTeam/FreeTAKHub-Installation/blob/main/containers/example-compose.yaml)
+file to your favorite directory.
+2. Rename it to compose.yaml
+3. Run the command
 
-For podman:
-```shell
-podman-compose up
-```
+    For podman:
+    ```shell
+    podman-compose up
+    ```
+    
+    For non-free runtime:
+    
+    ```shell
+    docker-compose up
+    ```
 
-or if you use non-free runtime:
-
-```shell
-docker-compose up
-```
-
-Then refer to other FTS documentation to do appropriate configuration.
-
-All config files you need should be created in the volume, so it is a good idea to create a mounted volume instead of a 
-standard volume.
-
-If you are missing any/all configuration files, ensure:
-  - Restart container to trigger copy script again
-  - Permissions are sufficient for the container to use the volume directory
-  - On selinux hosts, sticky bit may need to be set
-  - Also on selinux, you may need to reload the labels/contexts
+4. Then refer to other FTS documentation to do appropriate configuration using the environment variables exposed in the 
+compose file.
