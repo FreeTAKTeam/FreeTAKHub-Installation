@@ -1,6 +1,7 @@
 services:
-  freetakserver:
-    image: ghcr.io/freetakteam/freetakserver:latest
+  free-tak-server:
+    # if you want a specific branch, change master to your branch name
+    image: ghcr.io/freetakteam/freetakserver:container_build_fixes
     volumes:
       - free-tak-core-db:/opt/fts/
     ports:
@@ -64,7 +65,8 @@ services:
         FTS_LOG_LEVEL: "info"
 
   free-tak-server-ui:
-    image: ghcr.io/freetakteam/ui:latest
+    # if you want a specific branch, change master to your branch name
+    image: ghcr.io/freetakteam/ui:master
     ports:
       - 5000:5000
     volumes:
@@ -74,12 +76,12 @@ services:
       FTS_API_PORT: 19023
       FTS_API_PROTO: 'http'
       FTS_UI_EXPOSED_IP: 'free-tak-server-ui'
-      FTS_MAP_EXPOSED_IP: 'free-tak-server-ui'
+      FTS_MAP_EXPOSED_IP: 'localhost'
       FTS_MAP_PORT: 8000
       FTS_MAP_PROTO: 'http'
       FTS_UI_PORT: 5000
-      FTS_UI_WSKEY: 'YourWebsocketKey'
-      FTS_API_KEY: 'Bearer token'
+      FTS_UI_WSKEY: 'vnkdjnfjknfl1232#'
+      FTS_API_KEY: 'vnkdjnfjknfl1232#'
       FTS_UI_SQLALCHEMY_DATABASE_URI: 'sqlite:////home/freetak/data/FTSServer-UI.db'
 
 volumes:
