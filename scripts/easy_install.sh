@@ -479,13 +479,8 @@ function check_os() {
     echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}"
     echo "Errors may arise during installation or execution."
 
-    read -r -e -p "Do you want to continue? [y/n]: " PROCEED
-
-    # Default answer is "n" for NO.
-    DEFAULT="n"
-
     # Set user-inputted value and apply default if user input is null.
-    PROCEED="${PROCEED:-${DEFAULT}}"
+    PROCEED="${PROCEED:-y}"
 
     # Check user input to proceed or not.
     if [[ "${PROCEED}" != "y" ]]; then
