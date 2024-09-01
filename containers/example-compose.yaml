@@ -51,17 +51,20 @@ services:
 
   ftsui:
     image: ghcr.io/freetakteam/ui:latest
+    hostname: freetakserver-ui
+    networks:
+        - taknet
     ports:
       # Web interface port
       - 5000:5000
       # API Port - you probably don't need to expose if UI and Core are on same container network
       #- 19023:19023
     volumes:
-      - ./ui-config:/home/freetak/data:rw,Z
-    network_mode: "host"
+      - free-tak-ui-db:/home/freetak/:Z,rw
     environment:
-      # Change the following 3 lines to the FTS external IP
-      FTS_IP: '127.0.0.1'
-      FTS_UI_EXPOSED_IP: '127.0.0.1'
+      FTS_IP: YOUR EXTERNAL URL HERE
+      FTS_API_PORT: 19023
+      FTS_API_PROTO: 'http'
+      FTS_UI_EXPOSED_IP: 'freetakserver-ui'
       FTS_MAP_EXPOSED_IP: '127.0.0.1'
 
