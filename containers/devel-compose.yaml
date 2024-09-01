@@ -1,6 +1,7 @@
 services:
   freetakserver:
-    image: ghcr.io/freetakteam/freetakserver:latest
+    # if you want a specific branch, change master to your branch name
+    image: ghcr.io/freetakteam/freetakserver:master
     hostname: freetakserver
     networks:
         - taknet
@@ -68,15 +69,14 @@ services:
         FTS_LOG_LEVEL: "info"
 
   freetakserver-ui:
-    image: ghcr.io/freetakteam/ui:latest
+    # if you want a specific branch, change master to your branch name
+    #image: ghcr.io/freetakteam/ui:master
+    image: localhost/freetakserver-ui:latest
     hostname: freetakserver-ui
     networks:
         - taknet
     ports:
-      # Web interface port
       - 5000:5000
-      # API Port - you probably don't need to expose if UI and Core are on same container network
-      #- 19023:19023
     volumes:
       - free-tak-ui-db:/home/freetak/:Z,rw
     environment:
