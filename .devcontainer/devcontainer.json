@@ -1,0 +1,38 @@
+// For format details, see https://aka.ms/devcontainer.json.
+// For config options, see the README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+{
+  "name": "FTS-Install",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "build": {
+      // Path is relative to the devcontainer.json file.
+      "dockerfile": "Dockerfile"
+  },
+
+  // Features to add to the dev container.  ore info: https://containers.dev/features.
+  // "features": {},
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  // "postCreateCommand": "uname -a",
+
+  // Configure tool-specific properties.
+  "customizations" : {
+    "jetbrains" : {
+      "backend" : "IntelliJ"
+    }
+  },
+  "runArgs": [
+    "--net", "host",
+    "-e", "DISPLAY=:0",
+    "-e", "XAUTHORITY=/tmp/.Xauthority",
+    "-v", "${localEnv:HOME}/.Xauthority:/tmp/.Xauthority"
+  ],
+  "containerEnv": {
+    "DISPLAY": "unix:0"
+  },
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
+}

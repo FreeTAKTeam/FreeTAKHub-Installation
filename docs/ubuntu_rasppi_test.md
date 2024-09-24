@@ -1,4 +1,3 @@
-
 # Testing FTS Zero Touch Installer on Raspberry Pi with Ubuntu 
 
 On the Raspberry Pi the ZTI can is tested in a clean native Ubuntu environment.
