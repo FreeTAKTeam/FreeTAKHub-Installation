@@ -10,7 +10,7 @@ Those instructions will not be duplicated here.
 
 Use those official instructions to prepare the SD card.
 As mentioned in the official instructions you will need an IP address for the RaspPi.
-It is likely that your RaspPi was asigned an IP address by a DHCP server.
+It is likely that your RaspPi was assigned an IP address by a DHCP server.
 
 ```bash
 ip addr show
