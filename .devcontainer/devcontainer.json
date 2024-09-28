@@ -5,11 +5,24 @@
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "build": {
       // Path is relative to the devcontainer.json file.
-      "dockerfile": "Dockerfile"
+      "dockerfile": "Dockerfile",
+      "context": "."
   },
 
   // Features to add to the dev container.  ore info: https://containers.dev/features.
-  // "features": {},
+  "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "installZsh": "true",
+            "username": "vscode",
+			"userUid": "1000",
+			"userGid": "1000",
+            "upgradePackages": "true"
+        },
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest",
+            "ppa": "false"
+        }
+    },
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
