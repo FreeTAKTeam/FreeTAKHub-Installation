@@ -3,8 +3,8 @@
 
 Obviously, the ZTI can be tested in a clean native Ubuntu environment.
 However, setting up such an environment can consume time.
-So, while running FTS on dedicated hardware is the correct choice 
-in a production environment it is more appropriate to test with a container.
+So, while in a production environment, running FTS on dedicated hardware is the correct choice,
+in a test environment it is more appropriate to use a container.
 
 ## Setting up the container
 
@@ -16,24 +16,25 @@ The test container can be constructed with any number of technologies.
 
 We will want to specify a specific Ubuntu version we want `v22.04`.
 ```shell
-distrobox create --image ubuntu:22.04 --name fts --yes    \
+distrobox create --image ubuntu:22.04 --name fts --yes \
   --init --additional-packages "systemd libpam-systemd pipewire-audio-client-libraries" 
 ```
+
 Enter the container
 ```shell
 distrobox enter --name fts
 ```
 
-## Installing Using ZTI
+## Use Zero Touch Intallation (ZTI)
 
-note: The following steps may be modified to accommodate your situation.
+Note: The following steps may be modified to accommodate your situation.
 
 ### The Working Repository
 
 The project working directory is mounted into the distrobox.
 The following is an example:
 ```bash
-cd fts-install
+cd ./Projects/fts-install
 export MY_WD=$(pwd)
 ```
 
@@ -43,8 +44,16 @@ but it is easiest to handle it now.
 It is likely you will want the host interface the example here instead uses `docker0`.
 ```bash
 export MY_IPA=$(ip -4 addr show docker0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-echo "My IPA: ${MY_IPA}"
-````
+```
+
+You opened a branch for your issue.
+```bash
+export MY_BRANCH=issue_118
+```
+
+```bash
+echo "My IPA: ${MY_IPA}, WD: ${MY_WD}, ISSUE: ${MY_BRANCH}"
+```
 
 Install FTS using the candidate ZTI.
 The `--verbose` is optional.
@@ -54,11 +63,11 @@ Notice that in the following command the `easy_install.sh` is taken from
 a working tree, while the branch is from the committed repository.
 
 ```bash
-cat ${MY_WD}/scripts/easy_install.sh | sudo NO_COLOR=TRUE bash -s -- --verbose --repo file://${MY_WD}/.git --branch main --ip-addr ${MY_IPA} 
+sudo bash ${MY_WD}/scripts/easy_install.sh -- --verbose --repo file://${MY_WD}/.git --branch ${MY_BRANCH:-main} --ip-addr ${MY_IPA} 
 ```
 If you want to use Python packages from the https://test.pypi.org repository.
 ```bash
-cat ${MY_WD}/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file://${MY_WD}/.git --branch main --ip-addr ${MY_IPA} --pypi https://test.pypi.org
+cat ${MY_WD}/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file://${MY_WD}/.git --branch ${MY_BRANCH:-main} --ip-addr ${MY_IPA} --pypi https://test.pypi.org
 ```
 
 ### Configuration
@@ -81,7 +90,7 @@ Those instructions will not be duplicated here.
 The distrobox can be deleted and recreated.
 
 ```shell
-distrobox rm --name fts
+distrobox rm fts
 ```
 
 ### Soft Reset

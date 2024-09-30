@@ -75,6 +75,7 @@ ansible.cfg
 
 apt_inst.so
 apt_pkg.so
+
 git-error-*
 
 
