@@ -149,11 +149,11 @@ function msg() {
 # Exit gracefully
 ###############################################################################
 function die() {
+  echo "DIE: $@"
 
   local msg=$1
-  local code=${2-1}
+  local code=${2:-1}
   msg "$msg"
-
   [[ $code -eq 0 ]] || echo -e "Exiting. Installation NOT successful."
 
   # default exit status 1
@@ -331,8 +331,13 @@ function parse_params() {
       shift
       ;;
 
+    --)
+      echo "argument delimiter"
+      shift
+      ;;
+
     -?*)
-      panic "ERROR: unknown option $1"
+      panic "ERROR: unknown option [$1]"
       ;;
 
     *)
@@ -586,6 +591,9 @@ function download_dependencies() {
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
   apt-get -y ${APT_VERBOSITY--qq} install git
+
+  echo -e "${BLUE}Installing NodeJs...${NOFORMAT}"
+  apt-get -y ${APT_VERBOSITY--qq} install npm
 
 }
 
