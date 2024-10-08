@@ -622,6 +622,7 @@ function install_nodejs_environment() {
   sudo npm install -g n
   sudo n 18.20.4
 }
+
 ###############################################################################
 # Handle git repository
 ###############################################################################
@@ -732,6 +733,8 @@ set_versions
 
 do_checks
 download_dependencies
+install_nodejs_environment
+
 [[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_environment
 handle_git_repository
 add_passwordless_ansible_execution
