@@ -114,7 +114,7 @@ Available options:
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
     --ip-addr    Explicitly set IP address (when https://ifconfig.me/ip is wrong)
-    --pypi       Explicitly set the URL for PYPI repository (e.g. http://test.pypi.org)
+    --pypi       Explicitly set the URL for PYPI repository (e.g. https://test.pypi.org)
 
 The supported checks are:
 - root    is the install being run under root authority
@@ -185,7 +185,7 @@ CHECK_ARCH=0
 function parse_params() {
 
   # The default 'apt verbosity' is verbose.
-  # Set it to quiet, since that's what our script assumes unset this later if we want verbosity.
+  # Set it to quiet, since that's what our script assumes unset this later if we want verbosity
   APT_VERBOSITY="-qq"
 
   while true; do
@@ -316,10 +316,10 @@ function parse_params() {
       ;;
 
     --pypi)
-      # PIP_EXTRA_INDEX_URL is special.
-      # If after pip checks the primary index-url;
-      # it does not find the source,
-      # it will check the extra-index.url repositories.
+        # PIP_EXTRA_INDEX_URL is special.
+        # If after pip checks the primary index-url;
+        # it does not find the source,
+        # it will check the extra-index.url repositories.
       export PIP_EXTRA_INDEX_URL=$2
       shift 2
       echo "Using the extra pypi URL of ${PIP_EXTRA_INDEX_URL}"
@@ -606,6 +606,18 @@ function install_python_environment() {
   deactivate
 
 }
+
+###############################################################################
+# The latest version of node-red needs a current version of nodejs.
+# The https://www.npmjs.com/package/n package can be used to manage nodejs versions.
+# curl -L https://bit.ly/n-install | bash
+# see https://github.com/dceejay/RedMap/blob/master/package.json for the dependencies.
+###############################################################################
+function install_nodejs_environment() {
+  sudo npm install -g n
+  sudo n 18.20.4
+}
+
 ###############################################################################
 # Handle git repository
 ###############################################################################
@@ -726,6 +738,8 @@ set_versions
 
 do_checks
 download_dependencies
+install_nodejs_environment
+
 [[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_environment
 handle_git_repository
 add_passwordless_ansible_execution
