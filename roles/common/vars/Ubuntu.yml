@@ -1,2 +1,4 @@
 ---
 unit_files_location: /etc/systemd/system
+python_exec: /usr/bin/python3
+

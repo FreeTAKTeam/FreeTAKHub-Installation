@@ -15,4 +15,4 @@
     name: "{{ fts_ui_pip_package_name }}"
     state: absent
     virtualenv: "{{ fts_venv }}"
-    virtualenv_command: virtualenv
+    virtualenv_command: "{{ python_exec }} -m venv"
