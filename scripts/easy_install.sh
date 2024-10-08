@@ -199,7 +199,7 @@ function parse_params() {
 
     --verbose | -v)
       echo "Verbose output"
-      set -x
+      # set -x
 
       NO_COLOR=1
       GIT_TRACE=true

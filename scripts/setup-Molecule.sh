@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+# set -x
 
 echo "Install Molecule"
 sudo apt-get update
