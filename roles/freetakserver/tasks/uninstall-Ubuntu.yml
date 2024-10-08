@@ -11,10 +11,11 @@
     state: absent
 
 - name: Uninstall
-  pip:
+  ansible.builtin.pip:
     name: "{{ fts_pip_package_name }}"
     state: absent
     virtualenv: "{{ fts_venv }}"
+    virtualenv_command: pyvenv
 
 - name: Remove files
   file:

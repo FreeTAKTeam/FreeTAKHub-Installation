@@ -62,11 +62,19 @@ Notice that in the following command the `easy_install.sh` is taken from
 a working tree, while the branch is from the committed repository.
 
 ```bash
-sudo bash ${MY_WD}/scripts/easy_install.sh -- --verbose --repo file://${MY_WD}/.git --branch ${MY_BRANCH:-main} --ip-addr ${MY_IPA} 
+sudo bash ${MY_WD}/scripts/easy_install.sh -- \
+   --verbose --repo file://${MY_WD}/.git \
+   --branch ${MY_BRANCH:-main} \
+   --ip-addr ${MY_IPA} 
 ```
 If you want to use Python packages from the https://test.pypi.org repository.
 ```bash
-cat ${MY_WD}/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file://${MY_WD}/.git --branch ${MY_BRANCH:-main} --ip-addr ${MY_IPA} --pypi https://test.pypi.org
+cat ${MY_WD}/scripts/easy_install.sh | \
+   sudo bash -s -- --verbose \
+      --repo file://${MY_WD}/.git \
+      --branch ${MY_BRANCH:-main} \
+      --ip-addr ${MY_IPA} \
+      --pypi https://test.pypi.org
 ```
 
 ### Configuration
