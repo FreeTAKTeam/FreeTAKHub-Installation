@@ -15,13 +15,13 @@ The test container can be constructed with any number of technologies.
 
 We will want to specify a specific Ubuntu version we want `v22.04`.
 ```shell
-distrobox create --image ubuntu:22.04 --name fts --yes \
+distrobox create --image ubuntu:22.04 --name fts-test-install --yes \
   --init --additional-packages "systemd libpam-systemd pipewire-audio-client-libraries" 
 ```
 
 Enter the container
 ```shell
-distrobox enter --name fts
+distrobox enter --name fts-test-install
 ```
 
 ## Use Zero Touch Intallation (ZTI)
