@@ -611,6 +611,17 @@ function install_python_environment() {
   deactivate
 
 }
+
+###############################################################################
+# The latest version of node-red needs a current version of nodejs.
+# The https://www.npmjs.com/package/n package can be used to manage nodejs versions.
+# curl -L https://bit.ly/n-install | bash
+# see https://github.com/dceejay/RedMap/blob/master/package.json for the dependencies.
+###############################################################################
+function install_nodejs_environment() {
+  sudo npm install -g n
+  sudo n 18.20.4
+}
 ###############################################################################
 # Handle git repository
 ###############################################################################
