@@ -37,7 +37,7 @@ echo "github: ${MY_GITHUB}, branch: ${MY_BRANCH}, addr: ${MY_IPA}"
 ````
 
 ```bash
-wget -qO - https://raw.githubusercontent.com/${MY_GITHUB:-FreeTAKTeam}/FreeTAKHub-Installation/main/scripts/easy_install.sh | \
+wget -qO - https://raw.githubusercontent.com/${MY_GITHUB:-FreeTAKTeam}/FreeTAKHub-Installation/${MY_BRANCH:-main}/scripts/easy_install.sh | \
     sudo bash -s -- \
       --verbose \
       --repo https://github.com/${MY_GITHUB:-FreeTAKTeam}/FreeTAKHub-Installation.git \
