@@ -259,7 +259,7 @@ parse_args() {
       shift
       ;;
     --verbose | -v)
-      set -x
+      # set -x
       shift
       ;;
     *)

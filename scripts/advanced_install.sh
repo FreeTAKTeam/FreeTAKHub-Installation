@@ -91,7 +91,7 @@ function parse_params() {
       ;;
 
     --verbose | -v)
-      set -x
+      # set -x
 
       NO_COLOR=1
       GIT_TRACE=true
