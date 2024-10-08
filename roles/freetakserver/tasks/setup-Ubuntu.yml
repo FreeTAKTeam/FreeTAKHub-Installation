@@ -20,4 +20,4 @@
   ansible.builtin.pip:
     name: "{{ fts_pip_package_name }}=={{ fts_version }}"
     virtualenv: "{{ fts_venv }}"
-    virtualenv_command: pyvenv
+    virtualenv_command: virtualenv
