@@ -10,5 +10,5 @@
   ansible.builtin.pip:
     name: "{{ pip3_packages }}"
     virtualenv: "{{ fts_venv }}"
-    virtualenv_command: "{{ interpreter_python }} -m venv"
+    virtualenv_command: "{{ venv_python }} -m venv"
     # extra_args: --force-reinstall
