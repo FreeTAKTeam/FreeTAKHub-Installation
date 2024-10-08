@@ -185,7 +185,7 @@ CHECK_ARCH=0
 function parse_params() {
 
   # The default 'apt verbosity' is verbose.
-  # Set it to quiet, since that's what our script assumes unset this later if we want verbosity
+  # Set it to quiet, since that's what our script assumes unset this later if we want verbosity.
   APT_VERBOSITY="-qq"
 
   while true; do
@@ -316,10 +316,10 @@ function parse_params() {
       ;;
 
     --pypi)
-        # PIP_EXTRA_INDEX_URL is special.
-        # If after pip checks the primary index-url;
-        # it does not find the source,
-        # it will check the extra-index.url repositories.
+      # PIP_EXTRA_INDEX_URL is special.
+      # If after pip checks the primary index-url;
+      # it does not find the source,
+      # it will check the extra-index.url repositories.
       export PIP_EXTRA_INDEX_URL=$2
       shift 2
       echo "Using the extra pypi URL of ${PIP_EXTRA_INDEX_URL}"
@@ -332,7 +332,7 @@ function parse_params() {
       ;;
 
     -?*)
-      die "ERROR: unknown option $1"
+      panic "ERROR: unknown option $1"
       ;;
 
     *)
@@ -375,7 +375,7 @@ function set_versions() {
       export CODENAME=$STABLE_CODENAME_REQD
       ;;
     *)
-      die "Unsupported install type: $INSTALL_TYPE"
+      panic "Unsupported install type: $INSTALL_TYPE"
       ;;
   esac
 
