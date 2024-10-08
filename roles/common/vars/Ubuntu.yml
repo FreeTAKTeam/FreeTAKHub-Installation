@@ -1,4 +1,4 @@
 ---
 unit_files_location: /etc/systemd/system
 
-
+venv_python: {{ ansible_python_interpreter }}
