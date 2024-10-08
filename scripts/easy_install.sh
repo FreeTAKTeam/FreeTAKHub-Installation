@@ -556,8 +556,6 @@ function download_dependencies() {
 
   echo -e "${BLUE}Downloading dependencies...${NOFORMAT}"
 
-  echo -e "${BLUE}Adding the Ansible Personal Package Archive (PPA)...${NOFORMAT}"
-
   # dpkg --list | grep -q needrestart && NEEDRESTART=1
   # [[ 0 -eq $NEEDRESTART ]] || apt-get remove --yes needrestart
   x=$(find /etc/apt/apt.conf.d -name "*needrestart*")
@@ -580,21 +578,11 @@ function download_dependencies() {
   # package by default, so install it if not installed
   which apt-add-repository >/dev/null || apt-get --yes install software-properties-common
 
-  apt-add-repository -y ppa:ansible/ansible
-
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
-
   apt-get -y ${APT_VERBOSITY--qq} update
-
-  echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
-  apt-get -y ${APT_VERBOSITY--qq} install ansible
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
   apt-get -y ${APT_VERBOSITY--qq} install git
-
-  echo -e "${BLUE}Installing NodeJs...${NOFORMAT}"
-  apt-get -y ${APT_VERBOSITY--qq} install npm
-
 }
 
 ###############################################################################
@@ -603,8 +591,11 @@ function download_dependencies() {
 # the installer, Ansible, and its dependencies (e.g. jinja2) and
 # the application being installed, FTS, and its dependencies.
 ###############################################################################
-function install_python_environment() {
-  apt-get update
+function activate_python_env() {
+
+  if [[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]]; then
+     echo "python installation type: ${INSTALL_TYPE}"
+  fi
   apt-get install -y python3-pip python3-setuptools
   apt-get install -y python${PY3_VER}-dev python${PY3_VER}-venv libpython${PY3_VER}-dev
 
@@ -612,12 +603,10 @@ function install_python_environment() {
   source ${FTS_VENV}/bin/activate
 
   python3 -m pip install --upgrade pip
+  python3 -m pip install --force-reinstall ansible
   python3 -m pip install --force-reinstall jinja2
   python3 -m pip install --force-reinstall pyyaml
   python3 -m pip install --force-reinstall psutil
-
-  deactivate
-
 }
 
 ###############################################################################
@@ -626,7 +615,10 @@ function install_python_environment() {
 # curl -L https://bit.ly/n-install | bash
 # see https://github.com/dceejay/RedMap/blob/master/package.json for the dependencies.
 ###############################################################################
-function install_nodejs_environment() {
+function activate_nodejs_env() {
+  echo -e "${BLUE}Installing NodeJs...${NOFORMAT}"
+  apt-get -y ${APT_VERBOSITY--qq} install npm
+
   sudo npm install -g n
   sudo n 18.20.4
 }
@@ -741,12 +733,9 @@ set_versions
 
 do_checks
 download_dependencies
-install_nodejs_environment
+activate_nodejs_env
+activate_python_env
 
-if [[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]]; then
-   echo "python installation type: ${INSTALL_TYPE}"
-   install_python_environment
-fi
 handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair
