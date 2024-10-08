@@ -28,8 +28,7 @@ noderedserver_port: 1880
 nodered_npm_packages:
   - node-red@v3.1.9
   - node-red-admin
-  - node-red-contrib-web-worldmap@4.8.0
-
+  - node-red-contrib-web-worldmap@5.0.2
 nodered_nodes:
   - node-red-contrib-config
   - node-red-dashboard
