@@ -17,6 +17,7 @@
 #    - "pip install /FreeTakServer"
 
 - name: "Install {{ fts_pip_package_name }}"
-  pip:
+  ansible.builtin.pip:
     name: "{{ fts_pip_package_name }}=={{ fts_version }}"
     virtualenv: "{{ fts_venv }}"
+    virtualenv_command: "{{ venv_python }} -m venv"

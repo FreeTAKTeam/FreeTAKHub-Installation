@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+# set -x
 
 # create a key for the user if it doesn't exist
 if [[ ! -e /home/${USER}/.ssh/id_rsa.pub ]]; then

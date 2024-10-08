@@ -72,3 +72,9 @@ ansible.cfg
 /.vagrant/*
 /.byebug_history
 /docs/DEV.md
+
+apt_inst.so
+apt_pkg.so
+
+git-error-*
+

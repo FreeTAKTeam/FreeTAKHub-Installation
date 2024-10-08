@@ -10,11 +10,13 @@
     name: "{{ fts_ui_apt_packages }}"
 
 - name: "Install pip packages"
-  pip:
+  ansible.builtin.pip:
     name: "{{ fts_ui_pip_packages }}"
     virtualenv: "{{ fts_venv }}"
+    virtualenv_command: "{{ venv_python }} -m venv"
 
 - name: "Install {{ fts_ui_pip_package_name }}"
-  pip:
+  ansible.builtin.pip:
     name: "{{ fts_ui_pip_package_name }}"
     virtualenv: "{{ fts_venv }}"
+    virtualenv_command: "{{ venv_python }} -m venv"

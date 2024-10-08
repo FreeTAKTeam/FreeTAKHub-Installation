@@ -1,3 +1,5 @@
 ---
-- name: cleanup /tmp/*
-  shell: sudo rm -rf /tmp/*
+- name: cleanup temp files created by ansible
+  ansible.builtin.file:
+    path: /tmp/ansible*
+    state: absent

@@ -24,6 +24,9 @@ DEFAULT_BRANCH="main"
 BRANCH=${BRANCH:-$DEFAULT_BRANCH}
 CBRANCH=${CBRANCH:-}
 
+DEFAULT_PYPI_URL="https://pypi.org"
+TEST_PYPI_URL="https://test.pypi.org"
+
 STABLE_OS_REQD="Ubuntu"
 STABLE_OS_VER_REQD="22.04"
 STABLE_CODENAME_REQD="jammy"
@@ -40,7 +43,11 @@ PY3_VER_STABLE="3.11"
 
 STABLE_FTS_VERSION="2.0.66"
 LEGACY_FTS_VERSION="1.9.9.6"
-LATEST_FTS_VERSION=$(curl -s https://pypi.org/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
+function set_latest_fts_version() {
+     local pypi_url=$1
+     export LATEST_FTS_VERSION=$(curl -s ${pypi_url}/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
+}
+set_latest_fts_version ${DEFAULT_PYPI_URL}
 
 FTS_VENV="${HOME}/fts.venv"
 
@@ -95,7 +102,9 @@ Available options:
 
 -h, --help       Print help
 -v, --verbose    Print script debug info
--c, --check      Check for compatibility issues while installing
+-c, --check      Check for compatibility issues while installing [DEFAULT 'os'], may be repeated
+    --no-check   Suppress check for compatibility issues while installing, may be repeated
+-w, --warn       Convert errors into warnings
     --core       Install FreeTAKServer, UI, and Web Map
     --latest     [DEFAULT] Install latest version (v$LATEST_FTS_VERSION)
 -s, --stable     Install latest stable version (v$STABLE_FTS_VERSION)
@@ -104,7 +113,14 @@ Available options:
     --branch     Use specified ZT Installer repository branch [DEFAULT main]
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
-    --ip-addr    Explicitly set IP address (when http://ifconfig.me/ip is wrong)
+    --ip-addr    Explicitly set IP address (when https://ifconfig.me/ip is wrong)
+    --pypi       Explicitly set the URL for PYPI repository (e.g. https://test.pypi.org)
+
+The supported checks are:
+- root    is the install being run under root authority
+- os      is a recommended operating system being used
+- arch    is this a supported hardware architecture
+
 USAGE_TEXT
   exit
 }
@@ -133,11 +149,11 @@ function msg() {
 # Exit gracefully
 ###############################################################################
 function die() {
+  echo "DIE: $@"
 
   local msg=$1
-  local code=${2-1}
+  local code=${2:-1}
   msg "$msg"
-
   [[ $code -eq 0 ]] || echo -e "Exiting. Installation NOT successful."
 
   # default exit status 1
@@ -146,12 +162,30 @@ function die() {
 }
 
 ###############################################################################
+# If the situation is dire then panic.
+###############################################################################
+function panic() {
+
+    if [[ "${WARN_LEVEL:-0}" -eq 1 ]]; then
+        echo $1
+    else
+        die $@
+    fi
+}
+
+###############################################################################
 # Parse parameters
 ###############################################################################
+
+WARN_LEVEL=0
+CHECK_OS=1
+CHECK_ROOT=0
+CHECK_ARCH=0
+
 function parse_params() {
 
-  # The default 'apt verbosity' is verbose. Set it to quiet, since that's what our script assumes
-  # unset this later if we want verbosity
+  # The default 'apt verbosity' is verbose.
+  # Set it to quiet, since that's what our script assumes unset this later if we want verbosity
   APT_VERBOSITY="-qq"
 
   while true; do
@@ -165,7 +199,7 @@ function parse_params() {
 
     --verbose | -v)
       echo "Verbose output"
-      set -x
+      # set -x
 
       NO_COLOR=1
       GIT_TRACE=true
@@ -175,10 +209,47 @@ function parse_params() {
       ANSIBLE_VERBOSITY="-vvvvv"
 
       shift
+      echo "Running VERBOSE"
       ;;
 
     --check | -c)
-      CHECK=1
+      case "${2-}" in
+        'os')
+            CHECK_OS=1
+            ;;
+        'root')
+            CHECK_ROOT=1
+            ;;
+        'arch')
+            CHECK_ARCH=1
+            ;;
+        *)
+            echo "Invalid check type: $2"
+            ;;
+      esac
+      shift 2
+      ;;
+
+    --no-check)
+      case "${2-}" in
+        'os')
+            CHECK_OS=0
+            ;;
+        'root')
+            CHECK_ROOT=0
+            ;;
+        'arch')
+            CHECK_ARCH=0
+            ;;
+        *)
+            echo "Invalid check type: $2"
+            ;;
+      esac
+      shift 2
+      ;;
+
+    --warn | -w)
+      WARN_LEVEL=1
       shift
       ;;
 
@@ -222,11 +293,13 @@ function parse_params() {
       if [[ -d ~/FreeTAKHub-Installation ]]
         then rm -rf ~/FreeTAKHub-Installation
       fi
+      echo "Using Git Repository: ${REPO}"
       ;;
 
     --branch)
       BRANCH=$2
       shift 2
+      echo "Using Branch: ${BRANCH}"
       ;;
 
     --dev-test)
@@ -245,13 +318,29 @@ function parse_params() {
       echo "Using the IP of ${FTS_IP_CUSTOM}"
       ;;
 
+    --pypi)
+      # PIP_EXTRA_INDEX_URL is special.
+      # If after pip checks the primary index-url;
+      # it does not find the source,
+      # it will check the extra-index.url repositories.
+      export PIP_EXTRA_INDEX_URL=$2
+      shift 2
+      echo "Using the extra pypi URL of ${PIP_EXTRA_INDEX_URL}"
+      set_latest_fts_version ${PIP_EXTRA_INDEX_URL}
+      ;;
+
     --no-color)
       NO_COLOR=1
       shift
       ;;
 
+    --)
+      echo "argument delimiter"
+      shift
+      ;;
+
     -?*)
-      die "ERROR: unknown option $1"
+      panic "ERROR: unknown option [$1]"
       ;;
 
     *)
@@ -294,7 +383,7 @@ function set_versions() {
       export CODENAME=$STABLE_CODENAME_REQD
       ;;
     *)
-      die "Unsupport install type: $INSTALL_TYPE"
+      panic "Unsupported install type: $INSTALL_TYPE"
       ;;
   esac
 
@@ -304,17 +393,18 @@ function set_versions() {
 ###############################################################################
 function do_checks() {
 
-  check_root
+  if [[ "${CHECK_ROOT:-0}" -eq 1 ]]; then
+    check_root
+  fi
 
-  if [[ -n "${CHECK-}" ]]; then
+  if [[ "${CHECK_OS:-0}" -eq 1 ]]; then
     check_os
-    # check_architecture
   else
     WEBMAP_FORCE_INSTALL="webmap_force_install=true"
   fi
 
-  if [[ -n "${TEST-}" ]]; then
-      REPO="https://github.com/janseptaugust/FreeTAKHub-Installation.git"
+  if [[ "${CHECK_ARCH:-0}" -eq 1 ]]; then
+    check_architecture
   fi
 
 }
@@ -330,7 +420,7 @@ function check_root() {
   if [[ "$EUID" -ne 0 ]]; then
 
     echo -e "${RED}ERROR${NOFORMAT}"
-    die "This script requires running as root. Use sudo before the command."
+    panic "This script requires running as root. Use sudo before the command."
 
   else
 
@@ -346,7 +436,7 @@ function check_os() {
 
   which apt-get >/dev/null
   if [[ $? -ne 0 ]]; then
-    die "Could not locate apt... this installation method will not work"
+      panic "Could not locate apt... this installation method will not work"
   fi
 
   echo -e -n "${BLUE}Checking for supported OS...${NOFORMAT}"
@@ -407,7 +497,7 @@ function check_os() {
 
     # Check user input to proceed or not.
     if [[ "${PROCEED}" != "y" ]]; then
-      die "Answer was not y. Not proceeding."
+      panic "Answer was not y. Not proceeding."
     else
       echo -e "${GREEN}Proceeding...${NOFORMAT}"
     fi
@@ -469,8 +559,6 @@ function download_dependencies() {
 
   echo -e "${BLUE}Downloading dependencies...${NOFORMAT}"
 
-  echo -e "${BLUE}Adding the Ansible Personal Package Archive (PPA)...${NOFORMAT}"
-
   # dpkg --list | grep -q needrestart && NEEDRESTART=1
   # [[ 0 -eq $NEEDRESTART ]] || apt-get remove --yes needrestart
   x=$(find /etc/apt/apt.conf.d -name "*needrestart*")
@@ -493,18 +581,11 @@ function download_dependencies() {
   # package by default, so install it if not installed
   which apt-add-repository >/dev/null || apt-get --yes install software-properties-common
 
-  apt-add-repository -y ppa:ansible/ansible
-
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
-
   apt-get -y ${APT_VERBOSITY--qq} update
-
-  echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
-  apt-get -y ${APT_VERBOSITY--qq} install ansible
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
   apt-get -y ${APT_VERBOSITY--qq} install git
-
 }
 
 ###############################################################################
@@ -513,8 +594,11 @@ function download_dependencies() {
 # the installer, Ansible, and its dependencies (e.g. jinja2) and
 # the application being installed, FTS, and its dependencies.
 ###############################################################################
-function install_python_environment() {
-  apt-get update
+function activate_python_env() {
+
+  if [[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]]; then
+     echo "python installation type: ${INSTALL_TYPE}"
+  fi
   apt-get install -y python3-pip python3-setuptools
   apt-get install -y python${PY3_VER}-dev python${PY3_VER}-venv libpython${PY3_VER}-dev
 
@@ -522,13 +606,26 @@ function install_python_environment() {
   source ${FTS_VENV}/bin/activate
 
   python3 -m pip install --upgrade pip
+  python3 -m pip install --force-reinstall ansible
   python3 -m pip install --force-reinstall jinja2
   python3 -m pip install --force-reinstall pyyaml
   python3 -m pip install --force-reinstall psutil
-
-  deactivate
-
 }
+
+###############################################################################
+# The latest version of node-red needs a current version of nodejs.
+# The https://www.npmjs.com/package/n package can be used to manage nodejs versions.
+# curl -L https://bit.ly/n-install | bash
+# see https://github.com/dceejay/RedMap/blob/master/package.json for the dependencies.
+###############################################################################
+function activate_nodejs_env() {
+  echo -e "${BLUE}Installing NodeJs...${NOFORMAT}"
+  apt-get -y ${APT_VERBOSITY--qq} install npm
+
+  sudo npm install -g n
+  sudo n 18.20.4
+}
+
 ###############################################################################
 # Handle git repository
 ###############################################################################
@@ -611,7 +708,9 @@ function run_playbook() {
   env_vars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
   env_vars="$env_vars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH fts_venv=${FTS_VENV}"
   [[ -n "${FTS_IP_CUSTOM:-}" ]] && env_vars="$env_vars fts_ip_addr_extra=$FTS_IP_CUSTOM"
+  [[ -n "${PYPI_URL:-}" ]] && env_vars="$env_vars pypi_url=$PYPI_URL"
   [[ -n "${WEBMAP_FORCE_INSTALL:-}" ]] && env_vars="$env_vars $WEBMAP_FORCE_INSTALL"
+
   [[ -n "${CORE:-}" ]] && pb=install_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   ansible-playbook -u root  ${pb}.yml \
@@ -634,10 +733,12 @@ function cleanup() {
 setup_colors
 parse_params "${@}"
 set_versions
-check_os
-# do_checks
+
+do_checks
 download_dependencies
-[[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_environment
+activate_nodejs_env
+activate_python_env
+
 handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair

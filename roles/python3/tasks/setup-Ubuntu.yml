@@ -7,7 +7,8 @@
     name: "{{ python3_apt_packages }}"
 
 - name: "Install pip packages"
-  pip:
+  ansible.builtin.pip:
     name: "{{ pip3_packages }}"
     virtualenv: "{{ fts_venv }}"
+    virtualenv_command: "{{ venv_python }} -m venv"
     # extra_args: --force-reinstall

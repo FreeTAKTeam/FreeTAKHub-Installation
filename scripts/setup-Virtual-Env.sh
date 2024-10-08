@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+# set -x
 
 echo "Installing Virtual Environment"
 sudo apt-get update

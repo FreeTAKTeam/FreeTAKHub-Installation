@@ -11,7 +11,8 @@
     state: absent
 
 - name: Uninstall
-  pip:
+  ansible.builtin.pip:
     name: "{{ fts_ui_pip_package_name }}"
     state: absent
     virtualenv: "{{ fts_venv }}"
+    virtualenv_command: "{{ venv_python }} -m venv"
