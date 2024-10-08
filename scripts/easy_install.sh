@@ -605,7 +605,7 @@ function download_dependencies() {
 ###############################################################################
 function install_python_environment() {
   apt-get update
-  apt-get install -y python3-pip python3-setuptools python3-venv
+  apt-get install -y python3-pip python3-setuptools
   apt-get install -y python${PY3_VER}-dev python${PY3_VER}-venv libpython${PY3_VER}-dev
 
   /usr/bin/python${PY3_VER} -m venv ${FTS_VENV}
@@ -615,7 +615,6 @@ function install_python_environment() {
   python3 -m pip install --force-reinstall jinja2
   python3 -m pip install --force-reinstall pyyaml
   python3 -m pip install --force-reinstall psutil
-  python3 -m pip install --force-reinstall virtualenv
 
   deactivate
 
@@ -744,7 +743,10 @@ do_checks
 download_dependencies
 install_nodejs_environment
 
-[[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_environment
+if [[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]]; then
+   echo "python installation type: ${INSTALL_TYPE}"
+   install_python_environment
+fi
 handle_git_repository
 add_passwordless_ansible_execution
 generate_key_pair
