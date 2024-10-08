@@ -209,6 +209,7 @@ function parse_params() {
       ANSIBLE_VERBOSITY="-vvvvv"
 
       shift
+      echo "Running VERBOSE"
       ;;
 
     --check | -c)
@@ -292,11 +293,13 @@ function parse_params() {
       if [[ -d ~/FreeTAKHub-Installation ]]
         then rm -rf ~/FreeTAKHub-Installation
       fi
+      echo "Using Git Repository: ${REPO}"
       ;;
 
     --branch)
       BRANCH=$2
       shift 2
+      echo "Using Branch: ${BRANCH}"
       ;;
 
     --dev-test)
@@ -316,10 +319,10 @@ function parse_params() {
       ;;
 
     --pypi)
-        # PIP_EXTRA_INDEX_URL is special.
-        # If after pip checks the primary index-url;
-        # it does not find the source,
-        # it will check the extra-index.url repositories.
+      # PIP_EXTRA_INDEX_URL is special.
+      # If after pip checks the primary index-url;
+      # it does not find the source,
+      # it will check the extra-index.url repositories.
       export PIP_EXTRA_INDEX_URL=$2
       shift 2
       echo "Using the extra pypi URL of ${PIP_EXTRA_INDEX_URL}"
