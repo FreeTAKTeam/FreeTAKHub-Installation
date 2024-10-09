@@ -60,7 +60,7 @@ terraform.rc
 
 # ansible
 ansible_log.rb
-ansible.cfg
+
 /.vagrant/bundler/global.sol
 /.vagrant/machines/default/digital_ocean/action_provision
 /.vagrant/machines/default/digital_ocean/creator_uid
