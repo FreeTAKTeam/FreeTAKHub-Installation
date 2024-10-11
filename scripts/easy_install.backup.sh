@@ -731,7 +731,7 @@ webmap_shell_install() {
   print_info "configuring webmap"
 
   # configure ip in webMAP_config.json
-  local search="\"FTH_FTS_URL\": \"204.48.30.216\","
+  local search="\"FTH_FTS_URL\": \"0.0.0.0\","
   local replace="\"FTH_FTS_URL\": \"$my_ipv4\","
   replace "/tmp/$webmap_config" "$search" "$replace"
   chgrp "$group_name" "/tmp/$webmap_config"

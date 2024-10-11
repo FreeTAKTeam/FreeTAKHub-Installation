@@ -28,7 +28,8 @@ noderedserver_port: 1880
 nodered_npm_packages:
   - node-red@v3.1.9
   - node-red-admin
-  - node-red-contrib-web-worldmap@5.0.2
+  - node-red-contrib-web-worldmap@5.0.3
+  - node-red-contrib-tak-registration@0.12.1
 
 nodered_nodes:
   - node-red-contrib-config
@@ -38,7 +39,7 @@ nodered_nodes:
 nodered_flows:
   - salute.json
   - videochecker.json
-  - webmap.json
+  - webmap-v5.json
 
 nodered_post_flows_body: "{{ lookup('template', 'flows.json.j2') }}"
 
@@ -46,7 +47,7 @@ nodered_post_flow_salute: "{{ lookup('template', 'salute.json.j2') }}"
 
 nodered_post_flow_videochecker: "{{ lookup('template', 'videochecker.json.j2') }}"
 
-nodered_post_flow_webmap: "{{ lookup('template', 'webmap.json.j2') }}"
+# nodered_post_flow_webmap: "{{ lookup('template', 'webmap-v5.json.j2') }}"
 
 nodered_service_name: nodered
 

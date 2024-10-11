@@ -35,6 +35,12 @@
 - name: Clone FreeTAKHub_VideoChecker repository
   tags: nodered
   shell: git clone https://github.com/FreeTAKTeam/FreeTAKHub_VideoChecker.git
+#   git:
+#     repo: 'https://github.com/FreeTAKTeam/FreeTAKHub_VideoChecker.git'
+#     dest: '{{ playbook_dir }}'
+#     force: true
+#     clone: yes
+#     update: yes
 
 - name: Clone FreeTAKHub_SALUTE repository
   tags: nodered
@@ -44,14 +50,6 @@
   tags: nodered
   shell: git clone https://github.com/FreeTAKTeam/FreeTAKHub-Webmap.git
 
-# - name: Clone FreeTAKHub_VideoChecker repository
-#   tags: nodered
-#   git:
-#     repo: 'https://github.com/FreeTAKTeam/FreeTAKHub_VideoChecker.git'
-#     dest: '{{ playbook_dir }}'
-#     force: true
-#     clone: yes
-#     update: yes
 
 - name: Authenticate to NodeRed Admin API
   tags: nodered
@@ -94,18 +92,6 @@
 #        body_format: json
 #        status_code: 204
 
-#    - name: Import Node-RED SALUTE flow via HTTP POST
-#      uri:
-#        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
-#        method: POST
-#        headers:
-#          Content-Type: application/json
-#          Node-RED-API-Version: v1
-#          Node-RED-Deployment-Type: full
-#          Authorization: Bearer {{ nodered_admin_token }}
-#        body: "{{ nodered_post_flow_salute }}"
-#        body_format: json
-#        status_code: 200
 
     - name: Import Node-RED FTH Config flow via HTTP POST
       uri:
@@ -143,6 +129,7 @@
           Node-RED-Deployment-Type: full
           Authorization: Bearer {{ nodered_admin_token }}
         body: "{{ lookup('file', playbook_dir + '/FreeTAKHub_Forms_SALUTE/freetakhub_salute.json') }}"
+#        body: "{{ nodered_post_flow_salute }}"
         body_format: json
         status_code: 200
 
@@ -155,22 +142,11 @@
           Node-RED-API-Version: v1
           Node-RED-Deployment-Type: full
           Authorization: Bearer {{ nodered_admin_token }}
-        body: "{{ lookup('file', playbook_dir + '/FreeTAKHub-Webmap/freetakhub_webmap.json') }}"
+        body: "{{ lookup('file', playbook_dir + '/FreeTAKHub-Webmap/freetakhub_webmap_v5.json') }}"
+#        body: "{{ nodered_post_flow_webmap }}"
         body_format: json
         status_code: 200
-
-#    - name: Import Node-RED Videochecker flow via HTTP POST
-#      uri:
-#        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
-#        method: POST
-#        headers:
-#          Content-Type: application/json
-#          Node-RED-API-Version: v1
-#          Node-RED-Deployment-Type: full
-#          Authorization: Bearer {{ nodered_admin_token }}
-#        body: "{{ nodered_post_flow_webmap }}"
-#        body_format: json
-#        status_code: 200
+        
 
 - name: Ensure reachable connection to Video Server
   tags: nodered
@@ -193,5 +169,4 @@
           flows: [{}]
         body_format: json
         status_code: 204
-
   when: nodered_wait_for_videoserver
