@@ -129,7 +129,6 @@
           Node-RED-Deployment-Type: full
           Authorization: Bearer {{ nodered_admin_token }}
         body: "{{ lookup('file', playbook_dir + '/FreeTAKHub_Forms_SALUTE/freetakhub_salute.json') }}"
-#        body: "{{ nodered_post_flow_salute }}"
         body_format: json
         status_code: 200
 
@@ -143,7 +142,6 @@
           Node-RED-Deployment-Type: full
           Authorization: Bearer {{ nodered_admin_token }}
         body: "{{ lookup('file', playbook_dir + '/FreeTAKHub-Webmap/freetakhub_webmap_v5.json') }}"
-#        body: "{{ nodered_post_flow_webmap }}"
         body_format: json
         status_code: 200
         

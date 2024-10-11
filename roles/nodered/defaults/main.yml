@@ -36,18 +36,11 @@ nodered_nodes:
   - node-red-dashboard
   - node-red-contrib-credentials
 
+# Moved to their own repository : these are backups
 nodered_flows:
-  - salute.json
   - videochecker.json
-  - webmap-v5.json
 
 nodered_post_flows_body: "{{ lookup('template', 'flows.json.j2') }}"
-
-nodered_post_flow_salute: "{{ lookup('template', 'salute.json.j2') }}"
-
-nodered_post_flow_videochecker: "{{ lookup('template', 'videochecker.json.j2') }}"
-
-# nodered_post_flow_webmap: "{{ lookup('template', 'webmap-v5.json.j2') }}"
 
 nodered_service_name: nodered
 
