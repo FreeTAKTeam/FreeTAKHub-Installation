@@ -79,21 +79,7 @@
       wait_for:
         port: "{{ noderedserver_port }}"
 
-#    - name: Import Node-RED flows via HTTP POST
-#      uri:
-#        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flows"
-#        method: POST
-#        headers:
-#          Content-Type: application/json
-#          Node-RED-API-Version: v1
-#          Node-RED-Deployment-Type: full
-#          Authorization: Bearer {{ nodered_admin_token }}
-#        body: "{{ nodered_post_flows_body }}"
-#        body_format: json
-#        status_code: 204
-
-
-    - name: Import Node-RED FTH Config flow via HTTP POST
+    - name: Import Node-RED FTH Config via HTTP POST
       uri:
         url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
         method: POST
@@ -102,7 +88,7 @@
           Node-RED-API-Version: v1
           Node-RED-Deployment-Type: full
           Authorization: Bearer {{ nodered_admin_token }}
-        body: "{{ lookup('file', playbook_dir + '/FreeTAKHub-Webmap/freetakhub_config.json') }}"
+        body: nodered_global_config_flow
         body_format: json
         status_code: 200
 
@@ -115,7 +101,7 @@
           Node-RED-API-Version: v1
           Node-RED-Deployment-Type: full
           Authorization: Bearer {{ nodered_admin_token }}
-        body: "{{ lookup('file', playbook_dir + '/FreeTAKHub_VideoChecker/freetakhub_videochecker.json') }}"
+        body: "{{ lookup('file', playbook_dir + '/FreeTAKHub_VideoChecker/freetakhub_videochecker_n3.json') }}"
         body_format: json
         status_code: 200
 

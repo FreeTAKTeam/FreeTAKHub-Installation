@@ -40,6 +40,8 @@ nodered_nodes:
 nodered_flows:
   - videochecker.json
 
+nodered_global_config_flow: "{{ lookup('template', 'global-config.json.j2') }}"
+
 nodered_post_flows_body: "{{ lookup('template', 'flows.json.j2') }}"
 
 nodered_service_name: nodered
