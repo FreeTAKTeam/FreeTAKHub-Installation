@@ -79,18 +79,19 @@
       wait_for:
         port: "{{ noderedserver_port }}"
 
-    # - name: Import Node-RED FTH Config via HTTP POST
-    #   uri:
-    #     url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
-    #     method: POST
-    #     headers:
-    #       Content-Type: application/json
-    #       Node-RED-API-Version: v1
-    #       Node-RED-Deployment-Type: full
-    #       Authorization: Bearer {{ nodered_admin_token }}
-    #     body: nodered_global_config_flow
-    #     body_format: json
-    #     status_code: 200
+    - name: Import Node-RED FTH Config via HTTP POST
+      uri:
+        url: "http://{{ noderedserver_ipv4 }}:{{ noderedserver_port }}/flow"
+        method: POST
+        headers:
+          Content-Type: application/json
+          Node-RED-API-Version: v1
+          Node-RED-Deployment-Type: full
+          Authorization: Bearer {{ nodered_admin_token }}
+        body: nodered_global_config_flow
+        body_format: json
+        status_code: 200
+      ignore_errors: true
 
     - name: Import FTH Videochecker flow via HTTP POST
       uri:
@@ -105,6 +106,7 @@
         body: "{{ lookup('file', playbook_dir + '/FreeTAKHub_VideoChecker/freetakhub_videochecker.json') }}"
         body_format: json
         status_code: 200
+      ignore_errors: true
 
     - name: Import FTH SALUTE flow via HTTP POST
       uri:
@@ -118,6 +120,7 @@
         body: "{{ lookup('file', playbook_dir + '/FreeTAKHub_Forms_SALUTE/freetakhub_salute.json') }}"
         body_format: json
         status_code: 200
+      ignore_errors: true
 
     - name: Import FTH Webmap flow via HTTP POST
       uri:
@@ -131,6 +134,7 @@
         body: "{{ lookup('file', playbook_dir + '/FreeTAKHub-Webmap/freetakhub_webmap_v5.json') }}"
         body_format: json
         status_code: 200
+      ignore_errors: true
         
 
 - name: Ensure reachable connection to Video Server
