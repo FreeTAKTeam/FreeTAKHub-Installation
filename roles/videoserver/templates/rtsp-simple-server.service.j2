@@ -2,6 +2,8 @@
 After=network.target
 
 [Service]
+User=root
+Group=root
 StandardOutput=append:/var/log/{{ videoserver_service_name }}/{{ videoserver_service_name }}-stdout.log
 StandardError=append:/var/log/{{ videoserver_service_name }}/{{ videoserver_service_name }}-stderr.log
 ExecStart={{ videoserver_executable_location }} {{ videoserver_config_location }}

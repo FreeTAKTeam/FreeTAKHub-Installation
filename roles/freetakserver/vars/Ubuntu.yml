@@ -1,6 +1,6 @@
 ---
-fts_config_path: /opt/FTSConfig.yaml
-fts_db_path: /opt/FreeTAKServer.db
+fts_config_path: "{{ fts_base_path }}/FTSConfig.yaml"
+fts_db_path: "{{ fts_base_path }}/FreeTAKServer.db"
 
 fts_python_packages: "{{ fts_venv }}/lib/python{{ python3_version }}"
 fts_install_path: "{{ fts_python_packages }}/site-packages/FreeTAKServer"

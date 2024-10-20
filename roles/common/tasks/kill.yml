@@ -1,5 +1,7 @@
 ---
 - name: Get running processes
+  become: true
+  become_user: root
   ansible.builtin.shell: "ps -ef | grep -v grep | grep -w {{ process | string }}"
   register: running_process_var
   failed_when: false

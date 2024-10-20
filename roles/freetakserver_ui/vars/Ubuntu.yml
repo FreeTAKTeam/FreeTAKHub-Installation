@@ -1,5 +1,5 @@
 ---
-fts_ui_sqlachemy_db_uri: /opt/FTSServer-UI.db
+fts_ui_sqlachemy_db_uri: /opt/fts/FTSServer-UI.db
 
 fts_ui_python_packages: "{{ fts_venv }}/lib/python{{ python3_version }}"
 fts_ui_install_path: "{{ fts_ui_python_packages }}/site-packages/FreeTAKServer-UI"

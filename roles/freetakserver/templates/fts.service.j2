@@ -7,6 +7,8 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
+User=fts
+Group=fts
 StandardOutput=append:/var/log/{{ fts_service_name }}/{{ fts_service_name }}-stdout.log
 StandardError=append:/var/log/{{ fts_service_name }}/{{ fts_service_name }}-stderr.log
 Environment="FTS_FIRST_START=false"

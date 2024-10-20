@@ -1,0 +1,51 @@
+---
+
+- name: Make sure we have an 'fts' group
+  ansible.builtin.group:
+    name: fts
+    state: present
+
+- name: Allow 'fts' group to have passwordless sudo
+  ansible.builtin.copy:
+    content: "%fts ALL=(ALL) NOPASSWD: ALL"
+    dest: /etc/sudoers.d/80-ansible-fts-user
+    validate: 'visudo -cf %s'
+
+- name: Add fts user to the fts group
+  ansible.builtin.user:
+    name: fts
+    groups: fts,sudo
+    group: fts
+    append: yes
+    state: present
+    create_home: true
+    generate_ssh_key: true
+    ssh_key_file: .ssh/id_rsa
+    system: true
+
+- name: Set up authorized keys for the installing user
+  ansible.posix.authorized_key:
+    user: fts
+    key: "{{ item }}"
+    state: present
+  with_file:
+    - /home/fts/.ssh/id_rsa.pub
+
+- name: Establish fts base folder {{ fts_base_path }}
+  ansible.builtin.file:
+    path: "{{ fts_base_path }}"
+    group: fts
+    owner: fts
+    recurse: true
+    state: directory
+    mode: u+rw,g+rw,o+r
+
+- name: Establish fts venv of {{ fts_venv }}
+  ansible.builtin.file:
+    path: "{{ fts_venv }}"
+    group: fts
+    owner: fts
+    recurse: true
+    state: directory
+    mode: u+rw,g+rw,o+r
+

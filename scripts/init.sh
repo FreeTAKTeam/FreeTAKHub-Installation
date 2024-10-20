@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+# set -x
 
 echo "Initializing..."
 
@@ -23,4 +23,4 @@ fi
 # print key to console
 cat /home/${USER}/.ssh/id_rsa.pub
 
-set +x
+# set +x

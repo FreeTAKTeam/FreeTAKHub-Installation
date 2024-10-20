@@ -1,5 +1,7 @@
 ---
 - name: Delete PyYAML
+  become: true
+  become_user: fts
   shell: "{{ item }}"
   loop:
     - "rm -rf {{ fts_python_packages }}/site-packages/yaml"
@@ -17,6 +19,10 @@
 #    - "pip install /FreeTakServer"
 
 - name: "Install {{ fts_pip_package_name }}"
-  pip:
+  become: true
+  become_user: fts
+  ansible.builtin.pip:
     name: "{{ fts_pip_package_name }}=={{ fts_version }}"
     virtualenv: "{{ fts_venv }}"
+  environment:
+    PIP_EXTRA_INDEX_URL: "{{ pypi_url }}"

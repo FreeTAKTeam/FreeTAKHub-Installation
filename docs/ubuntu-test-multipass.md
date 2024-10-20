@@ -44,19 +44,26 @@ Note: On Windows you will need
 to [enable privileged mounts](https://multipass.run/docs/privileged-mounts).
 ```shell
 multipass set local.privileged-mounts=true
-````
+```
 
 Make a mount point on the virtual machine.
 Mount the directory containing the working repository.
 ```shell
 multipass exec fts-test -- mkdir fts-zti
 multipass mount $HOME/fts-installer fts-test:/home/ubuntu/fts-zti
-````
+```
 
 We can verify the mount point on the image.
 ```shell
 multipass info fts-test
 ```
+
+Make a snapshot.
+```shell
+multipass stop fts-test
+multipass snapshot fts-test
+```
+This will create a snapshot and provide its name.
 
 ### Run the ZTI
 
@@ -70,7 +77,8 @@ You may change the configured IP address later,
 but it is easiest to handle it now.
 It is likely you will want interface `eth0`.
 ```bash
-export MY_IP=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+export MY_IPA=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+echo "My IPA: ${MY_IPA}"
 ````
 
 Install FTS using the candidate ZTI.
@@ -81,7 +89,11 @@ Notice that in the following command the `easy_install.sh` is taken from
 a working tree, while the branch is from the committed repository.
 
 ```bash
-cat /home/ubuntu/fts-zti/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file:///home/ubuntu/fts-zti/.git --branch main --ip-addr ${MY_IP} 
+cat /home/ubuntu/fts-zti/scripts/easy_install.sh | sudo NO_COLOR=TRUE bash -s -- --verbose --repo file:///home/ubuntu/fts-zti/.git --branch main --ip-addr ${MY_IPA} 
+```
+If you want to use Python packages from the https://test.pypi.org repository.
+```bash
+cat /home/ubuntu/fts-zti/scripts/easy_install.sh | sudo bash -s -- --verbose --repo file:///home/ubuntu/fts-zti/.git --branch main --ip-addr ${MY_IPA} --pypi https://test.pypi.org
 ```
 
 ### Configuration
@@ -100,8 +112,18 @@ Those instructions will not be duplicated here.
 
 ## Resetting the `multipass` VM
 
+### Hard Reset
+
 ```shell
 multipass stop fts-test
 multipass delete fts-test
 multipass purge
+```
+
+### Soft Reset
+
+The soft reset rolls back to a previous snapshot.
+(You did make a snapshot, right?)
+```shell
+multipass restore fts-test.snapshot1
 ```

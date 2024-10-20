@@ -10,11 +10,19 @@
     name: "{{ fts_ui_apt_packages }}"
 
 - name: "Install pip packages"
-  pip:
+  become: true
+  become_user: fts
+  ansible.builtin.pip:
     name: "{{ fts_ui_pip_packages }}"
     virtualenv: "{{ fts_venv }}"
+  environment:
+    PIP_EXTRA_INDEX_URL: "{{ pypi_url }}"
 
 - name: "Install {{ fts_ui_pip_package_name }}"
-  pip:
+  become: true
+  become_user: fts
+  ansible.builtin.pip:
     name: "{{ fts_ui_pip_package_name }}"
     virtualenv: "{{ fts_venv }}"
+  environment:
+    PIP_EXTRA_INDEX_URL: "{{ pypi_url }}"

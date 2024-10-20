@@ -1,6 +1,15 @@
 ---
-- name: "Include {{ ansible_distribution }}-specific variables"
-  include_vars: "{{ ansible_distribution }}.yml"
+- name: "Include Common {{ ansible_distribution }}-specific variables"
+  ansible.builtin.include_vars:
+    file: "{{ ansible_distribution }}.yml"
+
+- name: Configure Path
+  ansible.builtin.include_tasks:
+    file: "configure-{{ ansible_distribution }}.yml"
+#  ansible.builtin.vars:
+#    fts_base_path: "{{ fts_base_path }}"
+#    fts_venv: "{{ fts_venv }}"
 
 - name: Setup
-  include_tasks: "setup-{{ ansible_distribution }}.yml"
+  ansible.builtin.include_tasks:
+    file: "setup-{{ ansible_distribution }}.yml"

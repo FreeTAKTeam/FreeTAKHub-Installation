@@ -24,6 +24,9 @@ DEFAULT_BRANCH="main"
 BRANCH=${BRANCH:-$DEFAULT_BRANCH}
 CBRANCH=${CBRANCH:-}
 
+DEFAULT_PYPI_URL="https://pypi.org"
+TEST_PYPI_URL="https://test.pypi.org"
+
 STABLE_OS_REQD="Ubuntu"
 STABLE_OS_VER_REQD="22.04"
 STABLE_CODENAME_REQD="jammy"
@@ -40,9 +43,13 @@ PY3_VER_STABLE="3.11"
 
 STABLE_FTS_VERSION="2.0.66"
 LEGACY_FTS_VERSION="1.9.9.6"
-LATEST_FTS_VERSION=$(curl -s https://pypi.org/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
+function set_latest_fts_version() {
+     local pypi_url=$1
+     export LATEST_FTS_VERSION=$(curl -s ${pypi_url}/pypi/FreeTAKServer/json | python3 -c "import sys, json; print(json.load(sys.stdin)['info']['version'])")
+}
+set_latest_fts_version ${DEFAULT_PYPI_URL}
 
-FTS_VENV="${HOME}/fts.venv"
+FTS_VENV="/opt/fts.venv"
 
 DRY_RUN=0
 
@@ -95,7 +102,9 @@ Available options:
 
 -h, --help       Print help
 -v, --verbose    Print script debug info
--c, --check      Check for compatibility issues while installing
+-c, --check      Check for compatibility issues while installing [DEFAULT 'os'], may be repeated
+    --no-check   Suppress check for compatibility issues while installing, may be repeated
+-w, --warn       Convert errors into warnings
     --core       Install FreeTAKServer, UI, and Web Map
     --latest     [DEFAULT] Install latest version (v$LATEST_FTS_VERSION)
 -s, --stable     Install latest stable version (v$STABLE_FTS_VERSION)
@@ -104,7 +113,14 @@ Available options:
     --branch     Use specified ZT Installer repository branch [DEFAULT main]
     --dev-test   Sets TEST Envar to 1
     --dry-run    Sets up dependencies but exits before running any playbooks
-    --ip-addr    Explicitly set IP address (when http://ifconfig.me/ip is wrong)
+    --ip-addr    Explicitly set IP address (when https://ifconfig.me/ip is wrong)
+    --pypi       Explicitly set the URL for PYPI repository (e.g. https://test.pypi.org)
+
+The supported checks are:
+- root    is the install being run under root authority
+- os      is a recommended operating system being used
+- arch    is this a supported hardware architecture
+
 USAGE_TEXT
   exit
 }
@@ -146,12 +162,30 @@ function die() {
 }
 
 ###############################################################################
+# If the situation is dire then panic.
+###############################################################################
+function panic() {
+
+    if [[ "${WARN_LEVEL:-0}" -eq 1 ]]; then
+        echo $1
+    else
+        die $@
+    fi
+}
+
+###############################################################################
 # Parse parameters
 ###############################################################################
+
+WARN_LEVEL=0
+CHECK_OS=1
+CHECK_ROOT=0
+CHECK_ARCH=0
+
 function parse_params() {
 
-  # The default 'apt verbosity' is verbose. Set it to quiet, since that's what our script assumes
-  # unset this later if we want verbosity
+  # The default 'apt verbosity' is verbose.
+  # Set it to quiet, since that's what our script assumes unset this later if we want verbosity
   APT_VERBOSITY="-qq"
 
   while true; do
@@ -178,7 +212,43 @@ function parse_params() {
       ;;
 
     --check | -c)
-      CHECK=1
+      case "${2-}" in
+        'os')
+            CHECK_OS=1
+            ;;
+        'root')
+            CHECK_ROOT=1
+            ;;
+        'arch')
+            CHECK_ARCH=1
+            ;;
+        *)
+            echo "Invalid check type: $2"
+            ;;
+      esac
+      shift 2
+      ;;
+
+    --no-check)
+      case "${2-}" in
+        'os')
+            CHECK_OS=0
+            ;;
+        'root')
+            CHECK_ROOT=0
+            ;;
+        'arch')
+            CHECK_ARCH=0
+            ;;
+        *)
+            echo "Invalid check type: $2"
+            ;;
+      esac
+      shift 2
+      ;;
+
+    --warn | -w)
+      WARN_LEVEL=1
       shift
       ;;
 
@@ -245,13 +315,24 @@ function parse_params() {
       echo "Using the IP of ${FTS_IP_CUSTOM}"
       ;;
 
+    --pypi)
+        # PIP_EXTRA_INDEX_URL is special.
+        # If after pip checks the primary index-url;
+        # it does not find the source,
+        # it will check the extra-index.url repositories.
+      export PIP_EXTRA_INDEX_URL=$2
+      shift 2
+      echo "Using the extra pypi URL of ${PIP_EXTRA_INDEX_URL}"
+      set_latest_fts_version ${PIP_EXTRA_INDEX_URL}
+      ;;
+
     --no-color)
       NO_COLOR=1
       shift
       ;;
 
     -?*)
-      die "ERROR: unknown option $1"
+      panic "ERROR: unknown option $1"
       ;;
 
     *)
@@ -294,7 +375,7 @@ function set_versions() {
       export CODENAME=$STABLE_CODENAME_REQD
       ;;
     *)
-      die "Unsupport install type: $INSTALL_TYPE"
+      panic "Unsupported install type: $INSTALL_TYPE"
       ;;
   esac
 
@@ -304,17 +385,18 @@ function set_versions() {
 ###############################################################################
 function do_checks() {
 
-  check_root
+  if [[ "${CHECK_ROOT:-0}" -eq 1 ]]; then
+    check_root
+  fi
 
-  if [[ -n "${CHECK-}" ]]; then
+  if [[ "${CHECK_OS:-0}" -eq 1 ]]; then
     check_os
-    # check_architecture
   else
     WEBMAP_FORCE_INSTALL="webmap_force_install=true"
   fi
 
-  if [[ -n "${TEST-}" ]]; then
-      REPO="https://github.com/janseptaugust/FreeTAKHub-Installation.git"
+  if [[ "${CHECK_ARCH:-0}" -eq 1 ]]; then
+    check_architecture
   fi
 
 }
@@ -330,7 +412,7 @@ function check_root() {
   if [[ "$EUID" -ne 0 ]]; then
 
     echo -e "${RED}ERROR${NOFORMAT}"
-    die "This script requires running as root. Use sudo before the command."
+    panic "This script requires running as root. Use sudo before the command."
 
   else
 
@@ -346,7 +428,7 @@ function check_os() {
 
   which apt-get >/dev/null
   if [[ $? -ne 0 ]]; then
-    die "Could not locate apt... this installation method will not work"
+      panic "Could not locate apt... this installation method will not work"
   fi
 
   echo -e -n "${BLUE}Checking for supported OS...${NOFORMAT}"
@@ -397,17 +479,12 @@ function check_os() {
     echo -e "This machine is currently running: ${YELLOW}${OS} ${VER}${NOFORMAT}"
     echo "Errors may arise during installation or execution."
 
-    read -r -e -p "Do you want to continue? [y/n]: " PROCEED
-
-    # Default answer is "n" for NO.
-    DEFAULT="n"
-
     # Set user-inputted value and apply default if user input is null.
-    PROCEED="${PROCEED:-${DEFAULT}}"
+    PROCEED="${PROCEED:-y}"
 
     # Check user input to proceed or not.
     if [[ "${PROCEED}" != "y" ]]; then
-      die "Answer was not y. Not proceeding."
+      panic "Answer was not y. Not proceeding."
     else
       echo -e "${GREEN}Proceeding...${NOFORMAT}"
     fi
@@ -529,6 +606,18 @@ function install_python_environment() {
   deactivate
 
 }
+
+###############################################################################
+# The latest version of node-red needs a current version of nodejs.
+# The https://www.npmjs.com/package/n package can be used to manage nodejs versions.
+# curl -L https://bit.ly/n-install | bash
+# see https://github.com/dceejay/RedMap/blob/master/package.json for the dependencies.
+###############################################################################
+function install_nodejs_environment() {
+  sudo npm install -g n
+  sudo n 18.20.4
+}
+
 ###############################################################################
 # Handle git repository
 ###############################################################################
@@ -611,7 +700,9 @@ function run_playbook() {
   env_vars="python3_version=$PY3_VER codename=$CODENAME itype=$INSTALL_TYPE"
   env_vars="$env_vars fts_version=$FTS_VERSION cfg_rpath=$CFG_RPATH fts_venv=${FTS_VENV}"
   [[ -n "${FTS_IP_CUSTOM:-}" ]] && env_vars="$env_vars fts_ip_addr_extra=$FTS_IP_CUSTOM"
+  [[ -n "${PYPI_URL:-}" ]] && env_vars="$env_vars pypi_url=$PYPI_URL"
   [[ -n "${WEBMAP_FORCE_INSTALL:-}" ]] && env_vars="$env_vars $WEBMAP_FORCE_INSTALL"
+
   [[ -n "${CORE:-}" ]] && pb=install_mainserver || pb=install_all
   echo -e "${BLUE}Running Ansible Playbook ${GREEN}$pb${BLUE}...${NOFORMAT}"
   ansible-playbook -u root  ${pb}.yml \
@@ -627,6 +718,16 @@ function cleanup() {
       cp $HOME/nr-conf-temp $NEEDRESTART
   fi
 }
+
+##########################################
+# Add the current user to the fts group.
+##########################################
+function join_fts_group() {
+    if [ -n "${SUDO_USER}" ]; then
+        adduser $SUDO_USER fts
+    fi
+}
+
 ###############################################################################
 # MAIN BUSINESS LOGIC HERE
 ###############################################################################
@@ -634,9 +735,11 @@ function cleanup() {
 setup_colors
 parse_params "${@}"
 set_versions
-check_os
-# do_checks
+
+do_checks
 download_dependencies
+install_nodejs_environment
+
 [[ "$DEFAULT_INSTALL_TYPE" == "$INSTALL_TYPE" ]] && install_python_environment
 handle_git_repository
 add_passwordless_ansible_execution
@@ -644,4 +747,6 @@ generate_key_pair
 
 [[ 0 -eq $DRY_RUN ]] || die "Dry run complete. Not running Ansible" 0
 run_playbook
+
+join_fts_group
 cleanup

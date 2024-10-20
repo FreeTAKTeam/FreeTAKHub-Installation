@@ -6,6 +6,7 @@ After=network.target mumble-server.service
 [Service]
 Type=simple
 User=www-data
+# Group=root
 StandardOutput=append:/var/log/{{ mumble_web_service_name }}/{{ mumble_web_service_name }}-stdout.log
 StandardError=append:/var/log/{{ mumble_web_service_name }}/{{ mumble_web_service_name }}-stderr.log
 ExecStart=/usr/bin/websockify --web=/usr/lib/node_modules/mumble-web/dist --ssl-target {{ mumble_web_ipv4 }}:64737 {{ mumble_web_ipv4 }}:64738

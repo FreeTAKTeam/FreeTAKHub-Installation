@@ -6,12 +6,19 @@
   ignore_errors: true
 
 - name: Remove unit file
+  become: true
+  become_user: root
   file:
     path: "{{ unit_files_location }}/{{ fts_ui_service_name }}.service"
     state: absent
 
 - name: Uninstall
-  pip:
+  become: true
+  become_user: fts
+  ansible.builtin.pip:
     name: "{{ fts_ui_pip_package_name }}"
     state: absent
     virtualenv: "{{ fts_venv }}"
+  environment:
+    PIP_EXTRA_INDEX_URL: "{{ pypi_url }}"
+

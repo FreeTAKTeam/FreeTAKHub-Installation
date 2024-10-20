@@ -16,7 +16,7 @@
 
 - name: print fts_ui url
   debug:
-    msg: "FreeTAKServer-UI URL: http://{{ fts_ui_ipv4 }}:5000/"
+    msg: "FreeTAKServer-UI URL: https://{{ fts_ui_ipv4 }}:5000/"
 
 - name: print fts_ui credentials
   debug:
