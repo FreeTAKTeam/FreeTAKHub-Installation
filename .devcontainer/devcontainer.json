@@ -9,7 +9,7 @@
         "context": "."
     },
   
-    // Features to add to the dev container.  ore info: https://containers.dev/features.
+    // Features to add to the dev container. More info: https://containers.dev/features.
     "features": {
           "ghcr.io/devcontainers/features/common-utils:2": {
               "installZsh": "true",
@@ -17,10 +17,6 @@
               "userUid": "1000",
               "userGid": "1000",
               "upgradePackages": "true"
-          },
-          "ghcr.io/devcontainers/features/git:1": {
-              "version": "latest",
-              "ppa": "false"
           }
       },
   
@@ -34,6 +30,12 @@
     "customizations" : {
       "jetbrains" : {
         "backend" : "IntelliJ"
+      },
+      "vscode" : {
+        "settings": { 
+            "git.path": "/usr/bin/git",
+            "terminal.integrated.shell.linux": "/bin/bash"
+        }
       }
     },
     "runArgs": [
@@ -44,7 +46,7 @@
     ],
     "containerEnv": {
       "DISPLAY": "unix:0"
-    },
+    }
   
     // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
     // "remoteUser": "root"
