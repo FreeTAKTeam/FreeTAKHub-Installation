@@ -356,11 +356,18 @@ function download_dependencies() {
 
   echo -e "${BLUE}Downloading dependencies...${NOFORMAT}"
 
-  echo -e "${BLUE}Adding the Ansible Personal Package Archive (PPA)...${NOFORMAT}"
-  sudo apt-add-repository -y ppa:ansible/ansible
+  echo -e "${BLUE}Importing the GPG key for the Ansible Personal Package Archive (PPA)...${NOFORMAT}"
+  sudo gpg --no-default-keyring --keyring /usr/share/keyrings/ansible-archive-keyring.gpg \
+    --keyserver keyserver.ubuntu.com \
+    --recv-keys 93C4A3FD7BB9C367
+
+  echo -e "${BLUE}Adding the Ansible PPA to the APT sources list${NOFORMAT}"
+  UBUNTU_VERSION=$(lsb_release -cs)
+  sudo tee /etc/apt/sources.list.d/ansible-ansible.list <<EOF  > /dev/null
+deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu ${UBUNTU_VERSION} main
+EOF
 
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
-
   sudo apt-get -y ${APT_VERBOSITY--qq} update
 
   echo -e "${BLUE}Installing Ansible...${NOFORMAT}"
@@ -368,7 +375,6 @@ function download_dependencies() {
 
   echo -e "${BLUE}Installing Git...${NOFORMAT}"
   sudo apt-get -y ${APT_VERBOSITY--qq} install git
-
 
 }
 

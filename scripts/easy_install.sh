@@ -572,10 +572,6 @@ function download_dependencies() {
 	  fi
   done
 
-  # Some Ubuntu installations do not have the software-properties-common
-  # package by default, so install it if not installed
-  which apt-add-repository >/dev/null || apt-get --yes install software-properties-common
-
   echo -e "${BLUE}Downloading package information from configured sources...${NOFORMAT}"
   apt-get -y ${APT_VERBOSITY--qq} update
 
